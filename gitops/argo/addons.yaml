@@ -9,22 +9,27 @@ spec:
         repoURL: https://github.com/fmbahrt/dinglebop-io.git
         revision: HEAD
         directories:
-          - path: gitops/addons/*
+          - path: gitops/addons/*/*
   template:
     metadata:
-      name: "{{path.basename}}"
+      name: "{{index .path.segments 2}}-{{index .path.segments 3}}"
     spec:
       project: default
+
       source:
         repoURL: https://github.com/fmbahrt/dinglebop-io.git
         targetRevision: HEAD
-        path: "{{path}}/argocd"
+        path: "{{path}}"
+
         helm:
+          releaseName: "{{index .path.segments 3}}"
           valueFiles:
             - values.yaml
+
       destination:
-        name: k8s.dingle.bop
-        namespace: argocd
+        name: "{{index .path.segments 2}}"
+        namespace: "{{index .path.segments 3}}"
+
       syncPolicy:
         automated:
           prune: true
