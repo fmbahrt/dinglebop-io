@@ -2,7 +2,7 @@ argo-cd:
   global:
     domain: argocd.dingle.bop
 
-  config:
+  configs:
     params:
       server.insecure: true
 
