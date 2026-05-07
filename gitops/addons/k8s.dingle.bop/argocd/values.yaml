@@ -13,9 +13,11 @@ argo-cd:
     httproute:
       enabled: true
       parentRefs:
-        - name: internal-gateway
+        - name: cluster-gateway
           namespace: agentgateway
           sectionName: http
+      hostnames:
+        - argocd.dingle.bop
 
 argocd-apps:
   # Bootstrap Application
