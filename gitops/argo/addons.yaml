@@ -12,24 +12,16 @@ spec:
           - path: gitops/addons/*/*
   template:
     metadata:
-      name: "{{index .path.segments 2}}-{{index .path.segments 3}}"
+      name: "{{path[1]}}"
     spec:
       project: default
-
       source:
         repoURL: https://github.com/fmbahrt/dinglebop-io.git
         targetRevision: HEAD
         path: "{{path}}"
-
-        helm:
-          releaseName: "{{index .path.segments 3}}"
-          valueFiles:
-            - values.yaml
-
       destination:
-        name: "{{index .path.segments 2}}"
-        namespace: "{{index .path.segments 3}}"
-
+        name: "{{path[2]}}"
+        namespace: "{{path[1]}}"
       syncPolicy:
         automated:
           prune: true
