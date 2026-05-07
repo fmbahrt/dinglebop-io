@@ -11,8 +11,7 @@ raw:
           - protocol: HTTP
             port: 80
             name: http
-            hostnames:
-              - "*.dingle.bop"
+            hostname: "*.dingle.bop"
             allowedRoutes:
               namespaces:
                 from: All
