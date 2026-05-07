@@ -9,6 +9,14 @@ argo-cd:
   redis-ha:
     enabled: false
 
+  server:
+    httproute:
+      enabled: true
+      parentRefs:
+        - name: internal-gateway
+          namespace: agentgateway
+          sectionName: http
+
 argocd-apps:
   # Bootstrap Application
   applications:
