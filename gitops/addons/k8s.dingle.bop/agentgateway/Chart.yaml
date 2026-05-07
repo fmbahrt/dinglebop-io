@@ -1,0 +1,13 @@
+apiVersion: v2
+name: agentgateway-subchart
+version: 1.0.0
+dependencies:
+  - name: agentgateway-crds
+    version: v1.1.0
+    repository: oci://cr.agentgateway.dev/charts
+  - name: agentgateway
+    version: v1.1.0
+    repository: oci://cr.agentgateway.dev/charts
+  - name: raw
+    version: 2.0.2
+    repository: https://bedag.github.io/helm-charts
