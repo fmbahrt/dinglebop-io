@@ -15,3 +15,10 @@ raw:
             allowedRoutes:
               namespaces:
                 from: All
+          - protocol: HTTPS
+            port: 443
+            name: https
+            hostname: "*.dingle.bop"
+            allowedRoutes:
+              namespaces:
+                from: All

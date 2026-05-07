@@ -15,7 +15,7 @@ argo-cd:
       parentRefs:
         - name: cluster-gateway
           namespace: agentgateway
-          sectionName: http
+          sectionName: https
       hostnames:
         - argocd.dingle.bop
 
