@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: addons
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/fmbahrt/dinglebop-io.git
+        revision: HEAD
+        directories:
+          - path: gitops/addons/*
+  template:
+    metadata:
+      name: "{{path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/fmbahrt/dinglebop-io.git
+        targetRevision: HEAD
+        path: "{{path}}/argocd"
+        helm:
+          valueFiles:
+            - values.yaml
+      destination:
+        name: k8s.dingle.bop
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

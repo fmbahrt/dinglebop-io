@@ -1,0 +1,27 @@
+argo-cd:
+  global:
+    domain: argocd.dingle.bop
+
+  config:
+    params:
+      server.insecure: true
+
+  redis-ha:
+    enabled: false
+
+argocd-apps:
+  # Bootstrap Application
+  applications:
+    argocd-boostrap:
+      namespace: argocd
+      project: default
+      source:
+        repoURL: https://github.com/fmbahrt/dinglebop-io.git
+        targetRevision: HEAD
+        path: gitops/argo
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true

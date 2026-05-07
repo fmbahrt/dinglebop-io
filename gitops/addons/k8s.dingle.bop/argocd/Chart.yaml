@@ -1,0 +1,10 @@
+apiVersion: v2
+name: argocd-subchart
+version: 1.0.0
+dependencies:
+  - name: argo-cd
+    version: 9.5.12
+    repository: https://argoproj.github.io/argo-helm
+  - name: argocd-apps
+    version: 2.0.4
+    repository: https://argoproj.github.io/argo-helm
