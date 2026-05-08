@@ -5,6 +5,8 @@ raw:
       metadata:
         name: cluster-gateway
         namespace: agentgateway
+      annotations:
+        cert-manager.io/issuer: letsencrypt
       spec:
         gatewayClassName: agentgateway
         allowedListeners:
@@ -35,5 +37,4 @@ raw:
             tls:
               mode: Terminate
               certificateRefs:
-                - kind: Secret
-                  name: dinglebop-io-tls
+                - name: dinglebop-io-tls

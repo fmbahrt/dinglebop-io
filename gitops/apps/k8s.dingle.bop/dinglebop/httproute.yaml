@@ -11,7 +11,7 @@ spec:
       namespace: agentgateway
       sectionName: https
   hostnames:
-    - www.dinglebop.io
+    - dinglebop.io
   rules:
     - matches:
         - path:
