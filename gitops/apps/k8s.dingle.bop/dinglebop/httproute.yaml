@@ -18,12 +18,18 @@ spec:
             type: PathPrefix
             value: /api/v1
       backendRefs:
-        - name: backend
+        - group: ""
+          kind: Service
+          name: backend
           port: 8080
+          weight: 1
     - matches:
         - path:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: frontend
+        - group: ""
+          kind: Service
+          name: frontend
           port: 8080
+          weight: 1
