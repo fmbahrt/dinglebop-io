@@ -1,6 +1,9 @@
 cert-manager:
   crds:
     enabled: true
+  config:
+    enableGatewayAPI: true
+
   # Required for cert-manager to drive ACME challenges through Gateway API
   # HTTPRoutes (instead of legacy Ingress).
   extraArgs:
