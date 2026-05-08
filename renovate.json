@@ -2,5 +2,19 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "includePaths": [
+    "gitops/**",
+    ".github/**"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["agentgateway", "agentgateway-crds"],
+      "allowedVersions": "<2.0.0"
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
   ]
 }
