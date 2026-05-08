@@ -37,4 +37,6 @@ raw:
             tls:
               mode: Terminate
               certificateRefs:
-                - name: dinglebop-io-tls
+                - group: ""
+                  kind: Secret
+                  name: dinglebop-io-tls
