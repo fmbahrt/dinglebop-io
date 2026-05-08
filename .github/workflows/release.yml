@@ -44,7 +44,8 @@ jobs:
         with:
           context: projects/dinglebop.io
           file: projects/dinglebop.io/Dockerfile
-          push: true
+          push: truea
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-backend:${{ steps.tag.outputs.value }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-backend:main
@@ -75,6 +76,7 @@ jobs:
           context: projects/dinglebop.io
           file: projects/dinglebop.io/frontend/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-frontend:${{ steps.tag.outputs.value }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-frontend:main
