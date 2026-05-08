@@ -7,6 +7,9 @@ raw:
         namespace: agentgateway
       spec:
         gatewayClassName: agentgateway
+        allowedListeners:
+          namespaces:
+            from: All
         listeners:
           - protocol: HTTP
             port: 80
