@@ -1,0 +1,38 @@
+[package]
+name = "dinglebop"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "dinglebop.io"
+license = "MIT"
+publish = false
+
+[dependencies]
+actix-web = "4"
+actix-ws = "0.3"
+actix-cors = "0.7"
+tokio = { version = "1", features = ["full"] }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager", "aio"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+envy = "0.4"
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-actix-web = "0.7"
+uuid = { version = "1", features = ["v4", "serde"] }
+futures-util = "0.3"
+rand = "0.8"
+
+[dev-dependencies]
+actix-web = { version = "4", features = ["macros"] }
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["redis"] }
+tokio-tungstenite = "0.24"
+url = "2"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

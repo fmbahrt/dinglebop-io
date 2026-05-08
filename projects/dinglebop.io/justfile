@@ -1,0 +1,53 @@
+set dotenv-load := true
+
+# List recipes.
+default:
+    @just --list
+
+# Run the server (release-mode static asset embedding).
+run:
+    cargo run --release
+
+# Run the server in dev mode (debug build, disk-served static assets, hot-edit).
+dev:
+    cargo run
+
+# Watch source and re-run on change. Requires `cargo install cargo-watch`.
+watch:
+    cargo watch -x run
+
+# Format all Rust code.
+fmt:
+    cargo fmt --all
+
+# Check formatting (CI-style).
+fmt-check:
+    cargo fmt --all -- --check
+
+# Lint with warnings as errors.
+clippy:
+    cargo clippy --all-targets -- -D warnings
+
+# Run unit + integration tests. Integration tests spin up Redis via testcontainers,
+# which requires a running Docker daemon.
+test:
+    cargo test
+
+# Build a release binary.
+build:
+    cargo build --release
+
+# Bring up the local-dev sidecars (Redis + nginx reverse proxy).
+sidecars-up:
+    docker compose up -d
+
+# Stop and remove the local-dev sidecars.
+sidecars-down:
+    docker compose down
+
+# Open a redis-cli against the local-dev Redis.
+redis-cli:
+    docker compose exec redis redis-cli
+
+# All checks: fmt, clippy, tests.
+ci: fmt-check clippy test

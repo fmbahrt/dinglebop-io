@@ -1,0 +1,82 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "projects/dinglebop.io/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: ${{ github.repository_owner }}
+
+jobs:
+  build-backend:
+    name: build & push backend
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: tag
+        run: echo "value=sha-$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: projects/dinglebop.io
+          file: projects/dinglebop.io/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-backend:${{ steps.tag.outputs.value }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-backend:main
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+
+  build-frontend:
+    name: build & push frontend
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: tag
+        run: echo "value=sha-$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: projects/dinglebop.io
+          file: projects/dinglebop.io/frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-frontend:${{ steps.tag.outputs.value }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/dinglebop-frontend:main
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max

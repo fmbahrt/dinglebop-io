@@ -18,3 +18,22 @@ raw:
             allowedRoutes:
               namespaces:
                 from: All
+          - protocol: HTTP
+            port: 80
+            name: http-public
+            hostname: dinglebop.io
+            allowedRoutes:
+              namespaces:
+                from: All
+          - protocol: HTTPS
+            port: 443
+            name: https
+            hostname: dinglebop.io
+            allowedRoutes:
+              namespaces:
+                from: All
+            tls:
+              mode: Terminate
+              certificateRefs:
+                - kind: Secret
+                  name: dinglebop-io-tls

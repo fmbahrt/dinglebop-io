@@ -1,0 +1,31 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: dinglebop-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - dinglebop_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  # Local-dev static file server. Production routing (static + API behind
+  # one origin) is handled by the K8s ingress in the parent repo's gitops/
+  # tree, not by this nginx.
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: dinglebop-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  dinglebop_redis:

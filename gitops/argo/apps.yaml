@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/fmbahrt/dinglebop-io.git
+        revision: HEAD
+        directories:
+          - path: gitops/apps/*/*
+  template:
+    metadata:
+      name: "{{path[3]}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/fmbahrt/dinglebop-io.git
+        targetRevision: HEAD
+        path: "{{path}}"
+      destination:
+        name: "{{path[2]}}"
+        namespace: "{{path[3]}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

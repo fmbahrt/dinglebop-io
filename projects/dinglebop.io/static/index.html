@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dinglebop.io — click the dingle, bop the bop</title>
+    <!--
+        API origin. Empty / unset = same-origin (production: K8s ingress
+        routes /api/v1/* to the backend service). For local dev, set this
+        to wherever the Rust backend is listening, e.g. http://localhost:8080
+    -->
+    <meta name="dinglebop-api-origin" content="http://localhost:8080">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <div class="stars"></div>
+
+    <main class="container">
+        <header>
+            <marquee behavior="scroll" direction="left" scrollamount="6">
+                ★ welcome to dinglebop.io ★ best viewed in netscape navigator 4.0 ★ now with extra bop ★ click the button to bop the dingle ★
+            </marquee>
+            <h1 class="title">
+                <span class="rainbow">dinglebop.io</span>
+            </h1>
+            <p class="tagline">the official click-to-bop counter of the worldwide web</p>
+        </header>
+
+        <section class="panel">
+            <div class="counters">
+                <div class="counter">
+                    <div class="counter-label">total bops</div>
+                    <div class="counter-value" id="clicks">—</div>
+                </div>
+                <div class="counter">
+                    <div class="counter-label">people online</div>
+                    <div class="counter-value" id="online">—</div>
+                </div>
+            </div>
+
+            <div class="big-button-wrap">
+                <button id="bop" class="big-button" type="button">
+                    <span class="big-button-face">BOP&nbsp;IT</span>
+                </button>
+            </div>
+
+            <div class="status-row">
+                <span id="status-dot" class="status-dot offline" aria-hidden="true"></span>
+                <span id="status-text">connecting&hellip;</span>
+            </div>
+        </section>
+
+        <footer>
+            <p>made with <span class="heart">♥</span> on the information superhighway</p>
+            <p class="hits">
+                <img alt="under construction" src="data:image/gif;base64,R0lGODlhEAAQAPABAP//AAAAACH5BAEAAAEALAAAAAAQABAAAAIfjI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8fyXAAAOw==" width="16" height="16">
+                this site is under perpetual construction
+            </p>
+        </footer>
+    </main>
+
+    <script src="/app.js"></script>
+</body>
+</html>
