@@ -7,5 +7,5 @@ RUN cargo build --release --locked --bin dinglebop
 FROM gcr.io/distroless/cc-debian12:nonroot
 COPY --from=builder /app/target/release/dinglebop /usr/local/bin/dinglebop
 EXPOSE 8080
-USER nonroot
+USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/dinglebop"]
