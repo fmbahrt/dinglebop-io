@@ -27,7 +27,7 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: tag
         run: echo "value=sha-$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
@@ -58,7 +58,7 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: tag
         run: echo "value=sha-$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
