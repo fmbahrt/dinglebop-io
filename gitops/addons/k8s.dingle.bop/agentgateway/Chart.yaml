@@ -3,7 +3,7 @@ name: agentgateway-subchart
 version: 1.0.0
 dependencies:
   - name: agentgateway-crds
-    version: v1.1.0
+    version: v1.2.0
     repository: oci://cr.agentgateway.dev/charts
   - name: agentgateway
     version: v1.2.0
