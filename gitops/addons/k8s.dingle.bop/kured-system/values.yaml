@@ -1,0 +1,7 @@
+kured:
+  configuration:
+    rebootDays: [fr]
+    startTime: "02:00"
+    endTime: "05:00"
+    timeZone: "Europe/Copenhagen"
+    period: "1h"

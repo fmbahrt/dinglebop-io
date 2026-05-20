@@ -1,0 +1,7 @@
+apiVersion: v2
+name: kured-subchart
+version: 1.0.0
+dependencies:
+  - name: kured
+    version: 5.11.0
+    repository: https://kubereboot.github.io/charts
