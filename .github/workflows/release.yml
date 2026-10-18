@@ -23,7 +23,7 @@ env:
 jobs:
   build-backend:
     name: build & push backend
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     outputs:
       tag: ${{ steps.tag.outputs.value }}
     steps:
@@ -54,7 +54,7 @@ jobs:
 
   build-frontend:
     name: build & push frontend
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     outputs:
       tag: ${{ steps.tag.outputs.value }}
     steps:
