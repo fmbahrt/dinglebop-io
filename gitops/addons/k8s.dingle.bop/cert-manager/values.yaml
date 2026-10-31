@@ -21,7 +21,11 @@ raw:
           privateKeySecretRef:
             name: letsencrypt-key
           solvers:
-            - http01:
+            # Apex domain.
+            - selector:
+                dnsNames:
+                  - dinglebop.io
+              http01:
                 gatewayHTTPRoute:
                   parentRefs:
                     - group: gateway.networking.k8s.io
@@ -29,3 +33,12 @@ raw:
                       name: cluster-gateway
                       namespace: agentgateway
                       sectionName: http-public
+            # Everything else (public subdomains like knockknock.dinglebop.io).
+            - http01:
+                gatewayHTTPRoute:
+                  parentRefs:
+                    - group: gateway.networking.k8s.io
+                      kind: Gateway
+                      name: cluster-gateway
+                      namespace: agentgateway
+                      sectionName: http-public-subdomains

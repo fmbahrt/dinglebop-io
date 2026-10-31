@@ -1,0 +1,62 @@
+# knockknock rendezvous server (UDP NAT hole punching for Godot multiplayer).
+# https://github.com/fmbahrt/knockknock
+#
+# Installed straight from the OCI chart rather than as a subchart under
+# gitops/apps: the chart's values.schema.json rejects the `global` key Helm
+# injects into subcharts.
+#
+# Clients connect to knockknock.dinglebop.io:7777 (TCP for TLS signalling,
+# UDP for BIND). That DNS record must be DNS-only (not Cloudflare-proxied):
+# Cloudflare cannot proxy raw TCP/UDP, and the server must see the real
+# client source address for hole punching to work.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-ghcr-fmbahrt-charts
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  name: ghcr-fmbahrt-charts
+  type: helm
+  url: ghcr.io/fmbahrt/charts
+  enableOCI: "true"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: knockknock
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ghcr.io/fmbahrt/charts
+    chart: rendezvous
+    targetRevision: 0.1.0-rc.1
+    helm:
+      releaseName: knockknock
+      valuesObject:
+        tls:
+          mode: certManager
+          certManager:
+            issuerRef:
+              name: letsencrypt
+              kind: ClusterIssuer
+              group: cert-manager.io
+            dnsNames:
+              - knockknock.dinglebop.io
+        # Default LoadBalancer Service (k3s ServiceLB) with
+        # externalTrafficPolicy: Local keeps client source addresses.
+  destination:
+    name: k8s.dingle.bop
+    namespace: knockknock
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
