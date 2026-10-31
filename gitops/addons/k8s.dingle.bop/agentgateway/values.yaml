@@ -27,6 +27,15 @@ raw:
             allowedRoutes:
               namespaces:
                 from: All
+          # Public subdomains (e.g. knockknock.dinglebop.io). Used for
+          # cert-manager HTTP-01 challenges.
+          - protocol: HTTP
+            port: 80
+            name: http-public-subdomains
+            hostname: "*.dinglebop.io"
+            allowedRoutes:
+              namespaces:
+                from: All
           - protocol: HTTPS
             port: 443
             name: https
