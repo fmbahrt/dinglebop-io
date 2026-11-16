@@ -558,7 +558,8 @@ h1 {
 }
 .agent.show { opacity: 1; }
 .agent.unknown { --agent: #ff4d5e; }
-.agent.known { --agent: #7fd4ff; }
+.agent.scan { --agent: #4db8ff; }
+.agent.known { --agent: #ffc94d; }
 .agent.locked { --agent: #3dff9a; }
 .scan-view:has(.agent.show) .scan-frame { opacity: 0; }
 
