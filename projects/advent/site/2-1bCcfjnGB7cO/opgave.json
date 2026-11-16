@@ -1,13 +1,232 @@
 {
-  "type": "kryds",
+  "type": "trin",
   "hint": "hint.mp4",
-  "knaphint": { "type": "tekst", "tekst": "Placeholder: et lille ekstra hint til krydsordet ✏️" },
-  "ord": [
-    { "svar": "PANDA", "ledetråd": "Sort og hvidt dyr, der elsker bambus", "række": 1, "kolonne": 1, "retning": "vandret" },
-    { "svar": "NISSE", "ledetråd": "Bor på loftet og vil have risengrød", "række": 1, "kolonne": 3, "retning": "lodret" },
-    { "svar": "ABE", "ledetråd": "Klatrer i træer og spiser bananer", "række": 1, "kolonne": 5, "retning": "lodret" },
-    { "svar": "SNE", "ledetråd": "Hvidt og koldt, falder om vinteren", "række": 3, "kolonne": 3, "retning": "vandret" }
-  ],
+  "overskrift": "Ferien på Sicilien 🍋",
+  "knaphint": {
+    "type": "konfetti",
+    "emoji": "🍋"
+  },
   "tal": "?",
-  "løst": "Krydsordet er løst! Husk tallet 🎉"
+  "løst": "Arrivederci Sicilia! Husk tallet 🎉",
+  "trin": [
+    {
+      "type": "kryds",
+      "navn": "Kryds",
+      "ikon": "✏️",
+      "overskrift": "Feriens kryds og tværs",
+      "klaret": "Krydsordet er løst!",
+      "ord": [
+        {
+          "svar": "VEDBÆK",
+          "ledetråd": "Her vinterbader vi 🥶",
+          "række": 1,
+          "kolonne": 1,
+          "retning": "lodret"
+        },
+        {
+          "svar": "LASAGNE",
+          "ledetråd": "Livret",
+          "række": 1,
+          "kolonne": 3,
+          "retning": "lodret"
+        },
+        {
+          "svar": "UMBRELLA",
+          "ledetråd": "Sunbed and …",
+          "række": 1,
+          "kolonne": 7,
+          "retning": "lodret"
+        },
+        {
+          "svar": "FINN",
+          "ledetråd": "Hunden 🐶",
+          "række": 1,
+          "kolonne": 10,
+          "retning": "lodret"
+        },
+        {
+          "svar": "BRIAN",
+          "ledetråd": "Gusmester",
+          "række": 4,
+          "kolonne": 6,
+          "retning": "vandret"
+        },
+        {
+          "svar": "KINOPALÆET",
+          "ledetråd": "Biografen med luksussæder",
+          "række": 6,
+          "kolonne": 1,
+          "retning": "vandret"
+        },
+        {
+          "svar": "PANDA",
+          "ledetråd": "Fiat …",
+          "række": 8,
+          "kolonne": 6,
+          "retning": "vandret"
+        }
+      ]
+    },
+    {
+      "type": "duolingo",
+      "navn": "Italiensk",
+      "ikon": "🦉",
+      "klaret": "Brava! Lektionen er klaret!",
+      "sprog": "it-IT",
+      "streak": 47,
+      "færdig": "Lektion fuldført!",
+      "tekst": "Ciao bella ❤️",
+      "opgaver": [
+        {
+          "type": "vælg",
+          "titel": "Hvilken af disse er „isen“?",
+          "valg": [
+            {
+              "tekst": "la pizza",
+              "emoji": "🍕"
+            },
+            {
+              "tekst": "il gelato",
+              "emoji": "🍨",
+              "rigtig": true
+            },
+            {
+              "tekst": "il caffè",
+              "emoji": "☕"
+            },
+            {
+              "tekst": "il limone",
+              "emoji": "🍋"
+            }
+          ]
+        },
+        {
+          "type": "byg",
+          "sætning": "Due gelati, per favore!",
+          "svar": [
+            "To is, tak",
+            "To is tak"
+          ],
+          "ord": [
+            "tak",
+            "kaffe",
+            "To",
+            "is",
+            "tre",
+            "pizza"
+          ]
+        },
+        {
+          "type": "par",
+          "par": [
+            [
+              "il mare",
+              "havet"
+            ],
+            [
+              "il sole",
+              "solen"
+            ],
+            [
+              "la spiaggia",
+              "stranden"
+            ],
+            [
+              "il vino",
+              "vinen"
+            ],
+            [
+              "l'isola",
+              "øen"
+            ]
+          ]
+        },
+        {
+          "type": "udfyld",
+          "før": "Un",
+          "efter": ", per favore!",
+          "oversættelse": "En kaffe, tak!",
+          "valg": [
+            "cane",
+            "caffè",
+            "cielo"
+          ],
+          "svar": "caffè"
+        },
+        {
+          "type": "byg",
+          "titel": "Skriv på italiensk",
+          "læs": false,
+          "sætning": "Jeg elsker Sicilien",
+          "svar": [
+            "Amo la Sicilia",
+            "Io amo la Sicilia"
+          ],
+          "ord": [
+            "il",
+            "Sicilia",
+            "mare",
+            "amo",
+            "Io",
+            "la",
+            "vino"
+          ]
+        },
+        {
+          "type": "byg",
+          "sætning": "Ti amo",
+          "svar": [
+            "Jeg elsker dig"
+          ],
+          "ord": [
+            "dig",
+            "elsker",
+            "hader",
+            "du",
+            "Jeg",
+            "pizza"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panorama",
+      "navn": "Postkort",
+      "ikon": "📸",
+      "klaret": "Det perfekte postkort!",
+      "billede": "palermo-360.jpg",
+      "by": "Palermo",
+      "_foto": "Quattro Canti, Palermo – Andreas Mischok via Poly Haven, CC0",
+      "mål": {
+        "yaw": 3,
+        "pitch": 12,
+        "fov": 70
+      },
+      "start": {
+        "yaw": 200,
+        "pitch": -5,
+        "fov": 90
+      },
+      "besked": "Løft telefonen, kig dig omkring, og tag det perfekte postkort 📸",
+      "hilsen": "Ciao bella!\nKan du huske, da vi jagtede det perfekte postkort i Noto? Du fik det til sidst ❤️",
+      "til": "Til verdens bedste",
+      "adresse": "rejsemakker ❤️",
+      "reserve": {
+        "billede": "noto.jpg",
+        "_foto": "Cathedral of San Nicolò, Noto – VanSky Studio, CC BY-SA 4.0 (Wikimedia Commons)",
+        "mål": {
+          "x": 0.53,
+          "y": 0.4,
+          "zoom": 1.6
+        },
+        "start": {
+          "x": 0.38,
+          "y": 0.66,
+          "zoom": 1,
+          "drej": 7
+        },
+        "besked": "Kan du tage det perfekte postkort? Træk, zoom og ret op 📸"
+      }
+    }
+  ]
 }

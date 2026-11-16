@@ -46,6 +46,18 @@ function loadImage(src) {
 }
 
 export function ansigterOpgave(opgave, ctx) {
+  return taskShell(opgave, ctx, faceTask(opgave, ctx));
+}
+
+/** As a step in a "trin" task: { "type": "ansigter", "overskrift": "…", "personer": [ … ] }. */
+export default function ansigterTrin(cfg, { slug, done }) {
+  const task = faceTask(cfg, { slug });
+  const el = h("div", "face-trin");
+  task.renderLocked(el, done);
+  return { el, activate: task.activate, deactivate: task.deactivate };
+}
+
+function faceTask(opgave, ctx) {
   const people = (opgave.personer ?? []).map((p, i) => ({ ...p, i, src: `/${ctx.slug}/${p.billede}` }));
   const found = store(`advent:${ctx.slug}:ansigter`);
   const foundSet = () => new Set(found.get() ?? []);
@@ -219,7 +231,7 @@ export function ansigterOpgave(opgave, ctx) {
     loadFaceApi().catch(() => {});
   }
 
-  return taskShell(opgave, ctx, {
+  return {
     renderLocked,
     activate: () => cam?.start(),
     deactivate: () => {
@@ -227,7 +239,7 @@ export function ansigterOpgave(opgave, ctx) {
       cam?.stop();
     },
     onReset: () => found.clear(),
-  });
+  };
 }
 
 // ---------- agent overlay ----------

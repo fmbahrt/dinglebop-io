@@ -5,6 +5,7 @@
 //       { "svar": "NISSE", "ledetråd": "…", "række": 1, "kolonne": 3, "retning": "lodret" } ] }
 //
 // Rows/columns start at 1. Words that cross must share the same letter there.
+// Also usable as a step in a "trin" task: { "type": "kryds", "ord": [ … ] }.
 
 import { h, store, taskShell, intro } from "/felles.js";
 
@@ -13,9 +14,23 @@ const DIRS = { vandret: [0, 1], lodret: [1, 0] };
 
 export function krydsOpgave(opgave, ctx) {
   const progress = store(`advent:${ctx.slug}:kryds`);
-  const words = buildWords(opgave.ord ?? []);
+  return taskShell(opgave, ctx, {
+    renderLocked: (card, solve) => card.replaceChildren(...intro(opgave), ...board(opgave, progress, solve)),
+    onReset: () => progress.clear(),
+  });
+}
 
-  function renderLocked(card, solve) {
+/** As a step in a "trin" task. */
+export default function krydsTrin(cfg, { slug, done }) {
+  const el = h("div", "kryds-trin");
+  el.append(...(cfg.overskrift ? [h("p", "kryds-trin-title", cfg.overskrift)] : []), ...board(cfg, store(`advent:${slug}:kryds`), done));
+  return { el };
+}
+
+/** The crossword itself: [clue bar, grid, message, clue lists]. Letters are saved in progress. */
+function board(opgave, progress, solve) {
+  const words = buildWords(opgave.ord ?? []);
+  {
     const { cells, rows, cols, minR, minC } = layout(words);
     const saved = progress.get() ?? {};
 
@@ -100,7 +115,6 @@ export function krydsOpgave(opgave, ctx) {
       lists.append(section);
     }
 
-    card.replaceChildren(...intro(opgave), clueBar, grid, msg, lists);
 
     function wordAt(cell, dir) {
       return cell.words.find((w) => w.dir === dir) ?? cell.words[0];
@@ -160,14 +174,17 @@ export function krydsOpgave(opgave, ctx) {
         document.activeElement?.blur();
         grid.classList.add("done");
         msg.textContent = "Det er rigtigt! ✨";
-        setTimeout(solve, 900);
+        setTimeout(() => {
+          progress.clear();
+          solve();
+        }, 900);
       } else {
         msg.textContent = "Næsten! Noget passer ikke helt 🤔";
       }
     }
-  }
 
-  return taskShell(opgave, ctx, { renderLocked, onReset: () => progress.clear() });
+    return [clueBar, grid, msg, lists];
+  }
 }
 
 /** Normalise the words from opgave.json and number them like a newspaper crossword. */

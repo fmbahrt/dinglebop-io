@@ -40,6 +40,7 @@ const TASKS = {
   svar: async (opgave, data) => (await import("/svar.js")).svarOpgave(opgave, data),
   bestilling: async (opgave, data) => (await import("/bestilling.js")).bestillingOpgave(opgave, data),
   ansigter: async (opgave, data) => (await import("/ansigter.js")).ansigterOpgave(opgave, data),
+  trin: async (opgave, data) => (await import("/trin.js")).trinOpgave(opgave, data),
 };
 
 async function buildTask(data) {
