@@ -110,8 +110,14 @@ export function ansigterOpgave(opgave, ctx) {
       else cam.setMsg("");
 
       // Low score threshold: faces on a screen or printed photo score lower than real ones.
-      const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.35 });
+      // Slow phones get a smaller detector input (see below).
+      let size = 416;
+      let options = new faceapi.TinyFaceDetectorOptions({ inputSize: size, scoreThreshold: 0.35 });
       const limit = Number(opgave.grænse) || MATCH;
+      // Average time one detection takes. On slow phones this can be close to a
+      // second, so the "lost the face" grace period has to scale with it.
+      let avgMs = 0;
+      const grace = () => Math.max(GRACE_MS, avgMs * 2.5);
 
       // Shared between the detection loop (~7/s) and the animation loop (60/s).
       let seen = null;       // { at, mode: "scan" | "known" | "unknown", person }
@@ -120,8 +126,16 @@ export function ansigterOpgave(opgave, ctx) {
 
       cam.run(async (video) => {
         if (performance.now() < lockedUntil) return false;
+        const t0 = performance.now();
         const det = await faceapi.detectSingleFace(video, options).withFaceLandmarks().withFaceDescriptor();
         if (mine !== uiToken) return true;
+        const took = performance.now() - t0;
+        avgMs = avgMs ? avgMs * 0.7 + took * 0.3 : took;
+        if (avgMs > 450 && size > 224) {
+          size = size === 416 ? 320 : 224;
+          options = new faceapi.TinyFaceDetectorOptions({ inputSize: size, scoreThreshold: 0.35 });
+          avgMs *= 0.7; // give the smaller size a chance before shrinking again
+        }
         if (!det) {
           if (debugLine) debugLine.textContent = "debug: intet ansigt";
           return false;
@@ -134,7 +148,7 @@ export function ansigterOpgave(opgave, ctx) {
         }
         if (debugLine) {
           const list = dists.map(({ ref, d }) => `${ref.person.navn ?? ref.person.i + 1} ${d.toFixed(2)}`).join(" · ");
-          debugLine.textContent = `debug: ansigt ${det.detection.score.toFixed(2)} | ${list} (grænse ${limit})`;
+          debugLine.textContent = `debug: ansigt ${det.detection.score.toFixed(2)} | ${list} (grænse ${limit}) | ${Math.round(avgMs)} ms, ${size}px, ${faceapi.tf.getBackend()}`;
         }
 
         const now = performance.now();
@@ -162,7 +176,7 @@ export function ansigterOpgave(opgave, ctx) {
         }
 
         // Lost the face (allow a short gap so a single missed frame doesn't reset).
-        if (!seen || now - seen.at > GRACE_MS) {
+        if (!seen || now - seen.at > grace()) {
           seen = null;
           target = null;
           agent.hide();
