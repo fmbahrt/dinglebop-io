@@ -49,3 +49,18 @@ raw:
                 - group: ""
                   kind: Secret
                   name: dinglebop-io-tls
+          # advent.dinglebop.io; cert issued by cert-manager's gateway-shim
+          # (HTTP-01 via the http-public-subdomains listener).
+          - protocol: HTTPS
+            port: 443
+            name: https-advent
+            hostname: advent.dinglebop.io
+            allowedRoutes:
+              namespaces:
+                from: All
+            tls:
+              mode: Terminate
+              certificateRefs:
+                - group: ""
+                  kind: Secret
+                  name: advent-dinglebop-io-tls

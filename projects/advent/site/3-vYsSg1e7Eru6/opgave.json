@@ -1,0 +1,17 @@
+{
+  "type": "bestilling",
+  "hint": "hint.mp4",
+  "knaphint": { "type": "konfetti", "emoji": "🐘" },
+  "bon": [
+    "STED:  Hvor man kan kigge\n       kokkene over skulderen –\n       dejligt at se dem arbejde.",
+    "RET:   Bestilt alt for\n       mange gange 😄"
+  ],
+  "svar": "8",
+  "ret": "Rød karry",
+  "næsten": {
+    "13": "Rød karry, ja… men ikke vores 😉",
+    "14": "Rød karry, ja… men ikke vores 😉"
+  },
+  "tal": "8",
+  "løst": "Bestillingen er på plads! Husk tallet 🎉"
+}
