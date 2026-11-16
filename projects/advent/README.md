@@ -78,7 +78,7 @@ sættes automatisk. Æ, Ø og Å virker.
 Store/små bogstaver, mellemrum og tegn ignoreres.
 
 **`bestilling`**: en bon med en gåde og en kasseterminal, hvor hun taster et
-nummer og trykker "BESTIL" (uge 3: rød karry nr. 8 hos Den Hvide Elefant).
+nummer og trykker "BESTIL".
 
 ```json
 { "type": "bestilling", "svar": "8", "ret": "Rød karry i kokosmælk", "tal": "3",
@@ -89,6 +89,62 @@ nummer og trykker "BESTIL" (uge 3: rød karry nr. 8 hos Den Hvide Elefant).
 `bon` er linjerne på bonen (`\n` = linjeskift). `ret` bliver printet på bonen,
 når svaret er rigtigt. `næsten` giver en venligere besked ved bestemte forkerte
 svar.
+
+**`trin`**: flere små gåder efter hinanden med et fælles tema (uge 3:
+hyggeaften). Hvert trin skal løses før det næste vises; telefonen husker, hvor
+langt hun er nået. Tallet kommer, når sidste trin er klaret.
+
+```json
+{ "type": "trin", "overskrift": "Hyggeaften 🛋️", "tal": "8", "trin": [
+  { "type": "wolt", "navn": "Mad",  "ikon": "🍛", … },
+  { "type": "rema", "navn": "Slik", "ikon": "🍬", … },
+  { "type": "tv",   "navn": "TV",   "ikon": "📺", … }
+] }
+```
+
+`klaret` på et trin er teksten, der vises når det er løst. Trin-typerne:
+
+- `wolt` (`site/wolt.js`): madbestilling. `besked` vises øverst; hver restaurant
+  har `retter`. Den rigtige ret har `"rigtig": true` (kurven må kun indeholde
+  den, gerne flere styk). `nej` på en restaurant eller ret er beskeden, hvis den
+  bestilles i stedet.
+- `tv` (`site/tv.js`): "hvad skal vi se?". `krav` er listen af krav, `serier`
+  har `genre`, `min`, `land`, `set`, `emoji`, `farve` (to farver) og `nej`.
+  Præcis én serie skal opfylde alle krav og have `"rigtig": true`. `afspil` er
+  teksten, når den rigtige afspilles.
+- `kryds` (`site/kryds.js`): samme krydsord som gåde-typen `kryds` (uge 2),
+  med valgfri `overskrift`.
+- `duolingo` (`site/duolingo.js`): sproglektion (uge 2, italiensk). `sprog`
+  (fx `it-IT`) bruges til oplæsning. `opgaver` er en liste af:
+  `vælg` (billedkort, `valg` med `tekst`/`emoji`/`rigtig`), `byg` (sæt ord
+  sammen: `sætning`, `ord`, `svar` = liste af godkendte svar; `"læs": false` hvis
+  sætningen er dansk), `par` (`par` = [["il mare", "havet"], …]) og `udfyld`
+  (`før`, `efter`, `valg`, `svar`). Forkerte svar kommer igen til sidst.
+- `spotify` (`site/spotify.js`): find den rigtige sang i en spilleliste (uge 4).
+  `spilleliste`, `beskrivelse`, `sange` (`titel`, `kunstner`, `billede` eller
+  `emoji` + `farve`, `rigtig`, `nej`) og `afspil` (linjer der vises, mens den
+  spiller).
+- `saedevarme` (`site/saedevarme.js`): start bilen og skru op for sædevarmen i
+  passagersiden (uge 4). `niveau` (standard 3), `ude` (udetemperatur) og
+  `beskeder` for at ændre svarene fra de andre knapper.
+- `ansigter` (`site/ansigter.js`): samme ansigtsgenkendelse som gåde-typen
+  `ansigter`, med `overskrift`/`tekst` og `personer`.
+- `panorama` (`site/panorama.js`): stå inde i et 360°-foto og tag det perfekte
+  postkort ved at holde telefonen op som et kamera (gyroskop; ellers træk).
+  `billede` (2:1 equirektangulært 360°-foto i uge-mappen), `mål` og `start`
+  (`yaw` = retning i grader, 0 = midten af fotoet; `pitch` = op/ned; `fov` =
+  zoom), `hilsen`, `til`/`adresse`, og `reserve` (et `postkort`-trin, der bruges
+  hvis telefonen ikke kan WebGL). Tilføj `?debug` til adressen for at se
+  retning/zoom, når `mål` skal justeres. Panoramaet i uge 2 (`palermo-360.jpg`)
+  er "Quattro Canti" af Andreas Mischok via Poly Haven, CC0.
+- `postkort` (`site/postkort.js`): tag det perfekte postkort (uge 2, Noto).
+  `billede` (foto i uge-mappen), `mål` (`x`/`y` = punktet 0–1 i fotoet, der skal
+  være i midten, og `zoom`), `start` (`x`, `y`, `zoom`, `drej` i grader),
+  `hilsen` (bagsiden), `til`/`adresse`. Fotoet i uge 2 (`noto.jpg`) er
+  "Cathedral of San Nicolò, Noto, Sicily" af VanSky Studio, CC BY-SA 4.0
+  (Wikimedia Commons). Byt det gerne ud med jeres eget.
+- `rema` (`site/rema.js`): scan selv. Samme scanner som `stregkode`, med
+  `stregkode`, `vare`, `pris`, `liste` (indkøbssedlen) og `tak` (på bonen).
 
 **`ansigter`**: find ansigterne på nogle personer med kameraet (uge 4).
 

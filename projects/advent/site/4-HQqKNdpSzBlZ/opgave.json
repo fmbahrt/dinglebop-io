@@ -1,12 +1,419 @@
 {
-  "type": "ansigter",
+  "type": "trin",
   "hint": "hint.mp4",
-  "knaphint": { "type": "konfetti", "emoji": "🕵️" },
-  "personer": [
-    { "navn": "Kåre Quist", "billede": "kendis-1.jpg" },
-    { "navn": "Nikolaj Lie Kaas", "billede": "kendis-2.jpg" },
-    { "navn": "Thomas Rathsack", "billede": "kendis-3.jpg" }
-  ],
+  "overskrift": "Køreturen hjem 🚗",
+  "knaphint": {
+    "type": "konfetti",
+    "emoji": "🚗"
+  },
   "tal": "?",
-  "løst": "Du fandt dem alle tre! Husk tallet 🎉"
+  "løst": "Så er du hjemme! Husk tallet 🎉",
+  "trin": [
+    {
+      "type": "spotify",
+      "navn": "Musik",
+      "ikon": "🎵",
+      "klaret": "Musikken kører!",
+      "spilleliste": "Køretur 🚗",
+      "beskrivelse": "Sangen vi altid skal høre, når vi kører 🎶",
+      "sange": [
+        {
+          "titel": "Mr. Brightside",
+          "kunstner": "The Killers",
+          "billede": "spot-the-killers-mr-brightside.jpg",
+          "længde": "3:42"
+        },
+        {
+          "titel": "Purple Rain",
+          "kunstner": "Prince",
+          "billede": "spot-prince-purple-rain.jpg",
+          "længde": "8:41",
+          "nej": "Rigtig kunstner… forkert sang 💜"
+        },
+        {
+          "titel": "Dancing Queen",
+          "kunstner": "ABBA",
+          "billede": "spot-abba-dancing-queen.jpg",
+          "længde": "3:51"
+        },
+        {
+          "titel": "Om lidt",
+          "kunstner": "Kim Larsen",
+          "billede": "spot-kim-larsen-om-lidt.jpg",
+          "længde": "2:40"
+        },
+        {
+          "titel": "drivers license",
+          "kunstner": "Olivia Rodrigo",
+          "billede": "spot-olivia-rodrigo-drivers-license.jpg",
+          "længde": "4:02",
+          "nej": "Forkert slags køretur 😉"
+        },
+        {
+          "titel": "Africa",
+          "kunstner": "Toto",
+          "billede": "spot-toto-africa.jpg",
+          "længde": "4:55"
+        },
+        {
+          "titel": "Slingrer ned ad Vestergade",
+          "kunstner": "Gnags",
+          "billede": "spot-gnags-slingrer-ned-ad-vestergade.jpg",
+          "længde": "4:13"
+        },
+        {
+          "titel": "I Wanna Dance with Somebody",
+          "kunstner": "Whitney Houston",
+          "billede": "spot-whitney-houston-i-wanna-dance-with-somebody.jpg",
+          "længde": "4:50"
+        },
+        {
+          "titel": "Little Red Corvette",
+          "kunstner": "Prince",
+          "billede": "spot-prince-little-red-corvette.jpg",
+          "længde": "3:08",
+          "nej": "God bilsang… men ikke den 🚗"
+        },
+        {
+          "titel": "Natteravn",
+          "kunstner": "Rasmus Seebach",
+          "billede": "spot-rasmus-seebach-natteravn.jpg",
+          "længde": "4:00"
+        },
+        {
+          "titel": "Don't Stop Me Now",
+          "kunstner": "Queen",
+          "billede": "spot-queen-don-t-stop-me-now.jpg",
+          "længde": "3:30"
+        },
+        {
+          "titel": "Fast Car",
+          "kunstner": "Tracy Chapman",
+          "billede": "spot-tracy-chapman-fast-car.jpg",
+          "længde": "4:56",
+          "nej": "Fast car, ja… forkert sang 😉"
+        },
+        {
+          "titel": "7 Years",
+          "kunstner": "Lukas Graham",
+          "billede": "spot-lukas-graham-7-years.jpg",
+          "længde": "3:57"
+        },
+        {
+          "titel": "Dreams",
+          "kunstner": "Fleetwood Mac",
+          "billede": "spot-fleetwood-mac-dreams.jpg",
+          "længde": "4:17"
+        },
+        {
+          "titel": "Sexual Healing",
+          "kunstner": "Marvin Gaye",
+          "billede": "spot-marvin-gaye-sexual-healing.jpg",
+          "længde": "3:58",
+          "nej": "Uh, tæt på 😏 … men nej"
+        },
+        {
+          "titel": "Kun for mig",
+          "kunstner": "Medina",
+          "billede": "spot-medina-kun-for-mig.jpg",
+          "længde": "4:12"
+        },
+        {
+          "titel": "Billie Jean",
+          "kunstner": "Michael Jackson",
+          "billede": "spot-michael-jackson-billie-jean.jpg",
+          "længde": "4:53"
+        },
+        {
+          "titel": "Driving Home for Christmas",
+          "kunstner": "Chris Rea",
+          "billede": "spot-chris-rea-driving-home-for-christmas.jpg",
+          "længde": "4:00",
+          "nej": "Rigtig stemning… forkert sang 🎄"
+        },
+        {
+          "titel": "September",
+          "kunstner": "Earth, Wind & Fire",
+          "billede": "spot-earth-wind-fire-september.jpg",
+          "længde": "3:35"
+        },
+        {
+          "titel": "Kiss",
+          "kunstner": "Prince",
+          "billede": "spot-prince-kiss.jpg",
+          "længde": "3:46",
+          "nej": "Rigtig kunstner… forkert sang 💜"
+        },
+        {
+          "titel": "Stor mand",
+          "kunstner": "Tobias Rahim",
+          "billede": "spot-tobias-rahim-stor-mand.jpg",
+          "længde": "3:03"
+        },
+        {
+          "titel": "Take On Me",
+          "kunstner": "a-ha",
+          "billede": "spot-a-ha-take-on-me.jpg",
+          "længde": "3:48"
+        },
+        {
+          "titel": "Don't Stop Believin'",
+          "kunstner": "Journey",
+          "billede": "spot-journey-don-t-stop-believin.jpg",
+          "længde": "4:08"
+        },
+        {
+          "titel": "Umbrella",
+          "kunstner": "Rihanna",
+          "billede": "spot-rihanna-umbrella.jpg",
+          "længde": "4:36",
+          "nej": "Umbrella? Den hører til solsengen ☂️"
+        },
+        {
+          "titel": "As It Was",
+          "kunstner": "Harry Styles",
+          "billede": "spot-harry-styles-as-it-was.jpg",
+          "længde": "2:47"
+        },
+        {
+          "titel": "De første kærester på månen",
+          "kunstner": "TV-2",
+          "billede": "spot-tv-2-de-f-rste-k-rester-pa-manen.jpg",
+          "længde": "3:40"
+        },
+        {
+          "titel": "Superstition",
+          "kunstner": "Stevie Wonder",
+          "billede": "spot-stevie-wonder-superstition.jpg",
+          "længde": "4:26"
+        },
+        {
+          "titel": "Smooth Operator",
+          "kunstner": "Sade",
+          "billede": "spot-sade-smooth-operator.jpg",
+          "længde": "4:57"
+        },
+        {
+          "titel": "When Doves Cry",
+          "kunstner": "Prince",
+          "billede": "spot-prince-when-doves-cry.jpg",
+          "længde": "3:48",
+          "nej": "Rigtig kunstner… forkert sang 💜"
+        },
+        {
+          "titel": "Stayin' Alive",
+          "kunstner": "Bee Gees",
+          "billede": "spot-bee-gees-stayin-alive.jpg",
+          "længde": "4:43"
+        },
+        {
+          "titel": "Levitating",
+          "kunstner": "Dua Lipa",
+          "billede": "spot-dua-lipa-levitating.jpg",
+          "længde": "3:23"
+        },
+        {
+          "titel": "Den himmelblå",
+          "kunstner": "Shu-bi-dua",
+          "billede": "spot-shu-bi-dua-den-himmelbla.jpg",
+          "længde": "3:13"
+        },
+        {
+          "titel": "Born to Run",
+          "kunstner": "Bruce Springsteen",
+          "billede": "spot-bruce-springsteen-born-to-run.jpg",
+          "længde": "4:30"
+        },
+        {
+          "titel": "All I Want for Christmas Is You",
+          "kunstner": "Mariah Carey",
+          "billede": "spot-mariah-carey-all-i-want-for-christmas-is-you.jpg",
+          "længde": "4:01",
+          "nej": "Nej, ikke julemusik endnu 😄"
+        },
+        {
+          "titel": "Wake Me Up",
+          "kunstner": "Avicii",
+          "billede": "spot-avicii-wake-me-up.jpg",
+          "længde": "4:07"
+        },
+        {
+          "titel": "Crazy in Love",
+          "kunstner": "Beyoncé",
+          "billede": "spot-beyonce-crazy-in-love.jpg",
+          "længde": "3:56"
+        },
+        {
+          "titel": "Tættere på himlen",
+          "kunstner": "Burhan G",
+          "billede": "spot-burhan-g-t-ttere-pa-himlen.jpg",
+          "længde": "4:46"
+        },
+        {
+          "titel": "Tiny Dancer",
+          "kunstner": "Elton John",
+          "billede": "spot-elton-john-tiny-dancer.jpg",
+          "længde": "6:15"
+        },
+        {
+          "titel": "Get Lucky",
+          "kunstner": "Daft Punk",
+          "billede": "spot-daft-punk-get-lucky.jpg",
+          "længde": "6:09"
+        },
+        {
+          "titel": "1999",
+          "kunstner": "Prince",
+          "billede": "spot-prince-1999.jpg",
+          "længde": "6:19",
+          "nej": "Rigtig kunstner… forkert sang 💜"
+        },
+        {
+          "titel": "Barbie Girl",
+          "kunstner": "Aqua",
+          "billede": "spot-aqua-barbie-girl.jpg",
+          "længde": "3:15",
+          "nej": "Seriøst? 😂"
+        },
+        {
+          "titel": "Wonderwall",
+          "kunstner": "Oasis",
+          "billede": "spot-oasis-wonderwall.jpg",
+          "længde": "4:18"
+        },
+        {
+          "titel": "Ain't No Mountain High Enough",
+          "kunstner": "Marvin Gaye",
+          "billede": "spot-marvin-gaye-ain-t-no-mountain-high-enough.jpg",
+          "længde": "2:29"
+        },
+        {
+          "titel": "Shake It Off",
+          "kunstner": "Taylor Swift",
+          "billede": "spot-taylor-swift-shake-it-off.jpg",
+          "længde": "3:39"
+        },
+        {
+          "titel": "Viva la Vida",
+          "kunstner": "Coldplay",
+          "billede": "spot-coldplay-viva-la-vida.jpg",
+          "længde": "4:01"
+        },
+        {
+          "titel": "Do Me, Baby",
+          "kunstner": "Prince",
+          "billede": "spot-prince-do-me-baby.jpg",
+          "længde": "7:43",
+          "rigtig": true
+        },
+        {
+          "titel": "Flowers",
+          "kunstner": "Miley Cyrus",
+          "billede": "spot-miley-cyrus-flowers.jpg",
+          "længde": "3:20"
+        },
+        {
+          "titel": "Livin' on a Prayer",
+          "kunstner": "Bon Jovi",
+          "billede": "spot-bon-jovi-livin-on-a-prayer.jpg",
+          "længde": "4:09"
+        },
+        {
+          "titel": "Uptown Funk",
+          "kunstner": "Mark Ronson",
+          "billede": "spot-mark-ronson-uptown-funk.jpg",
+          "længde": "4:30"
+        },
+        {
+          "titel": "Believe",
+          "kunstner": "Cher",
+          "billede": "spot-cher-believe.jpg",
+          "længde": "3:59"
+        },
+        {
+          "titel": "Yeah!",
+          "kunstner": "Usher",
+          "billede": "spot-usher-yeah.jpg",
+          "længde": "4:10"
+        },
+        {
+          "titel": "Fascination",
+          "kunstner": "Alphabeat",
+          "billede": "spot-alphabeat-fascination.jpg",
+          "længde": "3:04"
+        },
+        {
+          "titel": "Raspberry Beret",
+          "kunstner": "Prince",
+          "billede": "spot-prince-raspberry-beret.jpg",
+          "længde": "3:35",
+          "nej": "Rigtig kunstner… forkert sang 💜"
+        },
+        {
+          "titel": "Happy",
+          "kunstner": "Pharrell Williams",
+          "billede": "spot-pharrell-williams-happy.jpg",
+          "længde": "3:53"
+        },
+        {
+          "titel": "Bohemian Rhapsody",
+          "kunstner": "Queen",
+          "billede": "spot-queen-bohemian-rhapsody.jpg",
+          "længde": "5:54"
+        },
+        {
+          "titel": "Shape of You",
+          "kunstner": "Ed Sheeran",
+          "billede": "spot-ed-sheeran-shape-of-you.jpg",
+          "længde": "3:53"
+        },
+        {
+          "titel": "Blinding Lights",
+          "kunstner": "The Weeknd",
+          "billede": "spot-the-weeknd-blinding-lights.jpg",
+          "længde": "3:20"
+        },
+        {
+          "titel": "Last Christmas",
+          "kunstner": "Wham!",
+          "billede": "spot-wham-last-christmas.jpg",
+          "længde": "4:27",
+          "nej": "Den har vi hørt 400 gange i år 🎄"
+        }
+      ],
+      "afspil": [
+        "🔊 Skru op!",
+        "…og så synger vi med hele vejen hjem 🎤🚗"
+      ]
+    },
+    {
+      "type": "saedevarme",
+      "navn": "Sædevarme",
+      "ikon": "🔥",
+      "klaret": "Sædevarmen er tændt!",
+      "niveau": 3,
+      "ude": "-3°"
+    },
+    {
+      "type": "ansigter",
+      "navn": "Fitness",
+      "ikon": "🏋️",
+      "overskrift": "Fitness World 🏋️",
+      "tekst": "Hvem har jeg nu trænet med? 😏",
+      "personer": [
+        {
+          "navn": "Kåre Quist",
+          "billede": "kendis-1.jpg"
+        },
+        {
+          "navn": "Nikolaj Lie Kaas",
+          "billede": "kendis-2.jpg"
+        },
+        {
+          "navn": "Thomas Rathsack",
+          "billede": "kendis-3.jpg"
+        }
+      ]
+    }
+  ]
 }

@@ -11,7 +11,7 @@ import { camera } from "/kamera.js";
 const FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
 
 /** Compare codes by their digits only; UPC-A is EAN-13 with a leading 0. */
-const norm = (s) => String(s ?? "").replace(/\D/g, "").replace(/^0+/, "");
+export const norm = (s) => String(s ?? "").replace(/\D/g, "").replace(/^0+/, "");
 
 export function stregkodeOpgave(opgave, ctx) {
   const isCorrect = (code) => norm(code) !== "" && norm(code) === norm(opgave.stregkode);
@@ -91,7 +91,7 @@ function loadScript(src) {
 }
 
 let detectorPromise = null;
-const makeDetector = () => (detectorPromise ??= createDetector().catch((e) => { detectorPromise = null; throw e; }));
+export const makeDetector = () => (detectorPromise ??= createDetector().catch((e) => { detectorPromise = null; throw e; }));
 
 async function createDetector() {
   if ("BarcodeDetector" in window) {

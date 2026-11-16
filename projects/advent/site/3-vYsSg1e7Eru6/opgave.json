@@ -1,17 +1,545 @@
 {
-  "type": "bestilling",
+  "type": "trin",
   "hint": "hint.mp4",
-  "knaphint": { "type": "konfetti", "emoji": "🐘" },
-  "bon": [
-    "STED:  Hvor man kan kigge\n       kokkene over skulderen –\n       dejligt at se dem arbejde.",
-    "RET:   Bestilt alt for\n       mange gange 😄"
-  ],
-  "svar": "8",
-  "ret": "Rød karry",
-  "næsten": {
-    "13": "Rød karry, ja… men ikke vores 😉",
-    "14": "Rød karry, ja… men ikke vores 😉"
+  "overskrift": "Hyggeaften 🛋️",
+  "knaphint": {
+    "type": "konfetti",
+    "emoji": "🐘"
   },
   "tal": "8",
-  "løst": "Bestillingen er på plads! Husk tallet 🎉"
+  "løst": "Hyggeaften i hus! Husk tallet 🎉",
+  "trin": [
+    {
+      "type": "wolt",
+      "navn": "Mad",
+      "ikon": "🍛",
+      "klaret": "Maden er bestilt!",
+      "fra": "💬",
+      "besked": "Bestil det sædvanlige 😉\nDu ved – stedet hvor man kan kigge kokkene over skulderen.",
+      "restauranter": [
+        {
+          "navn": "Wokshop",
+          "emoji": "🥢",
+          "farve": "#fde8d0",
+          "undertitel": "Thai · Wok",
+          "rating": "9,0",
+          "tid": "30–40 min",
+          "levering": 39,
+          "nej": "Wokshop er godt… men det er ikke det sædvanlige 😉",
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Thai basil chicken",
+              "tekst": "Wokstegt kylling med thai-basilikum · stærk 🌶️🌶️🌶️",
+              "pris": 169
+            },
+            {
+              "nr": "2",
+              "navn": "Cashew special with chicken",
+              "tekst": "Wokstegt kylling med cashewnødder",
+              "pris": 169
+            },
+            {
+              "nr": "3",
+              "navn": "Drunken noodles with chicken",
+              "tekst": "Wokstegte nudler med kylling 🌶️🌶️",
+              "pris": 169
+            },
+            {
+              "nr": "4",
+              "navn": "Green curry chicken",
+              "tekst": "Kylling i grøn karry 🌶️🌶️",
+              "pris": 179
+            },
+            {
+              "nr": "5",
+              "navn": "Red panang curry chicken",
+              "tekst": "Kylling i rød panang-karry 🌶️",
+              "pris": 179,
+              "nej": "Rigtig ret… forkert sted 😉"
+            },
+            {
+              "nr": "6",
+              "navn": "Red curry duck",
+              "tekst": "And i rød karry 🌶️",
+              "pris": 185,
+              "nej": "Rigtig ret… forkert sted 😉"
+            },
+            {
+              "nr": "7",
+              "navn": "Red curry prawn",
+              "tekst": "Rejer i rød karry 🌶️",
+              "pris": 195,
+              "nej": "Rigtig ret… forkert sted 😉"
+            },
+            {
+              "nr": "8",
+              "navn": "Thai beef salad",
+              "tekst": "Salat med grillet oksemørbrad",
+              "pris": 189
+            }
+          ]
+        },
+        {
+          "navn": "Sticks'n'Sushi",
+          "emoji": "🍣",
+          "farve": "#e9e6e1",
+          "undertitel": "Sushi · Yakitori",
+          "rating": "9,3",
+          "tid": "35–45 min",
+          "levering": 49,
+          "nej": "Sushi er til fejring – i aften er det det sædvanlige 🍣",
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Hell's Kitchen",
+              "tekst": "8 stk. tempura-rejer, avocado og spicy sauce",
+              "pris": 165
+            },
+            {
+              "nr": "2",
+              "navn": "Pink Alaska",
+              "tekst": "8 stk. laks, avocado og flødeost",
+              "pris": 155
+            },
+            {
+              "nr": "3",
+              "navn": "Gyu tataki",
+              "tekst": "Flamberet oksemørbrad med trøffel-ponzu",
+              "pris": 135
+            },
+            {
+              "nr": "4",
+              "navn": "Ebi bites",
+              "tekst": "Sprøde rejer med chilimayo",
+              "pris": 115
+            },
+            {
+              "nr": "5",
+              "navn": "Sticks-menu, 6 spyd",
+              "tekst": "Kylling, okse og grøntsager fra grillen",
+              "pris": 189
+            }
+          ]
+        },
+        {
+          "navn": "Le Grill",
+          "emoji": "🍔",
+          "farve": "#fbecc8",
+          "undertitel": "Pizza · Burger · Grill · Holte",
+          "rating": "8,7",
+          "tid": "20–30 min",
+          "levering": 29,
+          "nej": "Le Grill? Det er til tømmermænd 😄",
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Le Grill Special",
+              "tekst": "Pizza med tomatsauce, ost, skinke, oksestrimler, gorgonzola og løg",
+              "pris": 99
+            },
+            {
+              "nr": "2",
+              "navn": "Buggi Cheese",
+              "tekst": "300 g burger med iceberg, tomat, agurk, løg, ketchup og remoulade",
+              "pris": 115
+            },
+            {
+              "nr": "3",
+              "navn": "Spaghetti carbonara",
+              "tekst": "Bacon, æg og flødesauce med parmesan, salat og brød",
+              "pris": 98
+            },
+            {
+              "nr": "4",
+              "navn": "Tortellini gorgonzola",
+              "tekst": "Champignon, oksestrimler og gorgonzolasauce",
+              "pris": 110
+            },
+            {
+              "nr": "5",
+              "navn": "Lasagne",
+              "tekst": "Kødsauce og ost med parmesan, salat og brød",
+              "pris": 85
+            },
+            {
+              "nr": "6",
+              "navn": "Herregårdsbøf",
+              "tekst": "200 g bøf med bearnaise, salat og pommes frites",
+              "pris": 139
+            }
+          ]
+        },
+        {
+          "navn": "Den Hvide Elefant",
+          "emoji": "🐘",
+          "farve": "#e8eef3",
+          "undertitel": "Thai · Holte",
+          "rating": "9,4",
+          "tid": "25–35 min",
+          "levering": 29,
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Kyllingespyd (satay)",
+              "tekst": "Grillede kyllingespyd med peanutsauce",
+              "pris": 79
+            },
+            {
+              "nr": "2",
+              "navn": "Forårsruller",
+              "tekst": "Hjemmelavede, med glasnudler og sweet chili",
+              "pris": 79
+            },
+            {
+              "nr": "3",
+              "navn": "Indbagte kongerejer",
+              "tekst": "Marinerede, friturestegte rejer med sweet chili",
+              "pris": 89
+            },
+            {
+              "nr": "4",
+              "navn": "Majskager",
+              "tekst": "Med rød karrypasta og thai-krydderier, sweet chili",
+              "pris": 79
+            },
+            {
+              "nr": "5",
+              "navn": "Mørbrad på spyd",
+              "tekst": "Grillet oksemørbrad med teriyaki og peanutsauce",
+              "pris": 89
+            },
+            {
+              "nr": "6",
+              "navn": "Tom yam suppe",
+              "tekst": "Stærk suppe med citrongræs, limeblade og koriander",
+              "pris": 89
+            },
+            {
+              "nr": "7",
+              "navn": "Tom kha suppe",
+              "tekst": "Kokosmælkesuppe med citrongræs og limeblade",
+              "pris": 89
+            },
+            {
+              "nr": "8",
+              "navn": "Rød karry i kokosmælk",
+              "tekst": "Bambusskud, thai-aubergine, snørebønner og thai-basilikum",
+              "pris": 139,
+              "rigtig": true
+            },
+            {
+              "nr": "9",
+              "navn": "Grøn karry i kokosmælk",
+              "tekst": "Bambusskud, thai-aubergine, snørebønner og thai-basilikum",
+              "pris": 139,
+              "nej": "Forkert farve 😄"
+            },
+            {
+              "nr": "10",
+              "navn": "Panang karry",
+              "tekst": "Med peanuts, cashewnødder og limeblade",
+              "pris": 139
+            },
+            {
+              "nr": "11",
+              "navn": "Gul karry i kokosmælk",
+              "tekst": "Mild, med løg, kartofler og cashewnødder",
+              "pris": 139
+            },
+            {
+              "nr": "12",
+              "navn": "Massaman karry",
+              "tekst": "Mild, med kartofler, cashewnødder og ristede skalotteløg",
+              "pris": 139
+            },
+            {
+              "nr": "13",
+              "navn": "Cremet rød karry",
+              "tekst": "Med litchi, tomat, ananas og cashewnødder",
+              "pris": 139,
+              "nej": "Rød karry, ja… men ikke vores 😉"
+            },
+            {
+              "nr": "14",
+              "navn": "Dry red curry",
+              "tekst": "Wokkede grøntsager i rød karry med grønne peberkorn",
+              "pris": 139,
+              "nej": "Rød karry, ja… men ikke vores 😉"
+            }
+          ]
+        },
+        {
+          "navn": "OLIOLI",
+          "emoji": "🥗",
+          "farve": "#dff3e4",
+          "undertitel": "Poké bowls",
+          "rating": "9,1",
+          "tid": "20–30 min",
+          "levering": 35,
+          "nej": "Poké er til frokost 🥗",
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Laks poké",
+              "tekst": "Laks, ris, goma-dressing, edamame, broccoli, ananas og avocado",
+              "pris": 130
+            },
+            {
+              "nr": "2",
+              "navn": "Tun poké",
+              "tekst": "Tun, ris, sweet ponzu, chilimayo, edamame og avocado",
+              "pris": 130
+            },
+            {
+              "nr": "3",
+              "navn": "Teriyaki kylling poké",
+              "tekst": "Teriyakikylling, ris, teriyakimayo, edamame og rødkål",
+              "pris": 130
+            },
+            {
+              "nr": "4",
+              "navn": "And poké",
+              "tekst": "Pulled duck, ris, teriyakimayo, rødkål og cashewnødder",
+              "pris": 130
+            },
+            {
+              "nr": "5",
+              "navn": "Miso-sesam ramen",
+              "tekst": "Ingefær-hvidløgskylling, udon, kogt æg og sprød chili",
+              "pris": 140
+            }
+          ]
+        },
+        {
+          "navn": "Green Mango",
+          "emoji": "🥭",
+          "farve": "#e5f1d8",
+          "undertitel": "Thai · Lyngby",
+          "rating": "8,9",
+          "tid": "30–40 min",
+          "levering": 39,
+          "nej": "Thai, ja… men forkert sted 😉",
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Stegte smalle risnudler – Phat thai",
+              "tekst": "Bønnespirer, gulerod, forårsløg og peanuts",
+              "pris": 129
+            },
+            {
+              "nr": "2",
+              "navn": "Cremet kokosmælksuppe – Tum kah",
+              "tekst": "Citrongræs, galanga, limeblade og svampe",
+              "pris": 129
+            },
+            {
+              "nr": "3",
+              "navn": "Sursødsauce – Phat priew wan",
+              "tekst": "Wokstegt med ananas, tomat, agurk og sukkerærter",
+              "pris": 129
+            },
+            {
+              "nr": "4",
+              "navn": "Gul karry – Gaeng ka ri",
+              "tekst": "Mild karry med gulerod, broccoli og cashewnødder",
+              "pris": 139
+            },
+            {
+              "nr": "5",
+              "navn": "Rød karry – Gaeng pet",
+              "tekst": "Bambusskud, babymajs, grønne bønner og sød basilikum",
+              "pris": 139,
+              "nej": "Rigtig ret… forkert sted 😉"
+            },
+            {
+              "nr": "6",
+              "navn": "Massaman karry",
+              "tekst": "Med kartoffel, peberfrugt og cashewnødder",
+              "pris": 139
+            }
+          ]
+        },
+        {
+          "navn": "OTTO Pizza",
+          "emoji": "🍕",
+          "farve": "#fde3d4",
+          "undertitel": "Pizza · Napoletana",
+          "rating": "9,2",
+          "tid": "25–35 min",
+          "levering": 39,
+          "nej": "Pizza? Godt forsøg 🍕",
+          "retter": [
+            {
+              "nr": "1",
+              "navn": "Margherita",
+              "tekst": "Tomat, mozzarella, basilikum, parmesan",
+              "pris": 115
+            },
+            {
+              "nr": "2",
+              "navn": "Patate",
+              "tekst": "Mascarponecreme, mozzarella, kartoffel, rosmarin, parmesan",
+              "pris": 135
+            },
+            {
+              "nr": "3",
+              "navn": "Pepperoni",
+              "tekst": "Pepperoni, tomat, mozzarella, parmesan",
+              "pris": 135
+            },
+            {
+              "nr": "4",
+              "navn": "Prosciutto e funghi",
+              "tekst": "Tomat, mozzarella, kogt skinke, champignon, oregano",
+              "pris": 135
+            },
+            {
+              "nr": "5",
+              "navn": "'Nduja ragù",
+              "tekst": "'Nduja ragù, parmesan, stracciatella, basilikum",
+              "pris": 145
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rema",
+      "navn": "Slik",
+      "ikon": "🍬",
+      "stregkode": "4037400716206",
+      "vare": "Panda Lakrids",
+      "pris": 25,
+      "liste": [
+        "Det sædvanlige slik 🍬"
+      ],
+      "tak": "GOD HYGGEAFTEN ♥",
+      "klaret": "Slikket er købt!"
+    },
+    {
+      "type": "tv",
+      "navn": "TV",
+      "ikon": "📺",
+      "klaret": "Endelig fandt vi noget at se!",
+      "spørgsmål": "Hvad skal vi se i aften?",
+      "krav": [
+        {
+          "hvem": "Mig",
+          "tekst": "Noget vi har set færdigt – så går vi ikke glip af noget, når vi falder i søvn 😴"
+        },
+        {
+          "hvem": "Dig",
+          "tekst": "Ikke mere dating-reality – det har vi set nok af 🙈"
+        },
+        {
+          "hvem": "Mig",
+          "tekst": "Max en halv time ⏱️"
+        },
+        {
+          "hvem": "Begge",
+          "tekst": "Noget vi kan grine af 😂"
+        }
+      ],
+      "serier": [
+        {
+          "titel": "Nybyggerne",
+          "genre": "Reality",
+          "min": 45,
+          "set": false,
+          "billede": "tv-nybyggerne.jpg",
+          "nej": "Den har vi ikke set – vi falder i søvn midt i første afsnit 😴"
+        },
+        {
+          "titel": "Simon siger",
+          "genre": "Musik",
+          "min": 60,
+          "set": false,
+          "billede": "tv-simon-siger.jpg",
+          "nej": "Ny serie? Så går vi glip af det hele, når vi falder i søvn 😴"
+        },
+        {
+          "titel": "100 knive",
+          "genre": "Madprogram",
+          "min": 60,
+          "set": "lidt",
+          "billede": "tv-100-knive.jpg",
+          "nej": "Vi har kun set lidt… den når vi aldrig at se færdig 🔪"
+        },
+        {
+          "titel": "Bachelor",
+          "genre": "Dating",
+          "min": 60,
+          "set": true,
+          "billede": "tv-bachelor.jpg",
+          "nej": "Mere dating-reality? Nej tak 🌹"
+        },
+        {
+          "titel": "Bachelorette",
+          "genre": "Dating",
+          "min": 60,
+          "set": true,
+          "billede": "tv-bachelorette.jpg",
+          "nej": "Rosen går ikke til den her i aften 🌹"
+        },
+        {
+          "titel": "Jomfruernes Ø",
+          "genre": "Dating",
+          "min": 45,
+          "set": true,
+          "billede": "tv-jomfruernes-oe.jpg",
+          "nej": "Ikke mere dating-reality 🙈"
+        },
+        {
+          "titel": "Klovn",
+          "genre": "Komedie",
+          "min": 25,
+          "set": true,
+          "billede": "tv-klovn.jpg",
+          "rigtig": true
+        },
+        {
+          "titel": "De sjældne danskere",
+          "genre": "Dokumentar",
+          "min": 45,
+          "set": true,
+          "billede": "tv-de-sjaeldne-danskere.jpg",
+          "nej": "Fin – men i aften skal vi grine 😂"
+        },
+        {
+          "titel": "Badehotellet",
+          "genre": "Drama",
+          "min": 44,
+          "set": false,
+          "billede": "tv-badehotellet.jpg",
+          "nej": "Den har vi ikke set – det kræver, at vi er vågne 😴"
+        },
+        {
+          "titel": "Sommerdahl",
+          "genre": "Krimi",
+          "min": 45,
+          "set": false,
+          "billede": "tv-sommerdahl.jpg",
+          "nej": "Ikke set, og så skal vi følge med i plottet 🕵️"
+        },
+        {
+          "titel": "Anna Pihl",
+          "genre": "Krimi",
+          "min": 45,
+          "set": true,
+          "billede": "tv-anna-pihl.jpg",
+          "nej": "Klassiker – men i aften skal vi grine 😂"
+        },
+        {
+          "titel": "Kærlighed hvor kragerne vender",
+          "genre": "Dating",
+          "min": 45,
+          "set": true,
+          "billede": "tv-kaerlighed-hvor-kragerne-vender.jpg",
+          "nej": "Bønder og dating? Ikke i aften 🚜"
+        }
+      ],
+      "afspil": "Klovn. Igen. Som altid 😄\n…og så faldt vi i søvn efter ti minutter 😴"
+    }
+  ]
 }
