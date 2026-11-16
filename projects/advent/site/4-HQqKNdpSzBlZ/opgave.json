@@ -1,0 +1,12 @@
+{
+  "type": "ansigter",
+  "hint": "hint.mp4",
+  "knaphint": { "type": "konfetti", "emoji": "🕵️" },
+  "personer": [
+    { "navn": "Kåre Quist", "billede": "kendis-1.jpg" },
+    { "navn": "Nikolaj Lie Kaas", "billede": "kendis-2.jpg" },
+    { "navn": "Thomas Rathsack", "billede": "kendis-3.jpg" }
+  ],
+  "tal": "?",
+  "løst": "Du fandt dem alle tre! Husk tallet 🎉"
+}

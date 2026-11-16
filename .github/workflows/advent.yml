@@ -1,0 +1,45 @@
+name: advent
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "projects/advent/**"
+      - ".github/workflows/advent.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: advent-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build & push advent
+    runs-on: ubuntu-26.04-arm
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: tag
+        run: echo "value=sha-$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v7
+        with:
+          context: projects/advent
+          file: projects/advent/Dockerfile
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/advent:${{ steps.tag.outputs.value }}
+            ghcr.io/${{ github.repository_owner }}/advent:main

@@ -1,0 +1,13 @@
+{
+  "type": "kryds",
+  "hint": "hint.mp4",
+  "knaphint": { "type": "tekst", "tekst": "Placeholder: et lille ekstra hint til krydsordet ✏️" },
+  "ord": [
+    { "svar": "PANDA", "ledetråd": "Sort og hvidt dyr, der elsker bambus", "række": 1, "kolonne": 1, "retning": "vandret" },
+    { "svar": "NISSE", "ledetråd": "Bor på loftet og vil have risengrød", "række": 1, "kolonne": 3, "retning": "lodret" },
+    { "svar": "ABE", "ledetråd": "Klatrer i træer og spiser bananer", "række": 1, "kolonne": 5, "retning": "lodret" },
+    { "svar": "SNE", "ledetråd": "Hvidt og koldt, falder om vinteren", "række": 3, "kolonne": 3, "retning": "vandret" }
+  ],
+  "tal": "?",
+  "løst": "Krydsordet er løst! Husk tallet 🎉"
+}
