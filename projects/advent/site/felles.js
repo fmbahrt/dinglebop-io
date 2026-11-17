@@ -6,6 +6,21 @@
 // taskShell() implements that interface; a puzzle only renders its locked view
 // and calls solve() when it is done.
 
+// Debug mode: ?debug in the URL turns it on for the rest of the visit (also
+// across links, back and forward), ?nodebug turns it off again.
+export const DEBUG = (() => {
+  const q = new URLSearchParams(location.search);
+  try {
+    if (q.has("nodebug")) sessionStorage.removeItem("advent:debug");
+    else if (q.has("debug")) sessionStorage.setItem("advent:debug", "1");
+    return sessionStorage.getItem("advent:debug") === "1";
+  } catch {
+    return q.has("debug");
+  }
+})();
+/** A same-site link that keeps ?debug on. */
+export const link = (path) => (DEBUG ? `${path}?debug` : path);
+
 const ORDINAL = ["Første", "Andet", "Tredje", "Fjerde"];
 
 export function h(tag, className, text) {

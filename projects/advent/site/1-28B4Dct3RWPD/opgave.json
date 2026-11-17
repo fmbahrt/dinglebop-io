@@ -1,5 +1,8 @@
 {
   "type": "trin",
+  "visning": "telefon",
+  "nej": "Ikke nu – vi skal til gus 🧖",
+  "væk": "Telefonen i skabet – nu er det gus! 📵🧖",
   "hint": "hint.mp4",
   "overskrift": "Saunagus 🧖",
   "knaphint": {
@@ -175,7 +178,10 @@
       "overskrift": "Scan din billet",
       "kode": "INNERCISE:GUS:EBM66B5N",
       "hemmelig": "KILT-2911",
-      "velkommen": "Velkommen til gus! Sauna 2 er klar 🧖"
+      "velkommen": "Velkommen til gus! Sauna 2 er klar 🧖",
+      "efter": "innercise",
+      "låst": "Du skal booke først 😉",
+      "logo": "bruce"
     },
     {
       "type": "gus",
@@ -200,7 +206,8 @@
           "min": 400,
           "max": 1100
         }
-      ]
+      ],
+      "udenfor": true
     }
   ]
 }

@@ -1,5 +1,7 @@
 {
   "type": "trin",
+  "visning": "telefon",
+  "nej": "Ikke nu – vi er på ferie 🍋",
   "hint": "hint.mp4",
   "overskrift": "Ferien på Sicilien 🍋",
   "knaphint": {

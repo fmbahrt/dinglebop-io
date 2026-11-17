@@ -7,7 +7,7 @@
 // "billede" is a reference photo in the same folder: one clear, front-facing
 // face. Recognition runs fully in the browser with face-api (site/vendor/face-api).
 
-import { h, store, taskShell, intro } from "/felles.js";
+import { h, store, taskShell, intro, DEBUG } from "/felles.js";
 import { camera } from "/kamera.js";
 
 const MODELS = "/vendor/face-api/models";
@@ -17,7 +17,7 @@ const MODELS = "/vendor/face-api/models";
 // "grænse" in opgave.json.
 const MATCH = 0.56;
 // Add ?debug to the URL to see what the camera sees (face score, distances).
-const DEBUG = new URLSearchParams(location.search).has("debug");
+
 
 let faceapiReady = null;
 function loadFaceApi() {
