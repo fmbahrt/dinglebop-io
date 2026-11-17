@@ -3,6 +3,13 @@
 Adventskalender: én kuvert pr. søndag i advent med en QR-kode, der åbner
 ugens brev.
 
+## Forsiden
+
+Forsiden (`https://advent.dinglebop.io/`) er en adventskalender med fire låger,
+én pr. søndag. En låge låses op på sin søndag (`SUNDAYS` i `site/app.js`) og
+fører til ugens side; løste låger står på klem med ugens tal. Der er kun én
+QR-kode: den til forsiden. Tilføj `?debug` til adressen for at låse alle op.
+
 ## Ugerne
 
 Hver uge er en mappe i `site/` med et tilfældigt navn (så man ikke kan gætte
@@ -120,6 +127,26 @@ langt hun er nået. Tallet kommer, når sidste trin er klaret.
   sammen: `sætning`, `ord`, `svar` = liste af godkendte svar; `"læs": false` hvis
   sætningen er dansk), `par` (`par` = [["il mare", "havet"], …]) og `udfyld`
   (`før`, `efter`, `valg`, `svar`). Forkerte svar kommer igen til sidst.
+- `innercise` (`site/innercise.js`): book den rigtige gus i en booking-app (uge
+  1). `besked` (sedlen øverst), `mål` (`dag`, `mester`, `efter` = tidligst
+  time, `personer`), `dage`, `hold` (`dag`, `tid`, `titel`, `mester`, `ledige`,
+  `tekst`; `nej` overstyrer svaret) og `billet` (teksten efter booking).
+- `qr` (`site/qrscan.js`): scan en QR-kode med kameraet (uge 1: billetten).
+  `kode` er teksten i QR-koden, `hemmelig` er koden, der kan tastes i stedet.
+  Billetten til print ligger i `qr/uge-1-gus-billet.png` (og `.svg`).
+- `gus` (`site/gus.js`): lille tegnefilm i saunaen med gusmester Brian, tre
+  runder med kold dukkert imellem, hver sværere: `rytme` (tryk VIFT! i takt;
+  `slag`, `takt` i ms), `duft` (gentag rækkefølgen af dufte; `fra`/`til` antal)
+  og `helikopter` (kør fingeren rundt, hold farten i det grønne; `sekunder`,
+  `min`/`max` i grader pr. sekund). `replikker` ændrer Brians replikker
+  (`hej`, `r1`–`r3`, `øsninger` (når runden næsten er slut), `pause`, `ind`,
+  `varmt`, `plask`, `tak`). I runde 3 sætter Brian Disturbed på 🤘.
+- `bil` (`site/bil.js`): bilen på vej hjem (uge 4). Drej nøglen, og løs så i
+  vilkårlig rækkefølge: den rigtige sang i Spotify og hendes adresse i Google
+  Maps (begge i en CarPlay-skærm) og sædevarmen. `spotify` og `saedevarme` er
+  konfigurationen til de to trin herunder; `kort` har `adresse`, `by`, `tid`,
+  `afstand`, `hjem` (svaret på "🏠 Hjem") og `forslag` (forkerte adresser med
+  `nej`).
 - `spotify` (`site/spotify.js`): find den rigtige sang i en spilleliste (uge 4).
   `spilleliste`, `beskrivelse`, `sange` (`titel`, `kunstner`, `billede` eller
   `emoji` + `farve`, `rigtig`, `nej`) og `afspil` (linjer der vises, mens den
