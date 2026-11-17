@@ -109,6 +109,18 @@ langt hun er nået. Tallet kommer, når sidste trin er klaret.
 ] }
 ```
 
+Med `"visning": "telefon"` (uge 2: Sicilien, uge 3: hyggeaften) vises trinene
+som apps på hendes iPhone og kan løses i vilkårlig rækkefølge. Det er den samme
+telefon hver uge (`PHONE_APPS` i `trin.js`): ugens apps har et rødt badge, de
+andre siger bare `nej` ("Ikke nu – vi er på ferie 🍋").
+Uge 1 (saunagus) bruger den også: `"efter": "innercise"` på check-in (appen Bruce) holder
+den lukket ("Du skal booke først 😉") til der er booket, og `"udenfor": true`
+på gussen gør, at telefonen lægges væk (`væk`-teksten), når alle apps er klaret,
+og gussen så kommer bagefter i det normale kort.
+
+Med `?debug` er der en "Spring over"-knap på hvert trin. Debug bliver ved, mens
+fanen er åben (også på tværs af links); `?nodebug` slår det fra.
+
 `klaret` på et trin er teksten, der vises når det er løst. Trin-typerne:
 
 - `wolt` (`site/wolt.js`): madbestilling. `besked` vises øverst; hver restaurant

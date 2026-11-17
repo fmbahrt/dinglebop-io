@@ -12,14 +12,14 @@
 // "billede" is an equirectangular (2:1) 360° photo. Without WebGL the "reserve"
 // postkort step is used instead.
 
-import { h, button } from "/felles.js";
+import { h, button, DEBUG } from "/felles.js";
 import { beep } from "/trin.js";
 import postkort, { postcardView } from "/postkort.js";
 
 const TOL = { yaw: 6, pitch: 5, fov: 0.18, roll: 3.5 };
 const FOV_MIN = 30, FOV_MAX = 100;
 const RAD = Math.PI / 180;
-const DEBUG = new URLSearchParams(location.search).has("debug");
+
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const wrap180 = (d) => ((((d + 180) % 360) + 360) % 360) - 180;
 
@@ -179,7 +179,7 @@ export default function panorama(cfg, ctx) {
     render();
     level.style.setProperty("--r", `${st.roll}deg`);
     level.classList.toggle("ok", Math.abs(st.roll) < TOL.roll);
-    if (DEBUG) debugLine.textContent = `debug: yaw ${(((st.yaw % 360) + 360) % 360).toFixed(1)} · pitch ${st.pitch.toFixed(1)} · fov ${st.fov.toFixed(1)} · roll ${st.roll.toFixed(1)}`;
+    if (DEBUG) debugLine.textContent = `${gyro ? `gyro ${gyro.source ?? "–"} ×${gyro.seen}${gyro.compass ? "" : " (intet kompas)"} · ` : ""}debug: yaw ${(((st.yaw % 360) + 360) % 360).toFixed(1)} · pitch ${st.pitch.toFixed(1)} · fov ${st.fov.toFixed(1)} · roll ${st.roll.toFixed(1)}`;
   }
 
   const useFallback = (why) => {
@@ -211,39 +211,57 @@ export default function panorama(cfg, ctx) {
 
   // ---- gyroscope
   const screenAngle = () => (screen.orientation?.angle ?? window.orientation ?? 0);
+  // Some Androids only deliver "deviceorientationabsolute", some leave alpha
+  // (compass) empty. Lock onto whichever event type delivers data first, and
+  // without alpha still follow tilt (turning is then done by dragging).
+  const EVENTS = ["deviceorientation", "deviceorientationabsolute"];
   function onOrient(e) {
-    if (e.alpha == null || !gyro) return;
-    const d = fromDevice(e.alpha, e.beta, e.gamma, screenAngle());
+    if (!gyro) return;
+    gyro.seen++;
+    if (e.beta == null || e.gamma == null) return;
+    if (gyro.source && gyro.source !== e.type) return;
+    gyro.source = e.type;
+    gyro.compass = e.alpha != null;
+    const d = fromDevice(e.alpha ?? 0, e.beta, e.gamma, screenAngle());
     if (gyro.yawOffset == null) gyro.yawOffset = st.yaw - d.yaw; // keep the current view when switching on
     const k = 0.35; // smooth out sensor jitter
-    st.yaw += wrap180(d.yaw + gyro.yawOffset - st.yaw) * k;
+    if (gyro.compass) st.yaw += wrap180(d.yaw + gyro.yawOffset - st.yaw) * k;
     st.pitch += (d.pitch - st.pitch) * k;
     st.roll += wrap180(d.roll - st.roll) * k;
   }
   async function enableMotion() {
     try {
-      if (typeof DeviceOrientationEvent?.requestPermission === "function") {
-        const ok = await DeviceOrientationEvent.requestPermission(); // iPhone asks first
-        if (ok !== "granted") throw new Error("denied");
-      }
-      gyro = { yawOffset: null };
-      addEventListener("deviceorientation", onOrient);
-      motion.textContent = "📱 Bevæg telefonen for at kigge rundt";
-      motion.disabled = true;
-      // No events after a moment = no gyroscope.
-      setTimeout(() => {
-        if (gyro && gyro.yawOffset == null) {
-          stopMotion();
-          motion.textContent = "Ingen bevægelsessensor – træk i billedet i stedet 👆";
+      for (const E of [DeviceOrientationEvent, window.DeviceMotionEvent]) {
+        if (typeof E?.requestPermission === "function") {
+          const ok = await E.requestPermission(); // iPhone asks first
+          if (ok !== "granted") throw new Error("denied");
         }
-      }, 1500);
+      }
     } catch {
-      motion.textContent = "Bevægelse virker ikke – træk i billedet i stedet 👆";
-      motion.disabled = true;
+      motion.textContent = "Du skal tillade bevægelse – genindlæs siden og tryk “Tillad” 🙏";
+      return;
     }
+    stopMotion();
+    gyro = { yawOffset: null, seen: 0, source: null, compass: false };
+    for (const t of EVENTS) addEventListener(t, onOrient);
+    motion.textContent = "📱 Bevæg telefonen for at kigge rundt";
+    motion.disabled = true;
+    // No usable events after a moment = no gyroscope (or it's blocked).
+    setTimeout(() => {
+      if (!gyro || gyro.yawOffset != null) {
+        if (gyro && !gyro.compass) motion.textContent = "📱 Vip telefonen – og træk i billedet for at dreje 👆";
+        return;
+      }
+      const seen = gyro.seen;
+      stopMotion();
+      motion.disabled = false;
+      motion.textContent = seen
+        ? "Sensoren sender ingen data 🤔 Træk i billedet i stedet – eller tryk for at prøve igen"
+        : "Ingen bevægelsessensor 🤔 Tjek at “Bevægelsessensorer” er tilladt i browseren – eller træk i billedet 👆";
+    }, 3000);
   }
   function stopMotion() {
-    removeEventListener("deviceorientation", onOrient);
+    for (const t of EVENTS) removeEventListener(t, onOrient);
     gyro = null;
     st.roll = 0;
   }
@@ -271,8 +289,10 @@ export default function panorama(cfg, ctx) {
       return;
     }
     const degPerPx = st.fov / view.clientWidth;
-    if (gyro && gyro.yawOffset != null) gyro.yawOffset -= dx * degPerPx;
-    else {
+    if (gyro && gyro.yawOffset != null) {
+      if (gyro.compass) gyro.yawOffset -= dx * degPerPx;
+      else st.yaw -= dx * degPerPx; // tilt from the sensor, turning by hand
+    } else {
       st.yaw -= dx * degPerPx;
       st.pitch = clamp(st.pitch + dy * degPerPx, -80, 80);
     }

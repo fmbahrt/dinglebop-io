@@ -16,24 +16,23 @@ import saedevarme from "/saedevarme.js";
 import { driveScene } from "/koretur.js";
 
 const fold = (s) => String(s ?? "").toLocaleLowerCase("da").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9æøå]+/g, " ").trim();
-const TASKS = [
-  { key: "noegle", icon: "🔑", label: "Start" },
-  { key: "musik", icon: "🎵", label: "Musik" },
-  { key: "rute", icon: "🗺️", label: "Rute" },
-  { key: "varme", icon: "🔥", label: "Varme" },
-];
+// What has to be done before we can drive. Only the count is shown, she has
+// to find out what they are herself.
+const TASKS = ["noegle", "musik", "rute", "varme"];
 
 export default function bil(cfg, ctx) {
   const root = h("div", "app bil");
   const done = new Set();
 
   // ---- checklist
-  const list = h("ol", "bil-tasks");
-  const drawList = () => list.replaceChildren(...TASKS.map((t) => {
-    const li = h("li", done.has(t.key) ? "done" : "");
-    li.append(h("span", "bil-task-icon", done.has(t.key) ? "✓" : t.icon), h("span", null, t.label));
-    return li;
-  }));
+  const list = h("div", "bil-tasks");
+  const dots = h("ol", "bil-dots");
+  const count = h("p", "bil-count");
+  list.append(dots, count);
+  const drawList = () => {
+    dots.replaceChildren(...TASKS.map((t, i) => h("li", i < done.size ? (i === done.size - 1 ? "done new" : "done") : "", i < done.size ? "✓" : "")));
+    count.textContent = `${done.size} af ${TASKS.length} ting klaret`;
+  };
   drawList();
 
   // ---- instrument cluster
@@ -193,7 +192,7 @@ export default function bil(cfg, ctx) {
     drawList();
     say(text);
     beep(1319, 80);
-    if (TASKS.every((t) => done.has(t.key))) {
+    if (TASKS.every((t) => done.has(t))) {
       go.hidden = false;
       setTimeout(() => go.scrollIntoView({ behavior: "smooth", block: "center" }), 600);
     }

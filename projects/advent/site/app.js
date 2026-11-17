@@ -5,6 +5,7 @@
 // the leading digit is the week number.
 
 import { holdButton, runHint } from "/hints.js";
+import { DEBUG, link } from "/felles.js";
 
 // One door per advent Sunday on the front page; it unlocks on that date.
 // Add ?debug to the front page URL to unlock them all.
@@ -14,7 +15,6 @@ const SUNDAYS = [
   { date: "2026-12-13", label: "13. december", slug: "3-vYsSg1e7Eru6" },
   { date: "2026-12-20", label: "20. december", slug: "4-HQqKNdpSzBlZ" },
 ];
-const DEBUG = new URLSearchParams(location.search).has("debug");
 
 const $ = (sel) => document.querySelector(sel);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -244,7 +244,7 @@ function door(s, i, today) {
       return;
     }
     b.classList.add("opening");
-    setTimeout(() => (location.href = `/${s.slug}`), reducedMotion ? 0 : 650);
+    setTimeout(() => (location.href = link(`/${s.slug}`)), reducedMotion ? 0 : 650);
   });
   if (solved) tal(s.slug).then((n) => n && (tag.textContent = `Tal: ${n}`));
   return b;
@@ -341,7 +341,7 @@ function showWeek(data) {
   document.title = `${week}. søndag i advent`;
   const back = document.createElement("a");
   back.className = "back-link";
-  back.href = "/";
+  back.href = link("/");
   back.textContent = "← Kalenderen";
   $(".wrap").prepend(back);
   drawWreath(week, { animate: true });

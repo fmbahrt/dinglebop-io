@@ -1,5 +1,7 @@
 {
   "type": "trin",
+  "visning": "telefon",
+  "nej": "Ikke nu – det er hyggeaften 🛋️",
   "hint": "hint.mp4",
   "overskrift": "Hyggeaften 🛋️",
   "knaphint": {
