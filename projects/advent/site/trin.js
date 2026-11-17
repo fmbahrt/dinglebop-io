@@ -22,6 +22,10 @@ const STEPS = {
   saedevarme: () => import("/saedevarme.js"),
   postkort: () => import("/postkort.js"),
   panorama: () => import("/panorama.js"),
+  bil: () => import("/bil.js"),
+  innercise: () => import("/innercise.js"),
+  qr: () => import("/qrscan.js"),
+  gus: () => import("/gus.js"),
 };
 
 export async function trinOpgave(opgave, ctx) {

@@ -6,12 +6,15 @@
 
 import { holdButton, runHint } from "/hints.js";
 
+// One door per advent Sunday on the front page; it unlocks on that date.
+// Add ?debug to the front page URL to unlock them all.
 const SUNDAYS = [
-  { date: "2026-11-29", label: "29. november" },
-  { date: "2026-12-06", label: "6. december" },
-  { date: "2026-12-13", label: "13. december" },
-  { date: "2026-12-20", label: "20. december" },
+  { date: "2026-11-29", label: "29. november", slug: "1-28B4Dct3RWPD" },
+  { date: "2026-12-06", label: "6. december", slug: "2-1bCcfjnGB7cO" },
+  { date: "2026-12-13", label: "13. december", slug: "3-vYsSg1e7Eru6" },
+  { date: "2026-12-20", label: "20. december", slug: "4-HQqKNdpSzBlZ" },
 ];
+const DEBUG = new URLSearchParams(location.search).has("debug");
 
 const $ = (sel) => document.querySelector(sel);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -192,16 +195,69 @@ function showHome() {
   setHead({
     eyebrow: "Advent 2026",
     headline: "Adventskalender",
-    sub: "Hver søndag i advent venter der en kuvert. Scan QR-koden indeni for at åbne den.",
+    sub: "Hver søndag i advent åbner der en ny låge 🎄",
   });
 
   const today = todayISO();
   const idx = SUNDAYS.findIndex((s) => s.date >= today);
   let text;
   if (idx === -1) text = "Glædelig jul ❤️";
-  else if (SUNDAYS[idx].date === today) text = `I dag er det ${idx + 1}. søndag i advent ✉️`;
-  else text = `${idx === 0 ? "Første" : "Næste"} kuvert: søndag d. ${SUNDAYS[idx].label}`;
-  $("#stage").replaceChildren(chip(text));
+  else if (SUNDAYS[idx].date === today) text = `I dag åbner låge ${idx + 1} ✨`;
+  else text = `${idx === 0 ? "Første" : "Næste"} låge åbner søndag d. ${SUNDAYS[idx].label}`;
+
+  const doors = document.createElement("div");
+  doors.className = "doors";
+  SUNDAYS.forEach((s, i) => doors.append(door(s, i, today)));
+  $("#stage").replaceChildren(doors, chip(DEBUG ? "🔓 Debug: alle låger er åbne" : text));
+}
+
+/** An advent door: locked until its Sunday, glowing on the day, ajar with the number once solved. */
+function door(s, i, today) {
+  const open = DEBUG || s.date <= today;
+  const solved = (() => {
+    try { return JSON.parse(localStorage.getItem(`advent:${s.slug}:løst`)) === true; } catch { return false; }
+  })();
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = `door${open ? " open" : " locked"}${s.date === today ? " today" : ""}${solved ? " solved" : ""}`;
+  b.setAttribute("aria-label", open ? `Låge ${i + 1}` : `Låge ${i + 1}, låst til ${s.label}`);
+  b.innerHTML = `
+    <span class="door-inside"><span class="door-glow">${solved ? "✓" : "✨"}</span></span>
+    <span class="door-leaf">
+      <span class="door-panel"></span><span class="door-panel"></span>
+      <span class="door-num">${i + 1}</span>
+      <span class="door-date">${s.label.replace(/ (\w{3})\w*$/, " $1.")}</span>
+      <span class="door-knob"></span>
+      <span class="door-lock">${open ? "" : "🔒"}</span>
+    </span>`;
+  const tag = document.createElement("span");
+  tag.className = "door-tag";
+  tag.textContent = solved ? "Tal: …" : open ? "Åbn ✨" : "Låst";
+  b.append(tag);
+  b.addEventListener("click", () => {
+    if (!open) {
+      b.classList.remove("shake");
+      void b.offsetWidth;
+      b.classList.add("shake");
+      tag.textContent = `Låst til søndag 🔒`;
+      navigator.vibrate?.(80);
+      return;
+    }
+    b.classList.add("opening");
+    setTimeout(() => (location.href = `/${s.slug}`), reducedMotion ? 0 : 650);
+  });
+  if (solved) tal(s.slug).then((n) => n && (tag.textContent = `Tal: ${n}`));
+  return b;
+}
+
+/** The week's number, for doors that have been solved. */
+async function tal(slug) {
+  try {
+    const r = await fetch(`/${slug}/opgave.json`, { cache: "no-cache" });
+    return (await r.json()).tal ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function showUnknown() {
@@ -283,6 +339,11 @@ function showWeek(data) {
   const week = data.week;
   const sunday = SUNDAYS[week - 1];
   document.title = `${week}. søndag i advent`;
+  const back = document.createElement("a");
+  back.className = "back-link";
+  back.href = "/";
+  back.textContent = "← Kalenderen";
+  $(".wrap").prepend(back);
   drawWreath(week, { animate: true });
   setHead({
     eyebrow: `${week}. søndag i advent${sunday ? ` · ${sunday.label}` : ""}`,

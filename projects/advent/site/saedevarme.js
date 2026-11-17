@@ -30,7 +30,9 @@ const SAY = {
   auto: "Auto… men hvad med sædet? 🤔",
 };
 
-export default function saedevarme(cfg, { done }) {
+// Inside the car (bil.js) it runs embedded: { embedded: true } skips the START
+// button (the key is turned elsewhere) and shows the panel straight away.
+export default function saedevarme(cfg, { done, embedded = false }) {
   const target = Number(cfg.niveau ?? 3);
   const say = { ...SAY, ...(cfg.beskeder ?? {}) };
   const root = h("div", "app car");
@@ -47,7 +49,12 @@ export default function saedevarme(cfg, { done }) {
   });
   start.innerHTML = `<span class="car-start-ring"></span><span class="car-start-label">ENGINE<br><b>START</b><br>STOP</span>`;
   off.append(h("p", "car-off-text", cfg.start ?? "Først skal bilen startes…"), start);
-  root.append(off);
+  if (embedded) {
+    root.classList.add("on", "embedded");
+    root.append(panel());
+  } else {
+    root.append(off);
+  }
 
   function panel() {
     const wrap = h("div", "car-panel");

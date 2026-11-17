@@ -15,7 +15,9 @@ import { beep } from "/trin.js";
 const fold = (s) => String(s ?? "").toLocaleLowerCase("da").normalize("NFD").replace(/[̀-ͯ]/g, "");
 const SKIPS = ["Næh, skip ⏭️", "Ikke den… ⏭️", "Den skipper vi altid ⏭️"];
 
-export default function spotify(cfg, { slug, done }) {
+// Inside the car (bil.js) it runs embedded: { embedded: true, onPlay(song) } — no
+// page scrolling, and onPlay fires as soon as the right song starts.
+export default function spotify(cfg, { slug, done, embedded = false, onPlay }) {
   const songs = cfg.sange ?? [];
   const root = h("div", "app spot");
 
@@ -113,7 +115,8 @@ export default function spotify(cfg, { slug, done }) {
     const lyric = h("p", "spot-lyric");
     screen.append(h("p", "spot-now-from", `AFSPILLER FRA PLAYLISTE · ${cfg.spilleliste ?? ""}`.trim()), cover(s, "big"), h("p", "spot-now-title", s.titel), h("p", "spot-artist", s.kunstner ?? ""), bar, times, ctrls, lyric);
     root.replaceChildren(screen);
-    root.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!embedded) root.scrollIntoView({ behavior: "smooth", block: "start" });
+    onPlay?.(s);
     requestAnimationFrame(() => screen.classList.add("playing"));
 
     const lines = [].concat(cfg.afspil ?? []);
@@ -123,7 +126,7 @@ export default function spotify(cfg, { slug, done }) {
       void lyric.offsetWidth;
       lyric.classList.add("in");
     }, 1200 + i * 2200));
-    setTimeout(done, 1200 + Math.max(1, lines.length) * 2200 + 1200);
+    if (done) setTimeout(done, 1200 + Math.max(1, lines.length) * 2200 + 1200);
   }
 
   showList();

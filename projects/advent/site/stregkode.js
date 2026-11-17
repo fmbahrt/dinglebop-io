@@ -8,7 +8,7 @@
 import { h, button, shake, taskShell, intro } from "/felles.js";
 import { camera } from "/kamera.js";
 
-const FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
+const FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "qr_code"];
 
 /** Compare codes by their digits only; UPC-A is EAN-13 with a leading 0. */
 export const norm = (s) => String(s ?? "").replace(/\D/g, "").replace(/^0+/, "");
@@ -108,7 +108,7 @@ async function createDetector() {
   if (!window.ZXing) await loadScript("/vendor/zxing.min.js");
   const Z = window.ZXing;
   const hints = new Map([
-    [Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A, Z.BarcodeFormat.UPC_E, Z.BarcodeFormat.CODE_128]],
+    [Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A, Z.BarcodeFormat.UPC_E, Z.BarcodeFormat.CODE_128, Z.BarcodeFormat.QR_CODE]],
     [Z.DecodeHintType.TRY_HARDER, true],
   ]);
   const reader = new Z.MultiFormatReader();
