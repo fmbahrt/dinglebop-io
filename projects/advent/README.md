@@ -1,14 +1,24 @@
 # advent.dinglebop.io
 
-Adventskalender: én kuvert pr. søndag i advent med en QR-kode, der åbner
-ugens brev.
+**Det store juleescaperoom:** Finn (hund) har stjålet adventsgaven og låst den inde
+i en kiste med en 4-cifret hængelås. Hver søndag i advent åbner et rum med en
+prøve, der giver ét ciffer. Historien og personerne står i [LORE.md](LORE.md).
 
 ## Forsiden
 
-Forsiden (`https://advent.dinglebop.io/`) er en adventskalender med fire låger,
-én pr. søndag. En låge låses op på sin søndag (`SUNDAYS` i `site/app.js`) og
-fører til ugens side; løste låger står på klem med ugens tal. Der er kun én
-QR-kode: den til forsiden. Tilføj `?debug` til adressen for at låse alle op.
+Forsiden (`https://advent.dinglebop.io/`) har en escape room-adventskrans
+(kæde, gran, timeglas, kompas og et nøglehul i midten), hvor de fire portaler
+er lysene: en åben portal har en flamme, en låst kun en væge. Kransen er 3D
+(den ligger på skrå, og portalerne står op på den), svajer lidt og kan drejes
+med fingeren. Portalerne har
+intet navn, kun ugens titel. Over kransen ligger Finns afpresningsbrev, foldet
+sammen og med et rødt "1", indtil hun har åbnet det. Hver låst portal har sin
+egen nedtælling. Under kransen er kodelåsen "Finns kiste", der viser de cifre,
+hun har fundet. En portal er tåget og låst indtil sin søndag
+(`SUNDAYS` i `site/app.js`). Derefter hvirvler den med ugens emoji og titel
+(fra `overskrift` i `opgave.json`) og suger hende ind på ugens side. Når
+ugen er klaret, bliver portalen gylden med ✓. Der er kun én QR-kode: den
+til forsiden. Tilføj `?debug` til adressen for at låse alle op.
 
 ## Ugerne
 
@@ -30,16 +40,30 @@ site/1-28B4Dct3RWPD/brev.txt   ->  https://advent.dinglebop.io/1-28B4Dct3RWPD
 
 Læg en `opgave.json` i uge-mappen. Flowet er så:
 
-1. Hun trykker på kuverten, og hint-videoen afspilles (med lyd).
-2. Når videoen er slut, vises opgaven (fx scanneren, og kameraet starter selv).
-3. "Se hintet igen" afspiller videoen igen, og bagefter kommer opgaven tilbage.
-4. Når opgaven er løst, vises tallet. Telefonen husker det til næste gang.
+1. Hun trykker på en portal, og hendes telefon står på låseskærmen. Det er den
+   samme telefon, hun bagefter løser gåden på: telefonen med apps (uge 1–3) og
+   telefonen, der skal i bilen (uge 4). Efter et øjeblik kommer en notifikation
+   fra "Finn 🐾". Når hun trykker på den, åbner tråden i Beskeder, og Finns
+   beskeder tikker ind én ad gangen med "…", mens han skriver (`site/sms.js`).
+   Et tryk i tråden springer ventetiden over.
+   - Den første besked er et "foto" af første linje i `brev.txt` i udklippede
+     bogstaver (som afpresningsbrevet på forsiden).
+   - Hvert afsnit i `brev.txt` bliver én besked; lange afsnit deles ved
+     punktum. En linje med kun et filnavn bliver et billede i tråden.
+   - Sidens store overskrift er `overskrift` fra `opgave.json`.
+2. Når alle beskeder er kommet, viser "Gå hjem" telefonens hjemmeskærm med
+   apps (eller kablet i bilen), og gåden går i gang. Har hun læst beskederne
+   før (eller løst en app), springer telefonen dem over næste gang
+   (`advent:<uge>:sms-læst`). "Start forfra" viser dem igen. En uge uden telefon får en telefon
+   alene til beskederne og en "Videre →"-knap.
+3. Under gåden kan hun "💬 Læs Finns beskeder igen" (de har ledetråde). Tråden
+   åbner på samme telefon, når den er på skærmen.
+4. Når gåden er løst, vises tallet. Telefonen husker det, og næste gang går
+   den direkte til tallet.
 
 ### Fælles felter
 
 - `type`: hvilken gåde (se nedenfor).
-- `hint`: videofil i samme mappe. Brug **MP4 (H.264)** så den virker på alle
-  telefoner (iPhone: Indstillinger → Kamera → Formater → "Mest kompatibel").
 - `tal`: det tal, der låses op.
 - `løst`: teksten under tallet.
 - `overskrift` / `tekst` (valgfri): vises over gåden. Udelad dem for ikke at
@@ -50,14 +74,14 @@ Læg en `opgave.json` i uge-mappen. Flowet er så:
   - `{ "type": "tekst", "tekst": "Kig i køkkenet 👀" }` viser en kort tekst
 
   Nye typer tilføjes i `site/hints.js`.
-- Står der tekst i `brev.txt` under overskriften, vises den som et brev øverst.
+- Står der tekst i `brev.txt` under overskriften, er det Finns beskeder, som vises før gåden.
 
 ### Gåde-typer
 
 **`stregkode`**: scan den rigtige stregkode med kameraet (uge 1).
 
 ```json
-{ "type": "stregkode", "hint": "hint.mp4", "stregkode": "4037400716206", "tal": "9" }
+{ "type": "stregkode", "stregkode": "4037400716206", "tal": "9" }
 ```
 
 `stregkode` er tallene under stregkoden (mellemrum er ligegyldige). Virker
@@ -132,7 +156,26 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   Præcis én serie skal opfylde alle krav og have `"rigtig": true`. `afspil` er
   teksten, når den rigtige afspilles.
 - `kryds` (`site/kryds.js`): samme krydsord som gåde-typen `kryds` (uge 2),
-  med valgfri `overskrift`.
+  med valgfri `overskrift`. Med `ordjagt` får appen en ekstra fane med en
+  ordjagt (`site/ordjagt.js`), og appen er først klaret, når begge er løst:
+  `"ordjagt": { "navn": "Find ordene", "overskrift": "…", "ord": ["ETNA", …], "størrelse": 10, "baglæns": true }`.
+  Ordene ligger vandret, lodret og på skrå (og baglæns, medmindre
+  `"baglæns": false`). Gitteret laves ud fra en fast seed, så det er ens hver
+  gang. Hun trækker fingeren hen over ordet eller trykker på første og sidste bogstav.
+- `fotojagt` (`site/fotojagt.js`): "lav et postkort derhjemme" med det rigtige
+  kamera. Mens hun sigter, kører der ingenting. Først når hun tager billedet,
+  fryser det, og der står "Finn bedømmer billedet…", mens en
+  objektgenkendelsesmodel (COCO-SSD, `site/vendor/coco-ssd`, Apache-2.0)
+  kigger på billedet i browseren. Er alle `ting` med på samme billede, bliver
+  det til et postkort. Ellers giver Finn en karakter og en `ledetråd` for hver
+  ting, der mangler, og hun kan prøve igen. Pladserne under kameraet viser "?",
+  indtil tingen har været med på et billede. `ting` er en liste af
+  `{ "klasse": "dog", "navn": "Finn", "emoji": "🐶", "ledetråd": "…" }`, hvor
+  `klasse` er et COCO-navn (se `CLASSES` i filen, fx `dog`, `umbrella`,
+  `suitcase`, `wine glass`, `orange`, `cup`, `book`). `grænse` (0–1, standard
+  0.45) styrer, hvor sikker modellen skal være. Efter `nødudgang` sekunder
+  (standard 240) kommer et link: "Tag billedet alligevel". Med `?debug` står
+  scorerne for sidste billede under kameraet.
 - `duolingo` (`site/duolingo.js`): sproglektion (uge 2, italiensk). `sprog`
   (fx `it-IT`) bruges til oplæsning. `opgaver` er en liste af:
   `vælg` (billedkort, `valg` med `tekst`/`emoji`/`rigtig`), `byg` (sæt ord
@@ -153,12 +196,27 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   `min`/`max` i grader pr. sekund). `replikker` ændrer Brians replikker
   (`hej`, `r1`–`r3`, `øsninger` (når runden næsten er slut), `pause`, `ind`,
   `varmt`, `plask`, `tak`). I runde 3 sætter Brian Disturbed på 🤘.
-- `bil` (`site/bil.js`): bilen på vej hjem (uge 4). Drej nøglen, og løs så i
+- `bil` (`site/bil.js`): bilen på vej hjem (uge 4). Først skal hendes telefon
+  (samme hjemmeskærm som de andre uger) tilsluttes med USB-kablet (`site/usb.js`):
+  træk stikket op i telefonen, eller tryk på det, og tryk "Tillad" til CarPlay.
+  Så glider telefonen væk, og dashboardet toner frem. `telefon` kan have
+  `tekst`, `nej`, `spørgsmål`, `tillad`, `afvis` og `ikkenu`; `"telefon": false`
+  springer det over. Drej så nøglen, og løs i
   vilkårlig rækkefølge: den rigtige sang i Spotify og hendes adresse i Google
   Maps (begge i en CarPlay-skærm) og sædevarmen. `spotify` og `saedevarme` er
   konfigurationen til de to trin herunder; `kort` har `adresse`, `by`, `tid`,
   `afstand`, `hjem` (svaret på "🏠 Hjem") og `forslag` (forkerte adresser med
   `nej`).
+- `sang` (`site/sang.js`): Finns melodilås (uge 4, sidste trin). Mikrofonen
+  lytter, og tonehøjden findes i browseren (YIN). `runder` er en liste af
+  `{ "toner": [0, 4, 7], "spil": true, "guide": true, "tekst": "…" }`. `toner`
+  er halvtoner i forhold til første tone, så toneart og oktav er ligegyldig;
+  kun springene op og ned skal passe (`tolerance`, standard 1.4 halvtone).
+  `spil` betyder, at Finn hyler melodien først. `guide: false` skjuler den gule
+  bjælke for næste tone. Det bruges i sidste runde, hvor hun selv skal kende
+  sangen. Med `?debug` vises lydniveau og frekvens, og knappen
+  "🎙 Optag melodi" giver `toner` for det, du synger. Efter `nødudgang`
+  sekunder (standard 300) kommer et link, så Finn kan åbne låsen.
 - `spotify` (`site/spotify.js`): find den rigtige sang i en spilleliste (uge 4).
   `spilleliste`, `beskrivelse`, `sange` (`titel`, `kunstner`, `billede` eller
   `emoji` + `farve`, `rigtig`, `nej`) og `afspil` (linjer der vises, mens den
@@ -167,7 +225,9 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   passagersiden (uge 4). `niveau` (standard 3), `ude` (udetemperatur) og
   `beskeder` for at ændre svarene fra de andre knapper.
 - `ansigter` (`site/ansigter.js`): samme ansigtsgenkendelse som gåde-typen
-  `ansigter`, med `overskrift`/`tekst` og `personer`.
+  `ansigter`, med `tekst` og `personer`. Den vises som en kamera-app (som
+  postkortet i uge 2): topbar med `mode` (standard "ANSIGTER") og `sted`
+  (standard "Fitness World"), søgeren og de fundne ansigter nedenunder.
 - `panorama` (`site/panorama.js`): stå inde i et 360°-foto og tag det perfekte
   postkort ved at holde telefonen op som et kamera (gyroskop; ellers træk).
   `billede` (2:1 equirektangulært 360°-foto i uge-mappen), `mål` og `start`

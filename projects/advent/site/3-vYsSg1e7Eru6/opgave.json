@@ -2,14 +2,13 @@
   "type": "trin",
   "visning": "telefon",
   "nej": "Ikke nu – det er hyggeaften 🛋️",
-  "hint": "hint.mp4",
   "overskrift": "Hyggeaften 🛋️",
   "knaphint": {
     "type": "konfetti",
     "emoji": "🐘"
   },
   "tal": "8",
-  "løst": "Hyggeaften i hus! Husk tallet 🎉",
+  "løst": "Perfekt hyggeaften. Jeg er rørt. Og lidt sulten. Tredje ciffer er dit 🐾 – Finn",
   "trin": [
     {
       "type": "wolt",

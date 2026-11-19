@@ -1,13 +1,12 @@
 {
   "type": "trin",
-  "hint": "hint.mp4",
   "overskrift": "Køreturen hjem 🚗",
   "knaphint": {
     "type": "konfetti",
     "emoji": "🚗"
   },
   "tal": "?",
-  "løst": "Så er du hjemme! Husk tallet 🎉",
+  "løst": "Du gjorde det. Alle fire cifre. Kisten er din. Undskyld. Kan jeg få en godbid nu? 🐾 – Finn",
   "trin": [
     {
       "type": "bil",
@@ -446,8 +445,7 @@
       "type": "ansigter",
       "navn": "Fitness",
       "ikon": "🏋️",
-      "overskrift": "Fitness World 🏋️",
-      "tekst": "Hvem har jeg nu trænet med? 😏",
+      "tekst": "Kan du sætte ansigt på dem Frederik har trænet med?",
       "personer": [
         {
           "navn": "Kåre Quist",
@@ -460,6 +458,52 @@
         {
           "navn": "Thomas Rathsack",
           "billede": "kendis-3.jpg"
+        }
+      ],
+      "sted": "Fitness World"
+    },
+    {
+      "type": "sang",
+      "navn": "Melodilåsen",
+      "ikon": "🎤",
+      "klaret": "Melodilåsen er åben! 🎶",
+      "tekst": "Næsten hjemme. Men Finn har sat en melodilås på bagdøren 🔒🎶 Den åbner kun for den rigtige sang. Han starter. Du synger efter.",
+      "åben": "Låsen er åben! Finn hyler med fra bagsædet 🐶🎶",
+      "runder": [
+        {
+          "toner": [
+            0,
+            4,
+            7
+          ],
+          "spil": true,
+          "tekst": "Lås 1: Finn hyler. Syng efter! 🐶"
+        },
+        {
+          "toner": [
+            0,
+            2,
+            4,
+            7,
+            4
+          ],
+          "spil": true,
+          "tekst": "Lås 2: Lidt længere nu 🐶"
+        },
+        {
+          "toner": [
+            0,
+            2,
+            4,
+            5,
+            4,
+            2,
+            0
+          ],
+          "spil": false,
+          "guide": false,
+          "_todo": "Optag omkvædet med ?debug → 🎙 Optag melodi, og sæt tonerne ind her",
+          "tekst": "Sidste lås: Omkvædet fra den sang, vi altid synger på vej hjem 🎶"
         }
       ]
     }

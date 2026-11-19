@@ -8,6 +8,7 @@
 // Also usable as a step in a "trin" task: { "type": "kryds", "ord": [ … ] }.
 
 import { h, store, taskShell, intro } from "/felles.js";
+import { ordjagt } from "/ordjagt.js";
 
 const up = (s) => String(s ?? "").toLocaleUpperCase("da");
 const DIRS = { vandret: [0, 1], lodret: [1, 0] };
@@ -20,15 +21,69 @@ export function krydsOpgave(opgave, ctx) {
   });
 }
 
-/** As a step in a "trin" task. */
+/**
+ * As a step in a "trin" task. With "ordjagt": { "ord": [ … ] } the app gets a
+ * second tab with a word search; the step is done when both are solved.
+ */
 export default function krydsTrin(cfg, { slug, done }) {
   const el = h("div", "kryds-trin");
-  el.append(...(cfg.overskrift ? [h("p", "kryds-trin-title", cfg.overskrift)] : []), ...board(cfg, store(`advent:${slug}:kryds`), done));
+  const title = cfg.overskrift ? [h("p", "kryds-trin-title", cfg.overskrift)] : [];
+  if (!cfg.ordjagt) {
+    el.append(...title, ...board(cfg, store(`advent:${slug}:kryds`), done));
+    return { el };
+  }
+
+  const state = store(`advent:${slug}:ordjagt`);
+  const get = () => ({ kryds: false, fundet: [], ...(state.get() ?? {}) });
+  const set = (patch) => state.set({ ...get(), ...patch });
+  const both = () => get().kryds && get().fundet.length >= cfg.ordjagt.ord.length;
+  const finish = () => { if (both()) done(); };
+
+  const panes = [
+    h("div", "kryds-pane"),
+    h("div", "kryds-pane"),
+  ];
+  panes[0].append(...board(cfg, store(`advent:${slug}:kryds`), () => {
+    set({ kryds: true });
+    tabs[0].classList.add("ok");
+    both() ? finish() : setTimeout(() => show(1), 700);
+  }, { keep: true }));
+  panes[1].append(...(cfg.ordjagt.overskrift ? [h("p", "oj-title", cfg.ordjagt.overskrift)] : []), ordjagt(cfg.ordjagt, {
+    seed: slug,
+    found: get().fundet,
+    onFound: (fundet) => set({ fundet }),
+    onSolved: () => {
+      tabs[1].classList.add("ok");
+      both() ? finish() : show(0);
+    },
+  }));
+
+  const tabs = ["Krydsord", cfg.ordjagt.navn ?? "Find ordene"].map((label, i) => {
+    const b = h("button", "kryds-tab", label);
+    b.type = "button";
+    b.addEventListener("click", () => show(i));
+    return b;
+  });
+  if (get().kryds) tabs[0].classList.add("ok");
+  if (get().fundet.length >= cfg.ordjagt.ord.length) tabs[1].classList.add("ok");
+
+  function show(i) {
+    tabs.forEach((t, j) => t.classList.toggle("on", i === j));
+    panes.forEach((p, j) => (p.hidden = i !== j));
+  }
+  show(get().kryds && !tabs[1].classList.contains("ok") ? 1 : 0);
+
+  const bar = h("div", "kryds-tabs");
+  bar.append(...tabs);
+  el.append(...title, bar, ...panes);
   return { el };
 }
 
-/** The crossword itself: [clue bar, grid, message, clue lists]. Letters are saved in progress. */
-function board(opgave, progress, solve) {
+/**
+ * The crossword itself: [clue bar, grid, message, clue lists]. Letters are saved
+ * in progress; with keep they stay after solving (shown as solved next time).
+ */
+function board(opgave, progress, solve, { keep = false } = {}) {
   const words = buildWords(opgave.ord ?? []);
   {
     const { cells, rows, cols, minR, minC } = layout(words);
@@ -175,12 +230,20 @@ function board(opgave, progress, solve) {
         grid.classList.add("done");
         msg.textContent = "Det er rigtigt! ✨";
         setTimeout(() => {
-          progress.clear();
+          if (!keep) progress.clear();
           solve();
         }, 900);
       } else {
         msg.textContent = "Næsten! Noget passer ikke helt 🤔";
       }
+    }
+
+    // Already solved earlier (keep): show it filled in and locked.
+    const all = [...cells.values()];
+    if (keep && all.every((c) => up(c.input.value) === c.letter)) {
+      grid.classList.add("done");
+      all.forEach((c) => (c.input.readOnly = true));
+      clueBar.textContent = "Løst ✓";
     }
 
     return [clueBar, grid, msg, lists];

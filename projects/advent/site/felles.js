@@ -21,8 +21,6 @@ export const DEBUG = (() => {
 /** A same-site link that keeps ?debug on. */
 export const link = (path) => (DEBUG ? `${path}?debug` : path);
 
-const ORDINAL = ["Første", "Andet", "Tredje", "Fjerde"];
-
 export function h(tag, className, text) {
   const e = document.createElement(tag);
   if (className) e.className = className;
@@ -72,7 +70,7 @@ export function taskShell(opgave, { week, slug }, { renderLocked, activate = () 
   function showUnlocked(animate) {
     card.className = `task unlocked${animate ? " pop" : ""}`;
     card.replaceChildren(
-      h("p", "task-label", `${ORDINAL[week - 1] ?? ""} tal`.trim()),
+      h("p", "task-label", `Klaret · ciffer ${week} af 4`),
       h("p", "task-number", opgave.tal ?? "?"),
       h("p", "task-text", opgave.løst ?? "Godt klaret! Husk tallet 🎉"),
     );
@@ -103,10 +101,12 @@ export function taskShell(opgave, { week, slug }, { renderLocked, activate = () 
   };
 }
 
-/** Optional heading + text from opgave.json (left out = nothing, so nothing is given away). */
+/**
+ * Optional text from opgave.json (left out = nothing, so nothing is given away).
+ * "overskrift" is the page headline now, so it isn't repeated above the puzzle.
+ */
 export function intro(opgave) {
   return [
-    ...(opgave.overskrift ? [h("h2", "task-title", opgave.overskrift)] : []),
     ...(opgave.tekst ? [h("p", "task-text", opgave.tekst)] : []),
   ];
 }
