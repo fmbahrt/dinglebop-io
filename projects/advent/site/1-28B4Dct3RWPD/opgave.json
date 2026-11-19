@@ -3,14 +3,13 @@
   "visning": "telefon",
   "nej": "Ikke nu – vi skal til gus 🧖",
   "væk": "Telefonen i skabet – nu er det gus! 📵🧖",
-  "hint": "hint.mp4",
   "overskrift": "Saunagus 🧖",
   "knaphint": {
     "type": "konfetti",
     "emoji": "🧖"
   },
   "tal": "9",
-  "løst": "Gus klaret! Husk tallet til senere 🎉",
+  "løst": "Brian holdt ikke tæt. Typisk. Første ciffer er dit 🐾 – Finn",
   "trin": [
     {
       "type": "innercise",

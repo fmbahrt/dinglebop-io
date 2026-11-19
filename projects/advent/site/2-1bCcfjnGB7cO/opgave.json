@@ -2,69 +2,88 @@
   "type": "trin",
   "visning": "telefon",
   "nej": "Ikke nu – vi er på ferie 🍋",
-  "hint": "hint.mp4",
   "overskrift": "Ferien på Sicilien 🍋",
   "knaphint": {
     "type": "konfetti",
     "emoji": "🍋"
   },
   "tal": "?",
-  "løst": "Arrivederci Sicilia! Husk tallet 🎉",
+  "løst": "Okay, okay. I VAR der. Uden mig. Andet ciffer er dit 🐾 – Finn",
   "trin": [
     {
       "type": "kryds",
       "navn": "Kryds",
       "ikon": "✏️",
-      "overskrift": "Feriens kryds og tværs",
-      "klaret": "Krydsordet er løst!",
+      "overskrift": "Feriens gåder ✏️",
+      "klaret": "Begge gåder er løst!",
+      "ordjagt": {
+        "navn": "Find ordene",
+        "overskrift": "Find de fem ord 🔍",
+        "størrelse": 10,
+        "baglæns": true,
+        "ord": [
+          "CATANIA",
+          "SIRACUSA",
+          "NOTO",
+          "TAORMINA",
+          "ETNA"
+        ]
+      },
       "ord": [
         {
-          "svar": "VEDBÆK",
-          "ledetråd": "Her vinterbader vi 🥶",
+          "svar": "GRANITA",
+          "ledetråd": "Is-slush til morgenmad 🍧",
           "række": 1,
-          "kolonne": 1,
+          "kolonne": 3,
+          "retning": "vandret"
+        },
+        {
+          "svar": "AIRBNB",
+          "ledetråd": "Vores hjem på ferien",
+          "række": 1,
+          "kolonne": 5,
           "retning": "lodret"
         },
         {
-          "svar": "LASAGNE",
-          "ledetråd": "Livret",
-          "række": 1,
-          "kolonne": 3,
+          "svar": "PANDA",
+          "ledetråd": "Fiat …",
+          "række": 2,
+          "kolonne": 10,
+          "retning": "lodret"
+        },
+        {
+          "svar": "SOLCREME",
+          "ledetråd": "Faktor 50 ☀️",
+          "række": 3,
+          "kolonne": 1,
+          "retning": "vandret"
+        },
+        {
+          "svar": "SPRITZ",
+          "ledetråd": "Orange drink ved solnedgang 🍹",
+          "række": 3,
+          "kolonne": 1,
           "retning": "lodret"
         },
         {
           "svar": "UMBRELLA",
           "ledetråd": "Sunbed and …",
-          "række": 1,
-          "kolonne": 7,
-          "retning": "lodret"
-        },
-        {
-          "svar": "FINN",
-          "ledetråd": "Hunden 🐶",
-          "række": 1,
-          "kolonne": 10,
-          "retning": "lodret"
-        },
-        {
-          "svar": "BRIAN",
-          "ledetråd": "Gusmester",
-          "række": 4,
-          "kolonne": 6,
-          "retning": "vandret"
-        },
-        {
-          "svar": "KINOPALÆET",
-          "ledetråd": "Biografen med luksussæder",
           "række": 6,
-          "kolonne": 1,
+          "kolonne": 3,
           "retning": "vandret"
         },
         {
-          "svar": "PANDA",
-          "ledetråd": "Fiat …",
+          "svar": "LIDL",
+          "ledetråd": "Supermarkedet",
+          "række": 6,
+          "kolonne": 8,
+          "retning": "lodret"
+        },
+        {
+          "svar": "STRAND",
+          "ledetråd": "Her lå vi hele dagen 🏖️",
           "række": 8,
-          "kolonne": 6,
+          "kolonne": 3,
           "retning": "vandret"
         }
       ]
@@ -192,43 +211,42 @@
       ]
     },
     {
-      "type": "panorama",
+      "type": "fotojagt",
       "navn": "Postkort",
       "ikon": "📸",
       "klaret": "Det perfekte postkort!",
-      "billede": "palermo-360.jpg",
-      "by": "Palermo",
-      "_foto": "Quattro Canti, Palermo – Andreas Mischok via Poly Haven, CC0",
-      "mål": {
-        "yaw": 3,
-        "pitch": 12,
-        "fov": 70
-      },
-      "start": {
-        "yaw": 200,
-        "pitch": -5,
-        "fov": 90
-      },
-      "besked": "Løft telefonen, kig dig omkring, og tag det perfekte postkort 📸",
-      "hilsen": "Ciao bella!\nKan du huske, da vi jagtede det perfekte postkort i Noto? Du fik det til sidst ❤️",
-      "til": "Til verdens bedste",
-      "adresse": "rejsemakker ❤️",
-      "reserve": {
-        "billede": "noto.jpg",
-        "_foto": "Cathedral of San Nicolò, Noto – VanSky Studio, CC BY-SA 4.0 (Wikimedia Commons)",
-        "mål": {
-          "x": 0.53,
-          "y": 0.4,
-          "zoom": 1.6
+      "by": "Sicilia",
+      "titel": "Saluti dalla Sicilia",
+      "besked": "Finn var ikke med på Sicilien. Så nu kommer Sicilien til Finn. Lav det perfekte Sicilien-postkort derhjemme, og tag billedet 📸 Finn bedømmer det.",
+      "ting": [
+        {
+          "klasse": "dog",
+          "navn": "Finn",
+          "emoji": "🐶",
+          "ledetråd": "Hvor er hovedpersonen?! Postkortet er intet værd uden mig 🐾"
         },
-        "start": {
-          "x": 0.38,
-          "y": 0.66,
-          "zoom": 1,
-          "drej": 7
+        {
+          "klasse": "umbrella",
+          "navn": "Parasol",
+          "emoji": "☂️",
+          "ledetråd": "Uden noget at holde solen væk med får man solstik ☀️"
         },
-        "besked": "Kan du tage det perfekte postkort? Træk, zoom og ret op 📸"
-      }
+        {
+          "klasse": "suitcase",
+          "navn": "Kuffert",
+          "emoji": "🧳",
+          "ledetråd": "Hvordan kom du overhovedet til Sicilien uden noget at pakke i? ✈️"
+        },
+        {
+          "klasse": "wine glass",
+          "navn": "Spritz",
+          "emoji": "🍷",
+          "ledetråd": "Ingen solnedgang uden noget at skåle i 🌅"
+        }
+      ],
+      "hilsen": "Ciao bella!\nSå kom jeg endelig med til Sicilien. Næsten. 🐾",
+      "til": "Til Anne ❤️",
+      "adresse": "fra Finn 🐾"
     }
   ]
 }

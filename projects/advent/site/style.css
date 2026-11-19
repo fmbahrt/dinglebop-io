@@ -22,12 +22,38 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   min-height: 100svh;
-  background: radial-gradient(130% 70% at 50% 0%, var(--pine) 0%, var(--night) 65%) fixed, var(--night);
+  background:
+    radial-gradient(90% 45% at 50% 0%, rgba(255, 170, 70, .16), transparent 70%) fixed,
+    radial-gradient(130% 70% at 50% 0%, var(--pine) 0%, var(--night) 65%) fixed,
+    var(--night);
   color: var(--text);
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
+
+/* Dark corners, like a dim room lit by candles. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, .55) 100%);
+}
+
+/* ---------- String of Christmas lights ---------- */
+
+.lights { position: absolute; top: 0; left: 0; right: 0; z-index: 2; height: 2.6rem; pointer-events: none; }
+.lights svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lights polyline { fill: none; stroke: #1a2a22; stroke-width: 1.6px; vector-effect: non-scaling-stroke; }
+.bulb { position: absolute; width: .55rem; height: .85rem; margin-left: -.275rem; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: var(--c); box-shadow: 0 0 10px 2px var(--c); animation: bulb 2.2s ease-in-out infinite; }
+.bulb::before { content: ""; position: absolute; left: 50%; top: -.22rem; width: .32rem; height: .3rem; border-radius: 2px; background: #2c3a33; transform: translateX(-50%); }
+.bulb.c0 { --c: #ff4d4d; }
+.bulb.c1 { --c: #ffd257; }
+.bulb.c2 { --c: #4fe08a; }
+.bulb.c3 { --c: #59b8ff; }
+@keyframes bulb { 50% { opacity: .35; box-shadow: 0 0 3px 0 var(--c); } }
 
 #snow {
   position: fixed;
@@ -44,7 +70,7 @@ body {
   max-width: 34rem;
   min-height: 100svh;
   margin: 0 auto;
-  padding: max(1.25rem, env(safe-area-inset-top)) 1rem calc(3rem + env(safe-area-inset-bottom));
+  padding: calc(max(1.25rem, env(safe-area-inset-top)) + 1.4rem) 1rem calc(3rem + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -89,9 +115,8 @@ body {
 .head { margin-top: 1rem; }
 
 .eyebrow {
-  font-size: .75rem;
-  font-weight: 600;
-  letter-spacing: .18em;
+  font: 400 .8rem/1.4 "Special Elite", ui-monospace, monospace;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -359,9 +384,8 @@ h1 {
 }
 
 .task-label {
-  font-size: .75rem;
-  font-weight: 600;
-  letter-spacing: .18em;
+  font: 400 .78rem/1.4 "Special Elite", ui-monospace, monospace;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--gold);
 }
@@ -373,20 +397,15 @@ h1 {
   text-shadow: 0 0 28px rgba(255, 200, 90, .55);
 }
 
-/* ---------- Hint video ---------- */
+/* ---------- Week page: Finn's letter, then the puzzle ---------- */
 
 [hidden] { display: none !important; }
 
-.hint-video { animation: rise .7s cubic-bezier(.2, .8, .3, 1) both; }
-.hint-video video {
-  display: block;
-  width: 100%;
-  max-height: 72svh;
-  margin-top: .75rem;
-  border-radius: 16px;
-  background: #000;
-  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .75);
-}
+.letter-step.in { animation: rise .6s cubic-bezier(.2, .8, .3, 1) both; }
+.letter-step.out { animation: letter-away .45s ease-in both; }
+@keyframes letter-away { to { opacity: 0; transform: translateY(-1.2rem) rotate(-2deg) scale(.96); } }
+.letter-next { display: flex; margin: 1.4rem auto 0; }
+.task.in { animation: rise .6s cubic-bezier(.2, .8, .3, 1) both; }
 
 .btn-ghost {
   background: transparent;
@@ -1775,36 +1794,69 @@ h1 {
 .metal .g-brian { animation: g-headbang .3s ease-in-out infinite; transform-origin: 59px 70px; }
 @keyframes g-headbang { 50% { transform: rotate(6deg) translateY(2px); } }
 
-/* ---------- Front page: four advent doors ---------- */
-.doors { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.4rem 1rem; width: min(100%, 22rem); margin: .4rem auto 1.2rem; }
-.door { position: relative; display: block; aspect-ratio: 3 / 4; padding: 0; border: 0; background: none; perspective: 900px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.door-inside { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 10px 10px 6px 6px; background: radial-gradient(circle at 50% 45%, #ffe7a8, #e9a93a 45%, #6b3a12 100%); box-shadow: inset 0 0 18px rgba(0, 0, 0, .6); }
-.door-glow { font-size: 2.2rem; filter: drop-shadow(0 0 8px #fff3c4); }
-.door.solved .door-glow { color: #1d3a2f; font-weight: 800; filter: none; }
-.door-leaf {
-  position: absolute; inset: 0; display: grid; grid-template-rows: 1fr 1fr; gap: 9%; padding: 12% 12% 22%;
-  border: 3px solid var(--gold); border-radius: 10px 10px 6px 6px;
-  background: linear-gradient(135deg, #a3212b, #6e1219);
-  box-shadow: 0 10px 22px -10px rgba(0, 0, 0, .8), inset 0 0 0 2px rgba(0, 0, 0, .25);
-  transform-origin: 0 50%; transition: transform .65s cubic-bezier(.4, .1, .3, 1); backface-visibility: hidden;
+/* ---------- Front page: four portals ---------- */
+@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.portals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.9rem 1rem; width: min(100%, 22rem); margin: .4rem auto 1.4rem; }
+.portal { position: relative; display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: 0; border: 0; background: none; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.portal-gate { position: relative; display: block; width: 100%; aspect-ratio: 1; margin-bottom: .45rem; }
+/* The swirling rim. */
+.portal-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from var(--spin), #ffd27f, #f4978e, #c9a3ff, #7fd1ff, #7fd1ae, #ffd27f);
+  -webkit-mask: radial-gradient(closest-side, transparent 80%, #000 82%, #000 97%, transparent 99%);
+  mask: radial-gradient(closest-side, transparent 80%, #000 82%, #000 97%, transparent 99%);
+  filter: drop-shadow(0 0 10px rgba(201, 163, 255, .55));
+  animation: portal-spin 5s linear infinite;
 }
-.door-panel { border: 2px solid rgba(233, 196, 106, .55); border-radius: 6px; background: rgba(0, 0, 0, .12); }
-.door-num { position: absolute; top: 50%; left: 50%; color: var(--gold-soft); font: 500 2.6rem/1 "Fraunces", Georgia, serif; text-shadow: 0 2px 6px rgba(0, 0, 0, .5); transform: translate(-50%, -62%); }
-.door-date { position: absolute; left: 0; right: 0; bottom: 8%; color: var(--gold-soft); font-size: .78rem; letter-spacing: .04em; text-align: center; }
-.door-knob { position: absolute; right: 9%; top: 52%; width: .55rem; height: .55rem; border-radius: 50%; background: var(--gold); box-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
-.door-lock { position: absolute; top: 6%; right: 8%; font-size: 1rem; }
-.door-tag { position: absolute; left: 50%; bottom: -1.5rem; color: var(--text-soft); font-size: .8rem; white-space: nowrap; transform: translateX(-50%); }
-.door.locked .door-leaf { filter: saturate(.55) brightness(.75); }
-.door.open .door-leaf { box-shadow: 0 0 0 2px rgba(233, 196, 106, .4), 0 10px 22px -10px rgba(0, 0, 0, .8); }
-.door.today .door-leaf { animation: door-glow 1.8s ease-in-out infinite; }
-@keyframes door-glow { 50% { box-shadow: 0 0 22px 4px rgba(255, 210, 120, .55), 0 10px 22px -10px rgba(0, 0, 0, .8); } }
-.door.solved .door-leaf { transform: rotateY(-38deg); }
-.door.solved .door-tag { color: var(--gold-soft); font-weight: 700; }
-.door.opening .door-leaf { transform: rotateY(-105deg); }
-.door:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 4px; border-radius: 10px; }
-.door.shake { animation: shake .4s ease; }
-.doors + .chip { margin-top: 2rem; }
-.back-link { position: absolute; top: max(.9rem, env(safe-area-inset-top)); left: 1rem; z-index: 2; color: var(--text-soft); font-size: .85rem; text-decoration: none; }
+@keyframes portal-spin { to { --spin: 360deg; } }
+/* Inside: a hazy vortex with the week's emoji. */
+.portal-core { position: absolute; inset: 9%; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: radial-gradient(circle at 50% 45%, #fff3d6 0%, #f4c27a 22%, #8a4fa8 55%, #1b1440 100%); box-shadow: inset 0 0 22px rgba(0, 0, 0, .55); }
+.portal-swirl { position: absolute; inset: -20%; background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, .16) 0 12deg, transparent 12deg 30deg); -webkit-mask: radial-gradient(closest-side, #000 20%, transparent 75%); mask: radial-gradient(closest-side, #000 20%, transparent 75%); animation: portal-swirl 9s linear infinite; }
+@keyframes portal-swirl { to { transform: rotate(-360deg); } }
+.portal-emoji { position: relative; font-size: 2.5rem; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .45)); animation: portal-float 3.2s ease-in-out infinite; }
+@keyframes portal-float { 50% { transform: translateY(-.25rem) scale(1.05); } }
+.portal-num { color: var(--gold); font: 400 .72rem/1 "Special Elite", ui-monospace, monospace; letter-spacing: .3em; text-transform: uppercase; }
+.portal-name { max-width: 100%; color: var(--text); font: 500 1rem/1.2 "Fraunces", Georgia, serif; text-align: center; }
+.portal-tag { color: var(--text-soft); font: 400 .78rem/1.2 "Special Elite", ui-monospace, monospace; white-space: nowrap; }
+/* Locked: fogged up and still. */
+.portal.locked .portal-ring { filter: saturate(0) brightness(.55); animation: none; }
+.portal.locked .portal-core { background: radial-gradient(circle at 50% 40%, #6b7480, #343a44 60%, #1b1f25); }
+.portal.locked .portal-swirl { animation-duration: 40s; opacity: .4; }
+.portal.locked .portal-emoji { color: rgba(255, 255, 255, .55); font: 500 2.4rem/1 "Fraunces", Georgia, serif; animation: none; filter: blur(.5px); }
+.portal-lock { position: absolute; right: 4%; bottom: 4%; display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: #1b1f25; box-shadow: 0 0 0 2px #5d636b; font-size: 1rem; }
+.portal.locked .portal-name { color: var(--text-soft); font-size: .9rem; }
+/* Today: it hums. */
+.portal.today .portal-gate { animation: portal-hum 1.8s ease-in-out infinite; }
+@keyframes portal-hum { 50% { transform: scale(1.04); filter: drop-shadow(0 0 18px rgba(255, 210, 120, .6)); } }
+/* Solved: calm and golden. */
+.portal.solved .portal-ring { background: conic-gradient(from var(--spin), #f6dc8c, #c99a3b, #fff3c4, #c99a3b, #f6dc8c); animation-duration: 14s; filter: drop-shadow(0 0 8px rgba(246, 220, 140, .5)); }
+.portal.solved .portal-core { background: radial-gradient(circle at 50% 45%, #fff8e6, #f1d9a6 55%, #b8894a); }
+.portal.solved .portal-swirl { opacity: .35; animation-duration: 30s; }
+.portal-check { position: absolute; right: 4%; bottom: 4%; display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: #34c759; color: #fff; font-weight: 800; box-shadow: 0 2px 6px rgba(0, 0, 0, .45); }
+.portal.solved .portal-tag { color: var(--gold-soft); font-weight: 700; }
+.portal:focus-visible { outline: none; }
+.portal:focus-visible .portal-gate { border-radius: 50%; outline: 2px solid var(--gold-soft); outline-offset: 4px; }
+.portal.shake { animation: shake .4s ease; }
+/* Stepping in. */
+.portal.warping .portal-gate { z-index: 5; transition: transform .9s cubic-bezier(.6, 0, .9, .4); transform: scale(7) rotate(140deg); }
+.warp { position: fixed; inset: 0; z-index: 50; pointer-events: none; background: radial-gradient(circle at var(--x) var(--y), #fff8e6 0, #f4c27a 25%, #8a4fa8 60%, #1b1440 100%); opacity: 0; animation: warp .9s ease-in forwards; }
+@keyframes warp { 60% { opacity: .2; } 100% { opacity: 1; } }
+.portals + .chip { margin-top: 2rem; }
+
+/* ---------- Countdown to the next room ---------- */
+
+/* ---------- Combination lock with the digits found ---------- */
+.codelock { position: relative; width: min(100%, 17.5rem); margin: 3.6rem auto .5rem; }
+.codelock-shackle { position: absolute; left: 50%; bottom: calc(100% - .6rem); width: 8.5rem; height: 3.4rem; border: .85rem solid #b9bec4; border-bottom: 0; border-radius: 4.5rem 4.5rem 0 0; background: none; box-shadow: inset 0 3px 3px rgba(0, 0, 0, .25); transform: translateX(-50%); }
+.codelock-shackle::after { content: ""; position: absolute; inset: -.85rem; border-radius: inherit; border: 1px solid rgba(255, 255, 255, .35); border-bottom: 0; }
+.codelock-body { position: relative; padding: 1rem 1rem 1.05rem; border-radius: 18px; background: linear-gradient(160deg, #f1d488, #c4943a 45%, #8b6421); box-shadow: 0 16px 34px -14px #000, inset 0 2px 0 rgba(255, 255, 255, .45), inset 0 -3px 0 rgba(0, 0, 0, .2); }
+.codelock-label { color: #3b2a0e; font: 400 .8rem/1 "Special Elite", ui-monospace, monospace; letter-spacing: .3em; text-transform: uppercase; }
+.codelock-wheels { display: flex; justify-content: center; gap: .45rem; margin-top: .65rem; padding: .45rem; border-radius: 10px; background: #2b1f0d; box-shadow: inset 0 3px 8px rgba(0, 0, 0, .7); }
+.codelock-wheel { display: grid; place-items: center; width: 2.9rem; height: 3.6rem; border-radius: 6px; background: linear-gradient(#2a2a2a, #8d8a82 18%, #efe9db 42%, #efe9db 58%, #8d8a82 82%, #2a2a2a); color: #9a948a; font: 500 1.9rem/1 "Fraunces", Georgia, serif; }
+.codelock-wheel.found { color: #1d140a; animation: pop .6s cubic-bezier(.3, 1.6, .5, 1) both; }
+.codelock-sub { margin-top: .6rem; color: #3b2a0e; font-size: .82rem; font-weight: 600; }
+.codelock.complete .codelock-body { box-shadow: 0 0 30px 4px rgba(255, 210, 120, .45), 0 16px 34px -14px #000, inset 0 2px 0 rgba(255, 255, 255, .45); }
+.back-link { position: absolute; top: calc(max(.9rem, env(safe-area-inset-top)) + 2rem); left: 1rem; z-index: 2; color: var(--text-soft); font-size: .85rem; text-decoration: none; }
 
 /* ?debug: skip the current step */
 .debug-skip { display: block; margin: .9rem auto 0; padding: .45rem 1rem; border: 1px dashed #9fd3ff; border-radius: 999px; background: rgba(0, 0, 0, .3); color: #9fd3ff; font: 600 .8rem/1 ui-monospace, Menlo, monospace; cursor: pointer; touch-action: manipulation; }
@@ -1955,3 +2007,354 @@ h1 {
 .iph { transition: transform .9s cubic-bezier(.5, 0, .75, 0), opacity .9s ease-in; }
 .iph.away { opacity: 0; transform: translateY(45%) rotate(-8deg) scale(.7); pointer-events: none; }
 .iph-icon.ic-bruce { color: #fff; font: 800 1rem/1 system-ui, sans-serif; letter-spacing: -.03em; }
+
+/* ---------- Finn's ransom note ---------- */
+.ransom { position: relative; width: min(100%, 22rem); margin: 0 auto 2.2rem; text-align: left; }
+.ransom summary { display: block; width: max-content; margin: 0 auto; padding: .55rem 1.05rem; border: 1px dashed rgba(233, 196, 106, .55); border-radius: 999px; color: var(--gold-soft); font: 400 .9rem/1.2 "Special Elite", ui-monospace, monospace; cursor: pointer; list-style: none; -webkit-tap-highlight-color: transparent; }
+.ransom summary::-webkit-details-marker { display: none; }
+.ransom[open] summary { margin-bottom: .9rem; border-style: solid; opacity: .75; }
+.ransom[open] summary::after { content: " · luk"; }
+.ransom[open] > :not(summary) { animation: rise .6s cubic-bezier(.2, .8, .3, 1) both; }
+.ransom-title { display: flex; flex-wrap: wrap; justify-content: center; gap: .14rem; padding: 1.3rem 1rem .4rem; border-radius: 3px 3px 0 0; background: #f6efdf; }
+.ransom-title { column-gap: .65rem; row-gap: .35rem; }
+.ransom-word { display: inline-flex; gap: .14rem; white-space: nowrap; }
+.ransom-title .cut { display: inline-grid; place-items: center; min-width: 1.45rem; padding: .12rem .2rem; transform: rotate(var(--r)); box-shadow: 0 1px 2px rgba(0, 0, 0, .35); font-size: 1.35rem; line-height: 1; }
+.cut.k0 { background: #111; color: #fff; font-family: "Fraunces", Georgia, serif; }
+.cut.k1 { background: #c8102e; color: #fff; font-family: "Special Elite", monospace; }
+.cut.k2 { background: #ffe082; color: #222; font-family: system-ui, sans-serif; font-weight: 900; }
+.cut.k3 { background: #fff; color: #1b4d8c; font-family: "Lora", Georgia, serif; font-style: italic; }
+.cut.k4 { background: #2b5e3e; color: #f3dca0; font-family: "Caveat", cursive; font-size: 1.6rem; }
+.ransom-body { padding: .9rem 1.4rem 3.2rem; border-radius: 0 0 3px 3px; background: #f6efdf; color: var(--ink); font: 500 1.35rem/1.25 "Caveat", cursive; box-shadow: 0 26px 50px -22px rgba(0, 0, 0, .8); }
+.ransom-body p + p { margin-top: .55rem; }
+.ransom-sign { text-align: right; font-weight: 700; }
+.ransom-ps { color: var(--ink-soft); font-size: 1.1rem; }
+.ransom-paw { position: absolute; right: 1rem; bottom: .5rem; font-size: 2.4rem; opacity: .22; transform: rotate(-18deg); pointer-events: none; }
+.ransom:not([open]) .ransom-paw { display: none; }
+
+/* ---- Crossword app tabs + word search (ordjagt.js) */
+.kryds-tabs {
+  display: flex;
+  gap: 4px;
+  margin: .55rem auto .2rem;
+  padding: 3px;
+  max-width: 20rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+}
+.kryds-tab {
+  flex: 1;
+  padding: .45rem .6rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
+  font: 600 .85rem/1.2 "Nunito", system-ui, sans-serif;
+  cursor: pointer;
+}
+.kryds-tab.on { background: var(--gold); color: var(--ink); }
+.kryds-tab.ok::after { content: " ✓"; color: #3fbf6b; }
+.kryds-tab.on.ok::after { color: #1d7a3e; }
+
+.oj { margin-top: .5rem; }
+.oj-grid {
+  position: relative;
+  display: grid;
+  gap: 0;
+  width: min(100%, 22rem);
+  margin: 0 auto;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.oj-cell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  color: var(--ink);
+  font: 600 clamp(.95rem, 4.6vw, 1.2rem)/1 "Fraunces", Georgia, serif;
+  cursor: pointer;
+}
+.oj-cell.start { border-radius: 50%; background: rgba(233, 196, 106, .7); }
+.oj-lines {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  pointer-events: none;
+  overflow: visible;
+}
+.oj-lines line { stroke-linecap: round; stroke-width: .78; }
+.oj-sel { stroke: rgba(233, 196, 106, .65); }
+.oj-found { opacity: .55; }
+.oj-found.pop { animation: oj-pop .45s ease both; }
+@keyframes oj-pop { from { stroke-width: 1.1; opacity: .9; } }
+.oj-grid.nope { animation: shake .35s ease; }
+.oj.done .oj-grid { box-shadow: inset 0 0 0 2px #3f7a4f; }
+.oj-msg { min-height: 1.5em; margin-top: .6rem; color: var(--gold-soft); text-align: center; }
+.oj-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4rem;
+  margin: .5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.oj-list li {
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+  color: var(--text);
+  font-size: .9rem;
+}
+.oj-list li.found { color: var(--text-soft); text-decoration: line-through; opacity: .6; }
+.oj-title { margin-top: .35rem; color: var(--gold-soft); font-size: .95rem; text-align: center; }
+
+/* ---- Photo hunt (fotojagt.js): real camera + object detection */
+.fj-intro { margin: 0 1rem .6rem; color: #ddd; font-size: .9rem; line-height: 1.35; text-align: center; text-wrap: pretty; }
+.cam .scan-view.fj-view { margin-top: 0; aspect-ratio: 3 / 4; border-radius: 0; }
+.fj-view .scan-frame { display: none; }
+.fj-view .scan-start { z-index: 4; }
+.fj-boxes { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.fj-box { position: absolute; border: 2px solid #ffd60a; border-radius: 6px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .35); transition: all .15s linear; }
+.fj-tag { position: absolute; top: -1px; left: -1px; padding: .1rem .35rem; border-radius: 5px 0 5px 0; background: #ffd60a; color: #000; font: 700 .7rem/1.3 system-ui, sans-serif; white-space: nowrap; }
+.fj-view .cam-flash { z-index: 3; }
+.fj-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; margin: .8rem .6rem 0; padding: 0; list-style: none; }
+.fj-chip { display: flex; align-items: center; gap: .3rem; padding: .3rem .7rem; border: 1.5px solid #444; border-radius: 999px; color: #aaa; font-size: .85rem; transition: all .2s ease; }
+.fj-chip.on { border-color: #5be38a; background: rgba(91, 227, 138, .15); color: #fff; }
+.fj-chip.on::after { content: "✓"; color: #5be38a; font-weight: 700; }
+.fj-emoji { font-size: 1.05rem; }
+.fj.all .cam-shutter { box-shadow: inset 0 0 0 3px #000, 0 0 0 4px #5be38a, 0 0 22px #5be38a; }
+.cam-shutter:disabled { opacity: .4; }
+.fj-anyway { display: block; margin: .4rem auto 0; padding: .4rem .6rem; border: 0; background: none; color: #9a9a9a; font-size: .8rem; text-decoration: underline; cursor: pointer; }
+.fj .face-debug { margin: .4rem 1rem 0; }
+
+/* Portrait postcard (fotojagt): message on top, address at the bottom. */
+.pc.pc-tall { aspect-ratio: 3 / 4; width: min(100%, 17rem); margin-inline: auto; }
+.pc-tall .pc-title { bottom: 7%; font-size: 1.9rem; }
+.pc-tall .pc-back::before { top: 56%; bottom: auto; left: 7%; right: 7%; border-left: 0; border-top: 1.5px solid #c9bfa8; }
+.pc-tall .pc-stamp { top: 5%; right: 6%; }
+.pc-tall .pc-postmark { top: 9%; right: 30%; }
+.pc-tall .pc-text { top: 24%; left: 8%; width: 84%; font-size: 1.2rem; }
+.pc-tall .pc-addr { left: 8%; right: 8%; bottom: 9%; }
+
+/* ---- Week 4: plug the phone into the car (usb.js) */
+.bil.usb-mode { padding-bottom: 0; overflow: hidden; }
+.bil.arrive { animation: bil-arrive 1.1s ease both; }
+@keyframes bil-arrive { from { opacity: 0; filter: brightness(2.2) blur(3px); } }
+.usb { position: relative; padding-bottom: 7.5rem; transition: opacity .9s ease, transform .9s cubic-bezier(.5, 0, .75, 0); }
+.usb.away { opacity: 0; transform: translateY(18%) scale(.82); pointer-events: none; }
+.usb-phone { position: relative; max-width: 20rem; margin-top: .4rem; }
+.usb-phone .iph-screen { min-height: 33rem; }
+.usb-port { position: absolute; left: 50%; bottom: 1px; width: 2.1rem; height: 6px; border-radius: 4px; background: #050506; box-shadow: inset 0 1px 2px rgba(255, 255, 255, .12); transform: translateX(-50%); }
+.usb-cable { position: absolute; left: 50%; top: calc(100% - 6rem); z-index: 1; display: flex; flex-direction: column; align-items: center; padding: .6rem 1.2rem 0; transform: translate(-50%, 0); touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
+.usb-cable.spring { transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); }
+.usb-plug { position: relative; width: 2.6rem; height: 3.2rem; border-radius: .55rem .55rem .8rem .8rem; background: linear-gradient(90deg, #d9dce1, #fff 45%, #c4c8ce); box-shadow: 0 4px 10px rgba(0, 0, 0, .5); }
+.usb-tip { position: absolute; left: 50%; top: -.55rem; width: 1.5rem; height: .6rem; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, #9aa0a8, #e6e8eb, #9aa0a8); transform: translateX(-50%); }
+.usb-wire { width: .55rem; height: 9rem; background: linear-gradient(90deg, #cfd2d7, #fff, #cfd2d7); }
+.usb:not(.plugged) .usb-plug { animation: usb-nudge 1.8s ease-in-out 1.2s infinite; }
+@keyframes usb-nudge { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-.5rem); } }
+.usb-bolt { position: absolute; left: 50%; bottom: 7.9rem; z-index: 2; font-size: 1.6rem; opacity: 0; transform: translateX(-50%); pointer-events: none; }
+.usb.plugged .usb-bolt { animation: usb-bolt 1s ease .3s both; }
+@keyframes usb-bolt { 30% { opacity: 1; transform: translate(-50%, -.6rem) scale(1.3); } 100% { opacity: 0; transform: translate(-50%, -1.6rem); } }
+.iph-screen.charging .iph-batt i { right: 1.5px; background: #34c759; }
+.iph-screen.charging .iph-batt { color: #fff; }
+.usb-veil { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 1.5rem; background: rgba(0, 0, 0, .35); animation: fade-in .25s ease both; }
+@keyframes fade-in { from { opacity: 0; } }
+.usb-alert { width: min(100%, 16.5rem); overflow: hidden; border-radius: 14px; background: rgba(242, 242, 247, .94); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); color: #000; text-align: center; opacity: 0; transform: scale(1.15); transition: opacity .2s ease, transform .25s cubic-bezier(.2, .9, .3, 1.2); }
+.usb-alert.in { opacity: 1; transform: none; }
+.usb-alert-text { padding: 1.1rem 1rem .9rem; }
+.usb-alert-title { font-size: 1.05rem; font-weight: 600; }
+.usb-alert-msg { margin-top: .25rem; font-size: .85rem; line-height: 1.3; }
+.usb-alert-btns { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(60, 60, 67, .3); }
+.usb-alert-btn { padding: .75rem .5rem; border: 0; background: none; color: #007aff; font: 400 1.05rem/1.2 system-ui, -apple-system, sans-serif; cursor: pointer; }
+.usb-alert-btn + .usb-alert-btn { border-left: 1px solid rgba(60, 60, 67, .3); }
+.usb-alert-btn.strong { font-weight: 600; }
+.usb-alert-btn:active { background: rgba(0, 0, 0, .08); }
+.iph-screen.carplay .iph-home { animation: usb-cp .9s ease both; }
+@keyframes usb-cp { to { filter: brightness(.6) blur(2px); } }
+
+/* ---- Finn's melody lock (sang.js) */
+.sl { padding: 1rem .8rem 1.2rem; background: radial-gradient(120% 70% at 50% 0%, #2a1f4a, #0d0b16 70%); color: #eee; text-align: center; }
+.sl-intro { margin: 0 .3rem .8rem; color: #d8d2ee; font-size: .95rem; line-height: 1.35; text-wrap: pretty; }
+.sl-head { display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+.sl-lock { font-size: 3rem; line-height: 1; filter: drop-shadow(0 4px 12px rgba(255, 214, 10, .35)); }
+.sl-lock.click { animation: sl-click .5s cubic-bezier(.2, 1.6, .4, 1); }
+.sl-lock.open { animation: sl-open .8s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes sl-click { 40% { transform: rotate(-12deg) scale(1.15); } }
+@keyframes sl-open { from { transform: scale(.6) rotate(-20deg); } }
+.sl-rounds { display: flex; gap: .4rem; }
+.sl-rounds span { width: .7rem; height: .7rem; border: 1.5px solid #6b5fa0; border-radius: 50%; }
+.sl-rounds span.on { border-color: #ffd60a; box-shadow: 0 0 8px #ffd60a; }
+.sl-rounds span.done { border-color: #5be38a; background: #5be38a; }
+.sl-title { min-height: 2.6em; margin-top: .6rem; font: 600 1.05rem/1.3 "Nunito", system-ui, sans-serif; text-wrap: balance; }
+.sl-canvas { display: block; width: 100%; height: 11rem; margin-top: .4rem; border-radius: 12px; background: rgba(0, 0, 0, .35); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+.sl-pins { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; margin-top: .8rem; }
+.sl-pin { width: .9rem; height: 1.8rem; border-radius: .45rem; background: #3a3354; box-shadow: inset 0 -.5rem 0 rgba(0, 0, 0, .25); transition: transform .25s cubic-bezier(.2, 1.6, .4, 1), background .2s; }
+.sl-pin.hit { background: #ffd60a; transform: translateY(-.45rem); box-shadow: 0 0 10px rgba(255, 214, 10, .6); }
+.sl-msg { min-height: 1.5em; margin-top: .7rem; color: #ffd60a; font-weight: 700; }
+.sl-start { margin-top: .6rem; }
+.sl-tools { display: flex; justify-content: center; gap: .5rem; margin-top: .5rem; }
+.sl-again { padding: .45rem .8rem; border: 1px solid #5a4f86; border-radius: 999px; background: rgba(255, 255, 255, .05); color: #ddd; font-size: .85rem; cursor: pointer; }
+.sl .btn:last-child { margin-top: 1rem; }
+.sl-rec { margin-top: 1rem; }
+.sl-rec-out { margin-top: .4rem; color: #9fd3ff; font: .8rem/1.4 ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+.sl .btn { color: var(--ink); }
+
+/* ---- The escape-room advent wreath, in 3D: portals are the candles (krans() in app.js) */
+.krans { --tilt: 50deg; position: relative; width: min(100%, 22.5rem); aspect-ratio: 1 / 1.04; margin: .2rem auto 2.4rem; perspective: 1100px; perspective-origin: 50% 20%; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.krans-plate { --rot: 0deg; position: absolute; left: 0; right: 0; top: 21%; aspect-ratio: 1; container-type: inline-size; transform-style: preserve-3d; transform: rotateX(var(--tilt)) rotateZ(var(--rot)); }
+.krans-ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+/* Each portal stands up on the ring and keeps facing her while the wreath turns. */
+.krans-slot { position: absolute; width: 0; height: 0; transform-style: preserve-3d; transform: rotateZ(calc(var(--rot) * -1)) rotateX(calc(var(--tilt) * -1)); }
+.krans-slot > .portal { position: absolute; left: 0; bottom: 0; width: 29cqw; transform: translateX(-50%); }
+.krans-shadow { position: absolute; width: 26cqw; height: 13cqw; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .6), rgba(0, 0, 0, 0)); transform: translate(-50%, -85%); }
+.krans .portal-gate { margin-bottom: .2rem; box-shadow: none; }
+/* Thickness: a darker rim behind the ring makes the disc read as a solid coin. */
+.krans .portal-gate::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(#3a2b4a, #120d1c); transform: translate(.18rem, .3rem); filter: blur(.5px); }
+.krans .portal.solved .portal-gate::before { background: linear-gradient(#8a6420, #3d2a0c); }
+.krans .portal.locked .portal-gate::before { background: linear-gradient(#3a3f47, #15181c); }
+.krans .portal-name { white-space: nowrap; font-size: .88rem; }
+.krans .portal-tag { font-size: .7rem; }
+.krans .portal-name, .krans .portal-tag { text-shadow: 0 1px 3px #000, 0 0 10px #0b1914, 0 0 10px #0b1914; }
+/* A lit portal has a flame on top; a locked one only a wick. */
+.portal-flame { position: absolute; left: 50%; top: -15%; z-index: 3; width: 15%; aspect-ratio: .62; transform: translateX(-50%); pointer-events: none; }
+.portal-flame::before { content: ""; position: absolute; left: 50%; top: 45%; width: 520%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 216, 138, .45), transparent); transform: translate(-50%, -50%); }
+.portal-flame i { position: absolute; inset: 0; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: radial-gradient(circle at 50% 72%, #fffbe8 0 18%, #ffc24d 42%, #ff7a1a 78%, rgba(255, 90, 20, 0) 100%); transform-origin: 50% 90%; animation: flame-flicker 1.6s ease-in-out infinite; }
+@keyframes flame-flicker { 0%, 100% { transform: scale(1) rotate(-2deg); } 25% { transform: scale(.94, 1.06) rotate(2deg); } 50% { transform: scale(1.03, .95) rotate(-1deg); } 75% { transform: scale(.97, 1.04) rotate(1.5deg); } }
+.krans .k1 .portal-flame i { animation-delay: -.4s; }
+.krans .k2 .portal-flame i { animation-delay: -.9s; }
+.krans .k3 .portal-flame i { animation-delay: -1.3s; }
+.portal-wick { position: absolute; left: 50%; top: -3.5%; z-index: 3; width: 2px; height: 6%; border-radius: 1px; background: #2a1a12; transform: translateX(-50%); }
+@media (prefers-reduced-motion: reduce) { .portal-flame i, .portal-ring, .portal-swirl, .portal-emoji, .portal.today .portal-gate { animation: none; } }
+
+/* A locked portal's own countdown (LED style). */
+.krans .portal-tag.portal-timer, .portal-tag.portal-timer { color: #ff5252; font: 400 .82rem/1.2 "Share Tech Mono", ui-monospace, monospace; letter-spacing: .05em; font-variant-numeric: tabular-nums; text-shadow: 0 0 8px rgba(255, 60, 60, .7), 0 1px 3px #000; }
+
+/* Unread letter from Finn: a badge and a little wiggle. */
+.ransom { margin-bottom: 1.4rem; }
+.ransom summary { position: relative; }
+.ransom.unread summary { border-style: solid; border-color: var(--gold); color: var(--gold); box-shadow: 0 0 16px rgba(233, 196, 106, .25); animation: ransom-wiggle 3.2s ease-in-out 1s infinite; }
+.ransom-badge { position: absolute; top: -.5rem; right: -.5rem; display: grid; place-items: center; min-width: 1.35rem; height: 1.35rem; padding: 0 .3rem; border-radius: 999px; background: #ff3b30; color: #fff; font: 700 .78rem/1 system-ui, sans-serif; box-shadow: 0 0 0 2px #0b1914; }
+.ransom-badge::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: #ff3b30; opacity: .6; animation: ransom-ping 1.6s ease-out infinite; z-index: -1; }
+@keyframes ransom-wiggle { 0%, 82%, 100% { transform: none; } 86% { transform: rotate(-4deg); } 90% { transform: rotate(4deg); } 94% { transform: rotate(-2deg); } }
+@keyframes ransom-ping { to { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ransom.unread summary, .ransom-badge::after { animation: none; } }
+.portal-tag.portal-timer { margin-top: .15rem; padding: .12rem .45rem; border: 1px solid rgba(255, 70, 70, .35); border-radius: 6px; background: linear-gradient(#170707, #070303); box-shadow: 0 0 10px rgba(255, 40, 40, .15); }
+
+/* Finn's letter on the week page: same style as the ransom note on the front page. */
+.finn-letter { position: relative; width: min(100%, 24rem); margin: .4rem auto 0; text-align: left; }
+.finn-letter .ransom-body { padding-bottom: 3.4rem; }
+.finn-letter .ransom-body p { white-space: pre-line; overflow-wrap: anywhere; }
+.finn-letter .ransom-body p + p { margin-top: .7rem; }
+.finn-letter .ransom-sign { text-align: right; font-weight: 700; }
+.finn-letter .photo { margin: 1rem 0; }
+.stage > .env-wrap { margin-top: 2.6rem; }
+
+/* ---------- Finn's texts (sms.js) ---------- */
+.sms-phone { max-width: 21rem; margin-top: .4rem; }
+.sms-phone .iph-screen, .sms-screen.sms-mode { height: min(38rem, 76svh); min-height: 0; }
+.iph-homebar-static { position: absolute; left: 50%; bottom: .5rem; z-index: 4; width: 8.5rem; height: 5px; border-radius: 999px; background: rgba(255, 255, 255, .85); transform: translateX(-50%); pointer-events: none; }
+.sms-screen.open .iph-homebar-static { background: rgba(0, 0, 0, .8); }
+
+/* Lock screen */
+.sms-lock { display: flex; flex: 1; flex-direction: column; align-items: center; padding: .6rem 1rem 2rem; transition: opacity .35s ease, transform .45s ease; }
+.sms-date { margin-top: .6rem; font-size: 1.05rem; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
+.sms-date::first-letter { text-transform: uppercase; }
+.sms-time { font: 700 5rem/1 system-ui, -apple-system, sans-serif; letter-spacing: -.02em; text-shadow: 0 2px 10px rgba(0, 0, 0, .2); }
+.sms-notes { width: 100%; margin-top: auto; }
+.sms-note { display: grid; gap: .15rem; width: 100%; padding: .7rem .85rem; border: 0; border-radius: 20px; background: rgba(245, 245, 247, .82); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); color: #000; text-align: left; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); cursor: pointer; animation: sms-note-in .55s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes sms-note-in { from { opacity: 0; transform: translateY(-1.5rem) scale(.92); } }
+.sms-note:active { transform: scale(.98); }
+.sms-note-top { display: flex; align-items: center; gap: .4rem; color: #555; font-size: .72rem; }
+.sms-note-app { display: grid; place-items: center; width: 1.25rem; height: 1.25rem; border-radius: 5px; background: linear-gradient(#6ee36e, #24b324); font-size: .7rem; }
+.sms-note-label { letter-spacing: .04em; }
+.sms-note-when { margin-left: auto; }
+.sms-note-from { margin-top: .15rem; font-weight: 700; font-size: .92rem; }
+.sms-note-text { display: -webkit-box; overflow: hidden; font-size: .88rem; line-height: 1.3; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sms-taphint { min-height: 1.3em; margin-top: .8rem; font-size: .8rem; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, .4); animation: fade-in .4s ease both; }
+.sms-screen.open .sms-lock { display: none; }
+
+/* The thread */
+.sms-thread { display: none; flex: 1; flex-direction: column; min-height: 0; background: #fff; color: #000; }
+.sms-screen.open { background: #fff; }
+.sms-screen.open .iph-status { color: #000; text-shadow: none; }
+.sms-screen.open .sms-thread { display: flex; animation: sms-open .4s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes sms-open { from { opacity: 0; transform: scale(.94); } }
+.sms-head { display: grid; grid-template-columns: 2rem 1fr 2rem; grid-template-rows: auto auto; justify-items: center; padding: .2rem .6rem .5rem; border-bottom: 1px solid #e5e5ea; background: rgba(249, 249, 249, .94); }
+.sms-back { grid-row: 1 / 3; align-self: center; justify-self: start; color: #007aff; font-size: 2rem; line-height: 1; }
+.sms-avatar { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: linear-gradient(#c7c7cc, #8e8e93); font-size: 1.6rem; }
+.sms-name { grid-column: 2; font-size: .75rem; }
+.sms-list { display: flex; flex: 1; flex-direction: column; gap: .3rem; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .6rem .7rem 1rem; scroll-behavior: smooth; }
+.sms-day { align-self: center; margin: .2rem 0 .3rem; color: #8e8e93; font-size: .7rem; }
+.sms-list .sms-day:last-child { align-self: flex-start; margin-left: .4rem; }
+.sms-bubble { position: relative; align-self: flex-start; max-width: 80%; padding: .45rem .8rem; border-radius: 18px; background: #e9e9eb; color: #000; font-size: .95rem; line-height: 1.3; white-space: pre-line; overflow-wrap: anywhere; text-align: left; }
+.sms-bubble.pop { animation: sms-pop .3s cubic-bezier(.2, 1.4, .4, 1) both; transform-origin: 0 100%; }
+@keyframes sms-pop { from { opacity: 0; transform: scale(.7); } }
+.sms-bubble.ps { color: #3a3a3c; font-style: italic; }
+.sms-pic { padding: 0; overflow: hidden; background: none; }
+.sms-pic img { display: block; max-width: 100%; border-radius: 18px; }
+.sms-collage { padding: .7rem .5rem .8rem; border-radius: 18px; background: #f6efdf; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
+.sms-collage .ransom-title { padding: 0; background: none; column-gap: .45rem; row-gap: .3rem; }
+.sms-collage .cut { min-width: 1.15rem; font-size: 1.05rem; }
+.sms-typing { display: flex; gap: .25rem; padding: .7rem .85rem; }
+.sms-typing i { width: .45rem; height: .45rem; border-radius: 50%; background: #8e8e93; animation: sms-dot 1.2s ease-in-out infinite; }
+.sms-typing i:nth-child(2) { animation-delay: .15s; }
+.sms-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes sms-dot { 0%, 60%, 100% { opacity: .35; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+.sms-input { display: flex; align-items: center; gap: .5rem; padding: .45rem .7rem 1.6rem; border-top: 1px solid #e5e5ea; }
+.sms-plus { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: #e9e9eb; color: #8e8e93; font-size: 1.2rem; }
+.sms-field { flex: 1; padding: .35rem .8rem; border: 1px solid #d1d1d6; border-radius: 999px; color: #c7c7cc; font-size: .9rem; }
+.letter-step .letter-next { animation: rise .5s ease both; }
+.sms-list > * { flex-shrink: 0; }
+
+/* Texts inside another phone (week 4: the phone that goes into the car). */
+.sms-screen.sms-mode .iph-home { display: none; }
+.sms-screen:not(.sms-mode) .sms-lock, .sms-screen:not(.sms-mode) .sms-thread { display: none !important; }
+.sms-screen:not(.sms-mode) .iph-home { animation: fade-in .45s ease both; }
+.usb-cable { transition: translate .7s cubic-bezier(.2, .9, .3, 1), opacity .5s ease; }
+.usb-cable.spring { transition: transform .35s cubic-bezier(.3, 1.4, .5, 1), translate .7s cubic-bezier(.2, .9, .3, 1), opacity .5s ease; }
+.usb.waiting .usb-cable { opacity: 0; translate: 0 5rem; pointer-events: none; }
+.usb-gohome { position: absolute; left: 50%; bottom: 4.6rem; z-index: 6; padding: .55rem 1.2rem; border: 0; border-radius: 999px; background: rgba(0, 0, 0, .78); color: #fff; font: 600 .9rem/1.2 system-ui, -apple-system, sans-serif; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); transform: translateX(-50%); cursor: pointer; animation: rise .4s ease both, usb-gohome 1.8s ease-in-out .6s infinite; }
+@keyframes usb-gohome { 50% { box-shadow: 0 0 0 6px rgba(0, 122, 255, .25), 0 6px 18px rgba(0, 0, 0, .3); } }
+.sms-screen.sms-mode .iph-homebar { display: none; }
+.sms-screen .sms-list { padding-bottom: 3.8rem; }
+/* No card box around step puzzles (like the phone weeks); the solved number keeps its card. */
+.task.trin:not(.unlocked) { padding: .5rem 0 0; border: 0; background: none; }
+/* Week 4: until the dashboard fades in, the phone stands on the page like the other weeks. */
+.bil.usb-mode { padding: 0; border-radius: 0; background: none; box-shadow: none; }
+
+/* Face recognition as a camera app (like fotojagt). */
+.face-app { padding-bottom: 1rem; text-align: center; }
+.face-app .scan-view.scan-face { width: 100%; max-height: none; margin: 0; aspect-ratio: 3 / 4; border-radius: 0; }
+.face-app .scan-face .scan-frame { inset: 14% 16%; }
+.face-app .face-slots { margin: 1rem .6rem 0; }
+.face-app .face-name { color: #ddd; }
+.face-app .scan-msg { margin: .7rem 1rem 0; color: #ddd; }
+.face-app .scan-msg.wrong { color: #ffb4a8; }
+.face-app .face-debug { margin: .4rem 1rem 0; }
+.task.trin .face-trin { margin: 0; }
+
+/* Photo hunt: the frozen photo, Finn judging it, and his verdict. */
+.fj-shot { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; }
+.fj-judging { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; background: rgba(0, 0, 0, .55); color: #fff; font: 700 1.05rem/1.3 "Nunito", system-ui, sans-serif; text-shadow: 0 1px 4px #000; animation: fade-in .25s ease both; }
+.fj-judging-paw { font-size: 2.4rem; animation: fj-sniff 1s ease-in-out infinite; }
+@keyframes fj-sniff { 0%, 100% { transform: translateX(-.6rem) rotate(-12deg); } 50% { transform: translateX(.6rem) rotate(12deg); } }
+.fj-chip.found { border-color: #6b6b6b; color: #ddd; }
+.fj-chip:not(.found) .fj-emoji { width: 1.1rem; color: #888; font: 700 .95rem/1 "Fraunces", Georgia, serif; text-align: center; }
+.fj-chip.on::after { content: "✓"; }
+.fj-again { display: flex; margin: .9rem auto 0; }
+.fj-verdict { text-align: center; }
+.fj-score { font-weight: 800; }
+.fj-clues { display: grid; gap: .35rem; margin: .5rem auto 0; padding: 0; max-width: 19rem; list-style: none; color: #ffd9d2; font-weight: 500; font-size: .92rem; line-height: 1.35; }
+.fj-clues li { padding: .45rem .7rem; border-radius: 10px; background: rgba(255, 120, 100, .12); }
+@media (prefers-reduced-motion: reduce) { .fj-judging-paw { animation: none; } }
+.fj .btn { color: var(--ink); }
+.fj .cam-shutter[hidden] + * { margin-top: 0; }

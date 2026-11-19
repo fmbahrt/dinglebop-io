@@ -7,7 +7,7 @@
 // "billede" is a reference photo in the same folder: one clear, front-facing
 // face. Recognition runs fully in the browser with face-api (site/vendor/face-api).
 
-import { h, store, taskShell, intro, DEBUG } from "/felles.js";
+import { h, store, taskShell, DEBUG } from "/felles.js";
 import { camera } from "/kamera.js";
 
 const MODELS = "/vendor/face-api/models";
@@ -226,7 +226,14 @@ function faceTask(opgave, ctx) {
       requestAnimationFrame(frame);
     });
 
-    card.replaceChildren(...intro(opgave), slots, cam.view, cam.msg, ...(debugLine ? [debugLine] : []));
+    // The same camera-app look as the other camera puzzles (black app, top bar,
+    // viewfinder, then who's been found).
+    const app = h("div", "app cam face-app");
+    const top = h("div", "cam-top");
+    top.append(h("span", "cam-mode", opgave.mode ?? "ANSIGTER"), h("span", "cam-badge", `📍 ${opgave.sted ?? "Fitness World"}`));
+    const text = opgave.tekst ? [h("p", "fj-intro", opgave.tekst)] : [];
+    app.append(top, ...text, cam.view, slots, cam.msg, ...(debugLine ? [debugLine] : []));
+    card.replaceChildren(app);
     // Start loading the models in the background so the camera is ready sooner.
     loadFaceApi().catch(() => {});
   }

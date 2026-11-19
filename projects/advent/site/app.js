@@ -5,9 +5,10 @@
 // the leading digit is the week number.
 
 import { holdButton, runHint } from "/hints.js";
+import { smsPhone } from "/sms.js";
 import { DEBUG, link } from "/felles.js";
 
-// One door per advent Sunday on the front page; it unlocks on that date.
+// One memory portal per advent Sunday on the front page; it opens on that date.
 // Add ?debug to the front page URL to unlock them all.
 const SUNDAYS = [
   { date: "2026-11-29", label: "29. november", slug: "1-28B4Dct3RWPD" },
@@ -18,7 +19,6 @@ const SUNDAYS = [
 
 const $ = (sel) => document.querySelector(sel);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const IMAGE = /^[\w.-]+\.(jpe?g|png|webp|gif)$/i;
 
 async function loadWeek(slug) {
   const [brev, opgave] = await Promise.all([
@@ -167,6 +167,7 @@ function drawWreath(lit, { animate = false } = {}) {
   }
 
   const host = $("#wreath");
+  host.hidden = false;
   host.replaceChildren(svg);
   // Next frame so the transitions run.
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -191,70 +192,322 @@ function chip(text) {
 
 function showHome() {
   const reached = sundaysReached();
-  drawWreath(reached, { animate: true });
+  // No candle wreath up top here: the portals are the candles (krans below).
+  $("#wreath").replaceChildren();
+  $("#wreath").hidden = true;
   setHead({
-    eyebrow: "Advent 2026",
-    headline: "Adventskalender",
-    sub: "Hver søndag i advent åbner der en ny låge 🎄",
+    eyebrow: "Advent 2026 · 4 portaler · 4 cifre",
+    headline: "Det store juleescaperoom",
+    sub: "Finn har stjålet din adventsgave 🐾 Gå gennem hans fire portaler, klar prøverne, og find koden til kisten.",
   });
 
   const today = todayISO();
-  const idx = SUNDAYS.findIndex((s) => s.date >= today);
-  let text;
-  if (idx === -1) text = "Glædelig jul ❤️";
-  else if (SUNDAYS[idx].date === today) text = `I dag åbner låge ${idx + 1} ✨`;
-  else text = `${idx === 0 ? "Første" : "Næste"} låge åbner søndag d. ${SUNDAYS[idx].label}`;
-
-  const doors = document.createElement("div");
-  doors.className = "doors";
-  SUNDAYS.forEach((s, i) => doors.append(door(s, i, today)));
-  $("#stage").replaceChildren(doors, chip(DEBUG ? "🔓 Debug: alle låger er åbne" : text));
+  const lock = codeLock();
+  $("#stage").replaceChildren(ransomNote(), krans(today, lock), lock.el, ...(DEBUG ? [chip("🔓 Debug: alle portaler er åbne")] : []));
 }
 
-/** An advent door: locked until its Sunday, glowing on the day, ajar with the number once solved. */
-function door(s, i, today) {
+/** A title in cut-out magazine letters, like a proper ransom note. */
+function cutout(words, seed = 0) {
+  const title = document.createElement("p");
+  title.className = "ransom-title";
+  let i = seed;
+  for (const word of words) {
+    const w = document.createElement("span");
+    w.className = "ransom-word";
+    for (const c of word) {
+      const s = document.createElement("span");
+      s.className = `cut k${(i * 7) % 5}`;
+      s.style.setProperty("--r", `${((i * 37) % 13) - 6}deg`);
+      s.textContent = c;
+      w.append(s);
+      i++;
+    }
+    title.append(w);
+  }
+  return title;
+}
+
+/** Finn's ransom note: folded, with a notification badge until she has opened it. */
+function ransomNote() {
+  const KEY = "advent:finn-brev";
+  let seen = false;
+  try { seen = localStorage.getItem(KEY) === "1"; } catch { /* private mode */ }
+  const markSeen = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } };
+  const el = document.createElement("details");
+  el.className = "ransom";
+  const summary = document.createElement("summary");
+  summary.textContent = "🐾 Brev fra Finn";
+  if (!seen) {
+    el.classList.add("unread");
+    const badge = document.createElement("span");
+    badge.className = "ransom-badge";
+    badge.textContent = "1";
+    badge.setAttribute("aria-label", "ulæst");
+    summary.append(badge);
+  }
+  const title = cutout(["DIN", "GAVE", "ER", "MIN"]);
+  const body = document.createElement("div");
+  body.className = "ransom-body";
+  for (const text of [
+    "Kære Anne",
+    "Jeg har taget din adventsgave og låst den inde i MIN kiste. Med en hængelås. Fire cifre.",
+    "Hver søndag i advent åbner jeg en portal. Bag den venter en prøve. Klarer du den, får du et ciffer. Fire portaler, fire cifre, én kiste.",
+    "Jeg ved godt, hvor meget du hader escape rooms. Men jeg håber stadig, du har lyst til at lege med. 🥺",
+    "Ingen snyd.",
+    "Finn 🐾",
+    "PS. Godbidder fremskynder IKKE processen. Måske lidt.",
+  ]) {
+    const p = document.createElement("p");
+    p.textContent = text;
+    body.append(p);
+  }
+  body.lastElementChild.className = "ransom-ps";
+  body.children[5].className = "ransom-sign";
+  const stamp = document.createElement("span");
+  stamp.className = "ransom-paw";
+  stamp.textContent = "🐾";
+  stamp.setAttribute("aria-hidden", "true");
+  el.append(summary, title, body, stamp);
+  el.addEventListener("toggle", () => {
+    if (!el.open) return;
+    markSeen();
+    el.classList.remove("unread");
+    el.querySelector(".ransom-badge")?.remove();
+  });
+  return el;
+}
+
+/** A combination lock showing the digits found so far. */
+function codeLock() {
+  const el = document.createElement("section");
+  el.className = "codelock";
+  el.innerHTML = `<span class="codelock-shackle" aria-hidden="true"></span>
+    <div class="codelock-body">
+      <p class="codelock-label">Finns kiste 🐾</p>
+      <div class="codelock-wheels"></div>
+      <p class="codelock-sub"></p>
+    </div>`;
+  const wheels = el.querySelector(".codelock-wheels");
+  const sub = el.querySelector(".codelock-sub");
+  const found = new Array(SUNDAYS.length).fill(null);
+  const draw = () => {
+    wheels.replaceChildren(...found.map((n, i) => {
+      const w = document.createElement("span");
+      w.className = `codelock-wheel${n != null ? " found" : ""}`;
+      w.textContent = n ?? "·";
+      w.setAttribute("aria-label", n != null ? `Ciffer ${i + 1}: ${n}` : `Ciffer ${i + 1}: ikke fundet`);
+      return w;
+    }));
+    const k = found.filter((n) => n != null).length;
+    sub.textContent = k === found.length ? "Alle cifre fundet – åbn kisten! 🎁" : `${k} af ${found.length} cifre fundet`;
+    el.classList.toggle("complete", k === found.length);
+  };
+  draw();
+  return { el, set: (i, n) => { found[i] = n; draw(); } };
+}
+
+/**
+ * The escape-room advent wreath, in 3D: a tilted plate (iron chain, fir, berries,
+ * odds and ends, a keyhole in the middle) with the four portals standing on it
+ * as its candles. An open portal is a lit candle (flame on top); locked ones only
+ * have a wick. It sways a little and can be turned with a finger.
+ */
+function krans(today, lock) {
+  const scene = document.createElement("div");
+  scene.className = "krans";
+  const plate = document.createElement("div");
+  plate.className = "krans-plate";
+  scene.append(plate);
+
+  const cx = 50, cy = 50, r = 34;
+  const svg = el("svg", { class: "krans-ring", viewBox: "0 0 100 100", "aria-hidden": "true" });
+  const defs = el("defs", {}, svg);
+  const brass = el("radialGradient", { id: "k-brass", cx: ".4", cy: ".35" }, defs);
+  el("stop", { offset: "0", "stop-color": "#fbe7a6" }, brass);
+  el("stop", { offset: ".55", "stop-color": "#c99a3b" }, brass);
+  el("stop", { offset: "1", "stop-color": "#7a5419" }, brass);
+  const table = el("radialGradient", { id: "k-table" }, defs);
+  el("stop", { offset: "0", "stop-color": "#000", "stop-opacity": ".55" }, table);
+  el("stop", { offset: ".7", "stop-color": "#000", "stop-opacity": ".25" }, table);
+  el("stop", { offset: "1", "stop-color": "#000", "stop-opacity": "0" }, table);
+  el("circle", { cx, cy, r: 49, fill: "url(#k-table)" }, svg);
+  // Fir.
+  const R = rng(7);
+  for (let i = 0; i < 150; i++) {
+    const t = (i / 150) * Math.PI * 2 + R() * 0.05;
+    const rr = r + (R() - 0.5) * 9;
+    const x = cx + rr * Math.cos(t), y = cy + rr * Math.sin(t);
+    el("ellipse", { cx: x, cy: y, rx: 3.2 + R() * 1.8, ry: 1, fill: GREENS[(R() * GREENS.length) | 0], transform: `rotate(${(t * 180) / Math.PI + 90 + (R() - 0.5) * 80} ${x} ${y})` }, svg);
+  }
+  // The chain: two rows of links, offset.
+  el("circle", { cx, cy, r, fill: "none", stroke: "#3f444b", "stroke-width": 2.8, "stroke-dasharray": "3.2 2.2", "stroke-linecap": "round" }, svg);
+  el("circle", { cx, cy, r, fill: "none", stroke: "#a3aab3", "stroke-width": 1.1, "stroke-dasharray": "2.2 3.2", "stroke-dashoffset": 2.7, "stroke-linecap": "round" }, svg);
+  for (let i = 0; i < 12; i++) {
+    const t = (i / 12) * Math.PI * 2 + 0.26;
+    el("circle", { cx: cx + (r + 3) * Math.cos(t), cy: cy + (r + 3) * Math.sin(t), r: 1.3, fill: "#b3202a" }, svg);
+  }
+  // Odds and ends lying on the ring, between the portals.
+  [["⏳", -Math.PI / 4], ["🧭", (3 * Math.PI) / 4], ["🔍", (5 * Math.PI) / 4]].forEach(([e, t]) => {
+    el("text", { x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) + 2.6, "text-anchor": "middle", "font-size": 7.5 }, svg).textContent = e;
+  });
+  // A keyhole in the middle, and the key, not quite in it.
+  const key = el("g", { transform: `translate(${cx} ${cy})` }, svg);
+  el("ellipse", { rx: 7.5, ry: 10, fill: "url(#k-brass)", stroke: "#6b4a17", "stroke-width": 0.6 }, key);
+  el("circle", { cy: -2.2, r: 2.4, fill: "#1a120a" }, key);
+  el("path", { d: "M-1.3 -1 L-2.4 5.5 L2.4 5.5 L1.3 -1 Z", fill: "#1a120a" }, key);
+  el("text", { x: cx + 12, y: cy + 6, "text-anchor": "middle", "font-size": 7, transform: `rotate(-35 ${cx + 12} ${cy + 4})` }, svg).textContent = "🗝️";
+  plate.append(svg);
+
+  // The portals stand on the ring, clockwise from the back.
+  [270, 0, 90, 180].forEach((deg, i) => {
+    const t = (deg * Math.PI) / 180;
+    const x = cx + r * Math.cos(t), y = cy + r * Math.sin(t);
+    const base = document.createElement("span");
+    base.className = "krans-shadow";
+    const slot = document.createElement("div");
+    slot.className = "krans-slot";
+    for (const e of [base, slot]) {
+      e.style.left = `${x}%`;
+      e.style.top = `${y}%`;
+    }
+    slot.append(portal(SUNDAYS[i], i, today, lock));
+    plate.append(base, slot);
+  });
+
+  // Sway, and turn it with a finger.
+  let rot = 0, base0 = 0, drag = null, dragged = false;
+  const set = (v) => plate.style.setProperty("--rot", `${v}deg`);
+  scene.addEventListener("pointerdown", (e) => {
+    drag = { x: e.clientX, from: rot };
+    dragged = false;
+  });
+  scene.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x;
+    if (!dragged && Math.abs(dx) > 8) {
+      dragged = true;
+      scene.setPointerCapture?.(e.pointerId);
+    }
+    if (dragged) {
+      rot = drag.from + dx * 0.5;
+      set(rot);
+    }
+  });
+  const up = () => {
+    if (drag && dragged) base0 = rot;
+    drag = null;
+  };
+  scene.addEventListener("pointerup", up);
+  scene.addEventListener("pointercancel", up);
+  // A drag is not a tap on a portal.
+  scene.addEventListener("click", (e) => {
+    if (dragged) {
+      e.stopPropagation();
+      e.preventDefault();
+      dragged = false;
+    }
+  }, true);
+  if (!reducedMotion) {
+    const t0 = performance.now();
+    const sway = (now) => {
+      if (!scene.isConnected && now - t0 > 5000) return;
+      requestAnimationFrame(sway);
+      if (drag) return;
+      rot = base0 + 7 * Math.sin((now - t0) / 2600);
+      set(rot);
+    };
+    requestAnimationFrame(sway);
+  }
+  return scene;
+}
+
+/** A portal: foggy until its Sunday, swirling once open, golden once solved. No name, just the week's title. */
+function portal(s, i, today, lock) {
   const open = DEBUG || s.date <= today;
   const solved = (() => {
     try { return JSON.parse(localStorage.getItem(`advent:${s.slug}:løst`)) === true; } catch { return false; }
   })();
+  const short = s.label.replace(/ (\w{3})\w*$/, " $1.");
   const b = document.createElement("button");
   b.type = "button";
-  b.className = `door${open ? " open" : " locked"}${s.date === today ? " today" : ""}${solved ? " solved" : ""}`;
-  b.setAttribute("aria-label", open ? `Låge ${i + 1}` : `Låge ${i + 1}, låst til ${s.label}`);
+  b.className = `portal${open ? " open" : " locked"}${s.date === today ? " today" : ""}${solved ? " solved" : ""}`;
+  b.setAttribute("aria-label", open ? `Portal ${i + 1}` : `Portal ${i + 1}, låst til ${s.label}`);
   b.innerHTML = `
-    <span class="door-inside"><span class="door-glow">${solved ? "✓" : "✨"}</span></span>
-    <span class="door-leaf">
-      <span class="door-panel"></span><span class="door-panel"></span>
-      <span class="door-num">${i + 1}</span>
-      <span class="door-date">${s.label.replace(/ (\w{3})\w*$/, " $1.")}</span>
-      <span class="door-knob"></span>
-      <span class="door-lock">${open ? "" : "🔒"}</span>
-    </span>`;
+    <span class="portal-gate">
+      ${open ? `<span class="portal-flame"><i></i></span>` : `<span class="portal-wick"></span>`}
+      <span class="portal-ring"></span>
+      <span class="portal-core"><span class="portal-swirl"></span><span class="portal-emoji">${open ? "✨" : "?"}</span></span>
+      ${solved ? `<span class="portal-check">✓</span>` : ""}
+      ${open ? "" : `<span class="portal-lock">🔒</span>`}
+    </span>
+    <span class="portal-name">${open ? "…" : short}</span>`;
   const tag = document.createElement("span");
-  tag.className = "door-tag";
-  tag.textContent = solved ? "Tal: …" : open ? "Åbn ✨" : "Låst";
+  tag.className = "portal-tag";
+  tag.textContent = solved ? "Klaret ✓" : open ? "Træd ind ✨" : "Låst";
   b.append(tag);
+  if (!open) countdownTo(s.date, tag);
   b.addEventListener("click", () => {
     if (!open) {
       b.classList.remove("shake");
       void b.offsetWidth;
       b.classList.add("shake");
-      tag.textContent = `Låst til søndag 🔒`;
+      tag.textContent = `Åbner ${short} 🔒`;
       navigator.vibrate?.(80);
       return;
     }
-    b.classList.add("opening");
-    setTimeout(() => (location.href = link(`/${s.slug}`)), reducedMotion ? 0 : 650);
+    warp(b);
+    setTimeout(() => (location.href = link(`/${s.slug}`)), reducedMotion ? 0 : 900);
   });
-  if (solved) tal(s.slug).then((n) => n && (tag.textContent = `Tal: ${n}`));
+  if (open) {
+    opgave(s.slug).then((o) => {
+      if (!o) return;
+      const title = String(o.overskrift ?? "");
+      const emoji = title.match(/\p{Extended_Pictographic}\uFE0F?/u)?.[0];
+      if (emoji) b.querySelector(".portal-emoji").textContent = emoji;
+      b.querySelector(".portal-name").textContent = title.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").trim() || short;
+      if (solved && o.tal != null) lock.set(i, o.tal);
+    });
+  }
   return b;
 }
 
-/** The week's number, for doors that have been solved. */
-async function tal(slug) {
+/** A locked portal's own escape-room timer; reloads the page when it opens. */
+function countdownTo(date, tag) {
+  tag.classList.add("portal-timer");
+  const target = new Date(`${date}T00:00:00`).getTime();
+  const pad = (n) => String(n).padStart(2, "0");
+  const tick = () => {
+    const left = Math.max(0, Math.floor((target - Date.now()) / 1000));
+    if (left === 0) {
+      clearInterval(timer);
+      if (tag.isConnected) location.reload();
+      return;
+    }
+    const d = Math.floor(left / 86400), t = Math.floor(left / 3600) % 24, m = Math.floor(left / 60) % 60, sec = left % 60;
+    tag.textContent = `${d ? `${d}d ` : ""}${pad(t)}:${pad(m)}:${pad(sec)}`;
+  };
+  const timer = setInterval(tick, 1000);
+  tick();
+}
+
+/** Stepping through: the portal swallows the screen. */
+function warp(b) {
+  if (reducedMotion) return;
+  const r = b.querySelector(".portal-gate").getBoundingClientRect();
+  const veil = document.createElement("div");
+  veil.className = "warp";
+  veil.style.setProperty("--x", `${r.left + r.width / 2}px`);
+  veil.style.setProperty("--y", `${r.top + r.height / 2}px`);
+  document.body.append(veil);
+  b.classList.add("warping");
+  navigator.vibrate?.([20, 30, 60]);
+}
+
+/** A week's opgave.json (title, emoji and number for the portals). */
+async function opgave(slug) {
   try {
     const r = await fetch(`/${slug}/opgave.json`, { cache: "no-cache" });
-    return (await r.json()).tal ?? null;
+    return await r.json();
   } catch {
     return null;
   }
@@ -263,184 +516,137 @@ async function tal(slug) {
 function showUnknown() {
   drawWreath(0);
   setHead({
-    eyebrow: "Advent 2026",
-    headline: "Hov, den kuvert kender jeg ikke",
+    eyebrow: "Det store juleescaperoom",
+    headline: "Hov, den portal findes ikke",
     sub: "Prøv at scanne QR-koden igen.",
   });
   $("#stage").replaceChildren();
 }
 
-function buildLetter(data) {
-  const letter = document.createElement("article");
-  letter.className = "letter";
-  for (const para of data.body.split(/\n\s*\n/)) {
-    const text = para.trim();
-    if (!text) continue;
-    if (IMAGE.test(text)) {
-      // A line with just a filename is a photo from the same folder.
-      const fig = document.createElement("figure");
-      fig.className = "photo";
-      const img = document.createElement("img");
-      img.src = `/${data.slug}/${text}`;
-      img.alt = "";
-      img.loading = "lazy";
-      fig.append(img);
-      letter.append(fig);
-    } else {
-      const p = document.createElement("p");
-      p.textContent = text;
-      letter.append(p);
-    }
-  }
-  return letter;
-}
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, reducedMotion ? 0 : ms));
-
-/** The week's hint video. Created before the envelope tap so that tap can unlock sound on iOS. */
-function makeHintVideo(src) {
-  const el = document.createElement("section");
-  el.className = "hint-video";
-  el.hidden = true;
-  const label = document.createElement("p");
-  label.className = "eyebrow";
-  label.textContent = "Ugens hint";
-  const video = document.createElement("video");
-  video.src = src;
-  video.preload = "auto";
-  video.controls = true;
-  video.playsInline = true;
-  video.setAttribute("playsinline", "");
-  el.append(label, video);
-  return {
-    el,
-    // Must run inside a tap handler: iOS then allows later play() calls with sound.
-    unlock() {
-      video.play().catch(() => {});
-      video.pause();
-    },
-    show() {
-      el.hidden = false;
-      video.currentTime = 0;
-      // If autoplay is refused anyway, the native play button is right there.
-      video.play().catch(() => {});
-    },
-    hide() {
-      video.pause();
-      el.hidden = true;
-    },
-    onEnded(fn) {
-      video.addEventListener("ended", fn);
-    },
-  };
-}
 
 function showWeek(data) {
   const week = data.week;
   const sunday = SUNDAYS[week - 1];
-  document.title = `${week}. søndag i advent`;
+  document.title = `${data.title} · Det store juleescaperoom`;
   const back = document.createElement("a");
   back.className = "back-link";
   back.href = link("/");
-  back.textContent = "← Kalenderen";
+  back.textContent = "← Alle portaler";
   $(".wrap").prepend(back);
   drawWreath(week, { animate: true });
   setHead({
     eyebrow: `${week}. søndag i advent${sunday ? ` · ${sunday.label}` : ""}`,
-    headline: data.title,
+    headline: data.opgave?.overskrift ?? data.title,
   });
-
-  const wrap = document.createElement("div");
-  wrap.className = "env-wrap";
-  const env = document.createElement("button");
-  env.className = "envelope";
-  env.type = "button";
-  env.setAttribute("aria-label", "Åbn kuverten");
-  for (const part of ["env-back", "env-letter", "env-front", "env-flap"]) {
-    const s = document.createElement("span");
-    s.className = part;
-    env.append(s);
-  }
-  const seal = document.createElement("span");
-  seal.className = "seal";
-  seal.textContent = week;
-  env.append(seal);
-  const tapHint = document.createElement("p");
-  tapHint.className = "hint";
-  tapHint.textContent = "Tryk for at åbne";
-  wrap.append(env, tapHint);
 
   const stage = $("#stage");
-  stage.replaceChildren(wrap);
+  stage.replaceChildren();
+  const scrollTo = (el) => el?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
 
-  const hint = data.opgave?.hint ? makeHintVideo(`/${data.slug}/${data.opgave.hint}`) : null;
-  const taskReady = buildTask(data).catch((e) => (console.error(e), null));
+  // Finn texts her first (sms.js); "Videre" puts the phone away and brings out the puzzle.
+  const solvedBefore = (() => {
+    try { return JSON.parse(localStorage.getItem(`advent:${data.slug}:løst`)) === true; } catch { return false; }
+  })();
+  const actionButton = (text, onClick, className = "btn btn-ghost") => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = className;
+    b.textContent = text;
+    b.addEventListener("click", onClick);
+    return b;
+  };
+  const letterStep = document.createElement("section");
+  letterStep.className = "letter-step";
+  letterStep.hidden = true;
+  const next = actionButton("Videre →", () => showTask(true), "btn letter-next");
+  next.hidden = true;
+  const sms = data.body
+    ? smsPhone({ body: data.body, slug: data.slug, collage: collage(data), onDone: () => { next.hidden = false; } })
+    : null;
+  // Every week: Finn's texts arrive on the phone she then uses for the puzzle:
+  // the app phone (weeks 1–3) or the phone that goes into the car (week 4).
+  const seenKey = `advent:${data.slug}:sms-læst`;
+  const smsData = data.body ? { body: data.body, slug: data.slug, collage: collage(data), seenKey } : null;
+  const isTrin = data.opgave?.type === "trin";
+  const carStep = smsData && isTrin ? data.opgave.trin?.find((t) => t.type === "bil" && t.telefon !== false) : null;
+  const phoneWeek = smsData && isTrin && data.opgave.visning === "telefon";
+  if (carStep) carStep.sms = smsData;
+  if (phoneWeek) data.opgave.sms = smsData;
+  const inPhone = !!(carStep || phoneWeek);
+  if (sms) letterStep.append(sms.el, next);
+  stage.append(letterStep);
 
-  env.addEventListener("click", async () => {
-    if (env.classList.contains("open")) return;
-    env.classList.add("open");
-    hint?.unlock();
-    tapHint.textContent = " ";
-    await sleep(1350);
-    wrap.classList.add("gone");
-    await sleep(450);
-
-    const task = await taskReady;
-    const letter = data.body ? buildLetter(data) : null;
-    const actionButton = (text, onClick) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "btn btn-ghost";
-      b.textContent = text;
-      b.addEventListener("click", onClick);
-      return b;
-    };
-    const scrollTo = (el) => el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
-
-    // Under the task: "watch hint again" and, once solved, "start over" (to show it off to others).
-    let actions = null, replay = null;
-    if (task) {
-      actions = document.createElement("div");
-      actions.className = "task-actions";
-      if (data.opgave.knaphint) actions.append(holdButton((btn) => runHint(data.opgave.knaphint, btn)));
-      if (hint) actions.append(actionButton("▶  Se hintet igen", () => { showHint(); scrollTo(hint.el); }));
-      replay = actionButton("↺  Start forfra", () => {
-        task.reset();
-        hint ? showHint() : showTask();
-        scrollTo(hint?.el ?? task.el);
-      });
-      actions.append(replay);
-      task.onSolved(() => { replay.hidden = false; });
-    }
-    stage.replaceChildren(...[letter, hint?.el, task?.el, actions].filter(Boolean));
-
-    function showTask() {
-      hint?.hide();
-      task.el.hidden = false;
-      actions.hidden = false;
-      replay.hidden = !task.isSolved();
-      task.activate();
-    }
-    function showHint() {
-      if (task) {
-        task.deactivate();
-        task.el.hidden = true;
-        actions.hidden = true;
-      }
-      hint.show();
-    }
-
-    if (hint && task) {
-      hint.onEnded(showTask);
-      // Already solved: go straight to the number; hint and replay are one tap away.
-      task.isSolved() ? showTask() : showHint();
-    } else if (hint) {
-      hint.show();
-    } else if (task) {
-      showTask();
-    }
-    (letter ?? hint?.el ?? task?.el)?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  // Under the puzzle: the hold-for-hint button, Finn's texts again and, once solved, "start over".
+  let task = null, actions = null, replay = null;
+  const ready = buildTask(data).catch((e) => (console.error(e), null)).then((t) => {
+    task = t;
+    if (!task) return;
+    actions = document.createElement("div");
+    actions.className = "task-actions";
+    if (data.opgave.knaphint) actions.append(holdButton((btn) => runHint(data.opgave.knaphint, btn)));
+    if (sms) actions.append(actionButton("💬  Læs Finns beskeder igen", () => {
+      // On the same phone if it's on screen; otherwise (e.g. after the car) a phone of their own.
+      if (task.showMessages?.()) scrollTo(task.el);
+      else showLetter(false);
+    }));
+    replay = actionButton("↺  Start forfra", () => {
+      try { localStorage.removeItem(seenKey); } catch { /* ignore */ }
+      task.reset();
+      // The puzzle's own phone shows the texts again after a reset; only weeks
+      // without such a phone use the separate one.
+      inPhone ? showTask() : showLetter(true);
+    });
+    actions.append(replay);
+    task.onSolved(() => { replay.hidden = false; });
+    task.el.hidden = true;
+    actions.hidden = true;
+    stage.append(task.el, actions);
   });
+
+  function showLetter(fresh) {
+    if (!sms) return;
+    task?.deactivate();
+    if (task) task.el.hidden = true;
+    if (actions) actions.hidden = true;
+    letterStep.hidden = false;
+    letterStep.classList.remove("out");
+    letterStep.classList.add("in");
+    next.hidden = true;
+    fresh ? sms.start() : sms.showAll();
+    scrollTo(document.querySelector(".head"));
+  }
+  async function showTask(animate = false) {
+    await ready;
+    if (!task) return;
+    if (animate && !reducedMotion) {
+      letterStep.classList.remove("in");
+      letterStep.classList.add("out");
+      await sleep(450);
+    }
+    letterStep.hidden = true;
+    task.el.hidden = false;
+    task.el.classList.add("in");
+    actions.hidden = false;
+    replay.hidden = !task.isSolved();
+    task.activate();
+    scrollTo(task.el);
+  }
+
+  // Already solved: straight to the number (the texts are one tap away).
+  if (!sms || inPhone) showTask();
+  else if (solvedBefore) ready.then(() => (task ? showTask() : showLetter(false)));
+  else showLetter(true);
+}
+
+/** Finn's "photo" of his ransom collage: the week's title in cut-out letters. */
+function collage(data) {
+  const words = data.title.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").trim().toLocaleUpperCase("da").split(/\s+/).filter(Boolean);
+  if (!words.length) return null;
+  const paper = document.createElement("div");
+  paper.className = "sms-collage";
+  paper.append(cutout(words, data.week * 3));
+  return paper;
 }
 
 // ---------- snow ----------
@@ -492,14 +698,37 @@ function snow() {
 
 // ---------- boot ----------
 
+/** A string of Christmas lights across the top of the page. */
+function lights() {
+  const el = document.createElement("div");
+  el.className = "lights";
+  el.setAttribute("aria-hidden", "true");
+  const n = 13;
+  // Two sagging swoops: y as a function of x (0..1).
+  const sag = (x) => Math.abs(Math.sin(x * Math.PI * 2)) * 14;
+  const pts = Array.from({ length: 41 }, (_, k) => `${(k / 40) * 100},${4 + sag(k / 40)}`).join(" ");
+  el.innerHTML = `<svg viewBox="0 0 100 24" preserveAspectRatio="none"><polyline points="${pts}" /></svg>`;
+  for (let k = 0; k < n; k++) {
+    const x = (k + 0.5) / n;
+    const b = document.createElement("span");
+    b.className = `bulb c${k % 4}`;
+    b.style.left = `${x * 100}%`;
+    b.style.top = `${((4 + sag(x)) / 24) * 100}%`;
+    b.style.animationDelay = `${(k * 0.37) % 2.2}s`;
+    el.append(b);
+  }
+  document.body.prepend(el);
+}
+
 async function main() {
   snow();
+  lights();
   const slug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ""));
   if (!slug) return showHome();
   if (!/^[1-4]-[A-Za-z0-9_-]{8,}$/.test(slug)) return showUnknown();
 
   drawWreath(0);
-  setHead({ eyebrow: "Advent 2026", headline: " " });
+  setHead({ eyebrow: "Det store juleescaperoom", headline: " " });
   const loading = document.createElement("p");
   loading.className = "loading";
   loading.textContent = "Åbner kuverten…";

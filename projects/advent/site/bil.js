@@ -1,4 +1,5 @@
-// Step "bil": the car on the drive home. Turn the key, then in any order: play
+// Step "bil": the car on the drive home. First plug her phone in (usb.js, CarPlay;
+// "telefon": false skips it). Turn the key, then in any order: play
 // the right song on Spotify and route to her address in Google Maps (both in a
 // CarPlay-like screen), and turn on her seat heating. Then we drive.
 //
@@ -14,6 +15,7 @@ import { beep } from "/trin.js";
 import spotify from "/spotify.js";
 import saedevarme from "/saedevarme.js";
 import { driveScene } from "/koretur.js";
+import { usbPhone } from "/usb.js";
 
 const fold = (s) => String(s ?? "").toLocaleLowerCase("da").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9æøå]+/g, " ").trim();
 // What has to be done before we can drive. Only the count is shown, she has
@@ -129,7 +131,22 @@ export default function bil(cfg, ctx) {
   dash.append(cluster, carplay, climate.el);
   const go = button(cfg.kør ?? "Kør hjem 🚗💨", "btn bil-go", drive);
   go.hidden = true;
-  root.append(list, ignition, dash, go);
+  // First her phone has to be plugged in (CarPlay), then the dashboard fades in.
+  const parts = [list, ignition, dash, go];
+  if (cfg.telefon === false) root.append(...parts);
+  else {
+    root.classList.add("usb-mode");
+    root.append(usbPhone(cfg.telefon ?? {}, {
+      bil: cfg.bil ?? "Opel Corsa",
+      sms: cfg.sms ?? null,
+      onConnected: () => {
+        root.classList.remove("usb-mode");
+        root.replaceChildren(...parts);
+        root.classList.add("arrive");
+        root.scrollIntoView({ behavior: "smooth", block: "start" });
+      },
+    }).el);
+  }
 
   // ---- turning the key: drag it round, or just tap it
   let angle = -40;

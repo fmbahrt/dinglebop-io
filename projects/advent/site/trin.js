@@ -18,6 +18,7 @@
 // and calls done() once its own success animation has finished.
 
 import { h, button, store, taskShell, intro, DEBUG } from "/felles.js";
+import { smsApp, smsRead } from "/sms.js";
 
 const STEPS = {
   wolt: () => import("/wolt.js"),
@@ -30,6 +31,8 @@ const STEPS = {
   saedevarme: () => import("/saedevarme.js"),
   postkort: () => import("/postkort.js"),
   panorama: () => import("/panorama.js"),
+  fotojagt: () => import("/fotojagt.js"),
+  sang: () => import("/sang.js"),
   bil: () => import("/bil.js"),
   innercise: () => import("/innercise.js"),
   qr: () => import("/qrscan.js"),
@@ -37,10 +40,10 @@ const STEPS = {
 };
 
 // Her phone: the same home screen every week.
-const PHONE_APPS = [
+export const PHONE_APPS = [
   { type: "kryds", navn: "Krydsord", ikon: "✏️", farve: "linear-gradient(#ffffff, #f1e2b0)" },
   { type: "duolingo", navn: "Duolingo", ikon: "🦉", farve: "#58cc02" },
-  { type: "panorama", navn: "Kamera", ikon: "📷", farve: "linear-gradient(#ececf0, #9d9da6)" },
+  { type: ["fotojagt", "panorama", "postkort"], navn: "Kamera", ikon: "📷", farve: "linear-gradient(#ececf0, #9d9da6)" },
   { type: "wolt", navn: "Wolt", html: "Wolt", klasse: "ic-wolt", farve: "#009de0" },
   { type: "rema", navn: "REMA 1000", html: "REMA<b>1000</b>", klasse: "ic-rema", farve: "#fff" },
   { type: "tv", navn: "TV 2 Play", html: "<b>TV 2</b>PLAY", klasse: "ic-tv2", farve: "linear-gradient(#1c1c22, #000)" },
@@ -51,12 +54,38 @@ const PHONE_APPS = [
   { navn: "Fotos", ikon: "🌸", farve: "#fff" },
   { navn: "Ur", ikon: "⏰", farve: "#111" },
 ];
-const PHONE_DOCK = [
+export const PHONE_DOCK = [
   { navn: "Telefon", ikon: "📞", farve: "linear-gradient(#6ee36e, #24b324)" },
   { navn: "Safari", ikon: "🧭", farve: "#fff" },
   { navn: "Beskeder", ikon: "💬", farve: "linear-gradient(#6ee36e, #24b324)" },
   { navn: "Musik", ikon: "🎵", farve: "linear-gradient(#ff5e7a, #fa233b)" },
 ];
+
+/** iPhone status bar: clock, dynamic island, signal, wifi and battery. */
+export function phoneStatus() {
+  const status = h("div", "iph-status");
+  const clock = h("span", "iph-clock");
+  const tick = () => { clock.textContent = new Date().toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" }).replace(".", ":"); };
+  tick();
+  const icons = h("span", "iph-icons");
+  icons.innerHTML = '<svg viewBox="0 0 18 12" width="17" height="11" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
+    + '<svg viewBox="0 0 16 12" width="15" height="11" aria-hidden="true"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.5 7a6.4 6.4 0 0 1 9 0l1.5-1.5a8.5 8.5 0 0 0-12 0zM1.4 4.9a9.4 9.4 0 0 1 13.2 0L16 3.5a11.4 11.4 0 0 0-16 0z"/></svg>'
+    + '<span class="iph-batt"><i></i></span>';
+  status.append(clock, h("span", "iph-island"), icons);
+  return { el: status, tick };
+}
+
+/** One app icon on the home screen (a = an entry from PHONE_APPS / PHONE_DOCK). */
+export function phoneIcon(a, onTap, badge) {
+  const b = button("", "iph-app", onTap);
+  const tile = h("span", `iph-icon${a.klasse ? " " + a.klasse : ""}`);
+  if (a.html) tile.innerHTML = a.html;
+  else tile.textContent = a.ikon;
+  tile.style.background = a.farve;
+  if (badge) tile.append(badge);
+  b.append(tile, h("span", "iph-label", a.navn));
+  return b;
+}
 
 export async function trinOpgave(opgave, ctx) {
   const steps = opgave.trin ?? [];
@@ -123,15 +152,7 @@ export async function trinOpgave(opgave, ctx) {
 
     const phone = h("div", "iph");
     const screen = h("div", "iph-screen");
-    const status = h("div", "iph-status");
-    const clock = h("span", "iph-clock");
-    const tick = () => { clock.textContent = new Date().toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" }).replace(".", ":"); };
-    tick();
-    const icons = h("span", "iph-icons");
-    icons.innerHTML = '<svg viewBox="0 0 18 12" width="17" height="11" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
-      + '<svg viewBox="0 0 16 12" width="15" height="11" aria-hidden="true"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.5 7a6.4 6.4 0 0 1 9 0l1.5-1.5a8.5 8.5 0 0 0-12 0zM1.4 4.9a9.4 9.4 0 0 1 13.2 0L16 3.5a11.4 11.4 0 0 0-16 0z"/></svg>'
-      + '<span class="iph-batt"><i></i></span>';
-    status.append(clock, h("span", "iph-island"), icons);
+    const { el: status, tick } = phoneStatus();
     const toast = h("p", "iph-toast");
     let toastTimer = 0;
     const say = (text) => {
@@ -141,16 +162,7 @@ export async function trinOpgave(opgave, ctx) {
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
     };
 
-    const icon = (a, onTap, badge) => {
-      const b = button("", "iph-app", onTap);
-      const tile = h("span", `iph-icon${a.klasse ? " " + a.klasse : ""}`);
-      if (a.html) tile.innerHTML = a.html;
-      else tile.textContent = a.ikon;
-      tile.style.background = a.farve;
-      if (badge) tile.append(badge);
-      b.append(tile, h("span", "iph-label", a.navn));
-      return b;
-    };
+    const icon = phoneIcon;
 
     const home = h("div", "iph-home");
     const grid = h("div", "iph-grid");
@@ -255,10 +267,35 @@ export async function trinOpgave(opgave, ctx) {
     card.replaceChildren(...intro(opgave), phone);
     drawHome();
     drawHint();
+
+    // Finn's texts arrive on this same phone first (opgave.sms, set by app.js);
+    // "Gå hjem" then shows the apps. Only on a fresh start, not halfway through.
+    phoneMessages = null;
+    if (opgave.sms) {
+      const app = smsApp(screen, {
+        ...opgave.sms,
+        tick,
+        onDone: () => {
+          screen.querySelector(".usb-gohome")?.remove();
+          const b = button("Gå hjem", "usb-gohome", () => { b.remove(); app.close(); });
+          screen.append(b);
+        },
+      });
+      phoneMessages = () => {
+        if (mine !== gen || !phone.isConnected || phone.classList.contains("away")) return false;
+        if (open >= 0) goHome();
+        app.showAll();
+        return true;
+      };
+      // Fresh start: the texts first. Read before, or halfway through: straight to the apps.
+      if (done.size === 0 && !smsRead(opgave.sms.seenKey)) requestAnimationFrame(() => app.start());
+      else app.close();
+    }
     if (!left()) nextOutside();
   }
+  let phoneMessages = null;
 
-  return taskShell(opgave, ctx, {
+  const task = taskShell(opgave, ctx, {
     renderLocked,
     activate: () => {
       active = true;
@@ -272,9 +309,12 @@ export async function trinOpgave(opgave, ctx) {
       progress.clear();
       solvedApps.clear();
       // Steps may save their own progress under advent:<slug>:…
-      for (const k of ["kryds", "ansigter"]) store(`advent:${ctx.slug}:${k}`).clear();
+      for (const k of ["kryds", "ordjagt", "ansigter"]) store(`advent:${ctx.slug}:${k}`).clear();
     },
   });
+  /** Finn's texts again, on the same phone (false if that phone isn't on screen). */
+  task.showMessages = () => phoneMessages?.() ?? false;
+  return task;
 }
 
 /** "129,00 kr" */

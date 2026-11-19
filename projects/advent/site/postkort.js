@@ -212,7 +212,7 @@ function slider(icon, min, max, step, value, fmt) {
 /** The finished postcard (front: the photo, back: the greeting), flips on tap. */
 export function postcardView(photoSrc, cfg, done) {
   const city = cfg.by ?? "Noto";
-  const card = h("div", "pc");
+  const card = h("div", cfg.lodret ? "pc pc-tall" : "pc");
   const inner = h("div", "pc-inner");
   const front = h("div", "pc-front");
   const photo = h("img", "pc-photo");
