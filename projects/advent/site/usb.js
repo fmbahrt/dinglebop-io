@@ -26,11 +26,12 @@ export function usbPhone(cfg = {}, { bil = "Opel Corsa", sms = null, onConnected
   };
 
   const nope = () => say(cfg.nej ?? "Ikke nu – vi skal hjem 🚗");
+  let openMessages = null; // Beskeder in the dock opens Finn's thread again
   const home = h("div", "iph-home");
   const grid = h("div", "iph-grid");
   grid.append(...PHONE_APPS.map((a) => phoneIcon(a, nope)));
   const dock = h("div", "iph-dock");
-  dock.append(...PHONE_DOCK.map((a) => phoneIcon(a, nope)));
+  dock.append(...PHONE_DOCK.map((a) => phoneIcon(a, a.navn === "Beskeder" ? () => (openMessages ? openMessages() : nope()) : nope)));
   const hint = h("p", "iph-hint", cfg.tekst ?? "Telefonen skal med i bilen 🚗");
   home.append(grid, hint, dock);
   screen.append(status, home, toast);
@@ -51,16 +52,13 @@ export function usbPhone(cfg = {}, { bil = "Opel Corsa", sms = null, onConnected
     const app = smsApp(screen, {
       ...sms,
       tick,
-      onDone: () => {
-        const home = button("Gå hjem", "usb-gohome", () => {
-          home.remove();
-          app.close();
-          stage.classList.remove("waiting");
-          setTimeout(() => cable.scrollIntoView?.({ behavior: "smooth", block: "end" }), 300);
-        });
-        screen.append(home);
+      home: () => {
+        if (!stage.classList.contains("waiting")) return;
+        stage.classList.remove("waiting");
+        setTimeout(() => cable.scrollIntoView?.({ behavior: "smooth", block: "end" }), 300);
       },
     });
+    openMessages = () => { if (!plugged) app.showAll(); };
     screen.append(h("span", "iph-homebar-static"));
     // Read them before (e.g. a reload before plugging in): straight to the cable.
     if (smsRead(sms.seenKey)) {

@@ -46,7 +46,7 @@ Hans motiv (skifter lidt efter humør):
 - Kort, dramatisk, lidt for selvsikker. Gerne en skurke-pause: *"…ja. Det var mig."*
 - Ord han elsker: **MIN**, **godbid**, **pølse**, **sofa**, **hemmelig**.
 - Han kalder sig selv "mesterhjernen", "kisteejer" eller "hund".
-- Italiensk (uge 2): *"Bau bau" = "giv mig pølse"*.
+- Italiensk (uge 1): *"Bau bau" = "giv mig pølse"*.
 
 ---
 
@@ -57,28 +57,15 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 
 | Rum | Søndag | Tema | Ciffer |
 |---|---|---|---|
-| 1 | 29. nov | Saunagus 🧖 | **9** |
-| 2 | 6. dec | Ferien på Sicilien 🍋 | **?** (mangler i `opgave.json`) |
+| 1 | 29. nov | Ferien på Sicilien 🍋 | **?** (mangler i `opgave.json`) |
+| 2 | 6. dec | Saunagus 🧖 | **9** |
 | 3 | 13. dec | Hyggeaften 🛋️ | **8** |
 | 4 | 20. dec | Køreturen hjem 🚗 | **?** (mangler i `opgave.json`) |
-| 🎁 | Efter rum 4 | Kisten åbnes | 9 ? 8 ? |
+| 🎁 | Efter rum 4 | Kisten åbnes | ? 9 8 ? |
 
-### Rum 1 · Saunagus 🧖 (29. nov)
+### Rum 1 · Ferien på Sicilien 🍋 (29. nov)
 
-- **Historien:** Finn er jaloux på Brian, for vi snakker om ham hele tiden ("Har du set Brians kilt?"). Så han har givet første ciffer til Brian: *"Hvis han er så fantastisk, kan han jo passe på det."* Brian blev betalt med en godbid (tog to). Hun skal booke gussen, tjekke ind og overleve tre runder med Brian.
-- **Finns motiv:** Jalousi. Saunaen er det eneste sted, han ikke kan komme med, og når vi kommer hjem, taler vi kun om Brian. Han prøvede selv at vifte med et håndklæde. Han spiste det.
-- **Gåden (spoiler):** Book i Innercise: søndag 29/11 kl. 19:30 med Brian, 2 pladser. Tjek ind i Bruce ved at scanne QR-billetten, der er gemt derhjemme (eller taste koden `KILT-2911`). Telefonen lægges væk. Gus: vift i takt, gentag duftene, helikopter-vift.
-- **Rekvisitter:** Den printede billet: `qr/uge-1-gus-billet.png`. Gem den et sted.
-- **Video-idéer:**
-  - Finn foran saunaen/badeværelset med et håndklæde om halsen: *"Brian er min mand på indersiden."*
-  - Finn "ringer" til Brian (telefon ved øret): *"Ja… ja… hun kommer. Hold tæt. To godbidder, sagde du?"*
-  - Finn med et håndklæde i munden, der "prøver at give gus": *"Se. Jeg kan også. … Okay, jeg kan ikke."*
-  - Finn kigger skeptisk på et billede af en kilt: *"Hvad er det, han har, som jeg ikke har? … Ud over hænder."*
-  - Hint-nudge: *"Man kommer ikke ind i en sauna uden billet. Det ved alle hunde."*
-
-### Rum 2 · Ferien på Sicilien 🍋 (6. dec)
-
-- **Historien:** Finn er stadig sur over, at de tog til Sicilien uden ham. Han fik ikke engang et postkort. Han har gemt andet ciffer i ferieminderne på hendes telefon. *"Hvis du virkelig var der, er det jo nemt."*
+- **Historien:** Finn er stadig sur over, at de tog til Sicilien uden ham. Han fik ikke engang et postkort. Han har gemt første ciffer i ferieminderne på hendes telefon. *"Hvis du virkelig var der, er det jo nemt."*
 - **Gåden (spoiler):** Tre apps på telefonen i vilkårlig rækkefølge:
   - **Krydsord-appen** har to faner, og begge skal løses:
     - Kryds og tværs: GRANITA, AIRBNB, PANDA, SOLCREME, SPRITZ, UMBRELLA, LIDL, STRAND
@@ -91,6 +78,19 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
   - Finn kigger trist ud ad vinduet, mens han "tænker på pasta".
   - Finn sidder klar ved siden af en kuffert med solbriller på: *"Jeg er pakket. Jeg venter bare på mit postkort."*
   - Hint-nudge: *"Et postkort fra Sicilien er ikke noget værd, hvis jeg ikke er på det."*
+
+### Rum 2 · Saunagus 🧖 (6. dec)
+
+- **Historien:** Finn er jaloux på Brian, for vi snakker om ham hele tiden ("Har du set Brians kilt?"). Så han har givet andet ciffer til Brian: *"Hvis han er så fantastisk, kan han jo passe på det."* Brian blev betalt med en godbid (tog to). Hun skal booke gussen, tjekke ind og overleve tre runder med Brian.
+- **Finns motiv:** Jalousi. Saunaen er det eneste sted, han ikke kan komme med, og når vi kommer hjem, taler vi kun om Brian. Han prøvede selv at vifte med et håndklæde. Han spiste det.
+- **Gåden (spoiler):** Book i Innercise: søndag 6/12 kl. 19:30 med Brian, 2 pladser. Tjek ind i Bruce ved at scanne QR-billetten, der er gemt derhjemme (eller taste koden `KILT-0612`). Telefonen lægges væk. Gus: vift i takt, gentag duftene, helikopter-vift.
+- **Rekvisitter:** Den printede billet: `qr/uge-2-gus-billet.png`. Gem den et sted.
+- **Video-idéer:**
+  - Finn foran saunaen/badeværelset med et håndklæde om halsen: *"Brian er min mand på indersiden."*
+  - Finn "ringer" til Brian (telefon ved øret): *"Ja… ja… hun kommer. Hold tæt. To godbidder, sagde du?"*
+  - Finn med et håndklæde i munden, der "prøver at give gus": *"Se. Jeg kan også. … Okay, jeg kan ikke."*
+  - Finn kigger skeptisk på et billede af en kilt: *"Hvad er det, han har, som jeg ikke har? … Ud over hænder."*
+  - Hint-nudge: *"Man kommer ikke ind i en sauna uden billet. Det ved alle hunde."*
 
 ### Rum 3 · Hyggeaften 🛋️ (13. dec)
 
@@ -105,7 +105,7 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 ### Rum 4 · Køreturen hjem 🚗 (20. dec)
 
 - **Historien:** Den sidste prøve. Finn sidder på bagsædet. Bilen skal være klar, sådan som de plejer at have den på vejen hjem. På vejen forbi Fitness World tvivler Finn på, at hun har trænet med kendisser. *"Bevis det."* Finn begynder at fortryde.
-- **Gåden (spoiler):** Tilslut telefonen til bilen med USB-kablet og tryk "Tillad" til CarPlay (som vi altid gør). Drej nøglen. Spotify: Prince – *Do Me, Baby*. Maps: Farumgade 11. Sædevarme på passagersiden, 3 streger. Kør hjem ad Strandvejen. Ansigtsgenkendelse: Kåre Quist, Nikolaj Lie Kaas og Thomas Rathsack. Til sidst **Finns melodilås** 🎤: tre låse, der åbner, når hun synger det rigtige. I de to første hyler Finn melodien for. Den sidste er omkvædet fra *Do Me, Baby*, som vi altid synger på vej hjem.
+- **Gåden (spoiler):** Tilslut telefonen til bilen med USB-kablet og tryk "Tillad" til CarPlay (som vi altid gør). Drej nøglen. Spotify: Prince – *Do Me, Baby*. Maps: Farumgade 11. Sædevarme på passagersiden, 3 streger. Kør hjem ad Strandvejen. Ansigtsgenkendelse: Kåre Quist, Nikolaj Lie Kaas og Thomas Rathsack. Så en lille tegnefilm: Frederik synger hele vejen hjem til Anne (som han altid gør), Finn sukker fra bagsædet ("Hver. Eneste. Gang."), og ved huset får Finn en idé: bagdøren er låst og åbner kun for den rigtige julesang. Til sidst **Finns melodilås** 🎤: tre låse, hver med en julesang som emoji-gåde, som hun skal gætte og nynne: 🔔🔔🔔 🛷💨 = Jingle Bells, ⏮️🎄 ❤️🎁 💔 = Last Christmas, 😄🎄 😍🎄 = Glade jul. Nynner hun en forkert sang, siger Finn, hvilken den lød som.
 - **Video-idéer:**
   - Finn på bagsædet (eller i en papkasse med et rat tegnet på): *"Jeg sidder bare her. Helt uskyldig."*
   - Finn ved fitnesscentrets dør: *"Kendisser? Her? Det tror jeg først, når jeg ser det."*
@@ -133,8 +133,8 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 
 - [ ] Sæt `"tal"` for rum 2 og 4 i `opgave.json`
 - [ ] Stil hængelåsen til de fire tal (rum 1 → 4)
-- [ ] Print QR-koden til forsiden (`qr/forside.png`) og gus-billetten (`qr/uge-1-gus-billet.png`)
+- [ ] Print QR-koden til forsiden (`qr/forside.png`) og gus-billetten (`qr/uge-2-gus-billet.png`)
 - [ ] Find paraply, kuffert og vinglas frem til rum 2 (og Finn 🐶)
 - [ ] Køb en Panda-pose til rum 3
-- [ ] Syng omkvædet af *Do Me, Baby* ind i rum 4 med `?debug` → "🎙 Optag melodi", og sæt `toner` ind i sidste runde i `opgave.json`
+- [ ] Test melodilåsen i rum 4 med rigtigt nynnen (`?debug` viser, hvilken sang den gætter på)
 - [ ] Gem gaven i kisten 🎁

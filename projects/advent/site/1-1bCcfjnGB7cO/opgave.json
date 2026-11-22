@@ -8,7 +8,7 @@
     "emoji": "🍋"
   },
   "tal": "?",
-  "løst": "Okay, okay. I VAR der. Uden mig. Andet ciffer er dit 🐾 – Finn",
+  "løst": "Okay, okay. I VAR der. Uden mig. Første ciffer er dit 🐾 – Finn",
   "trin": [
     {
       "type": "kryds",
@@ -192,6 +192,18 @@
             "la",
             "vino"
           ]
+        },
+        {
+          "type": "byg",
+          "titel": "Skriv på italiensk",
+          "læs": false,
+          "sidst": true,
+          "sætning": "Lortepapir må ikke smides i toilettet",
+          "svar": [
+            "Non gettare la carta igienica nel water",
+            "Non gettare la carta nel water"
+          ],
+          "ord": ["carta", "gelato", "nel", "Non", "water", "la", "mare", "gettare", "il", "igienica", "pizza"]
         },
         {
           "type": "byg",

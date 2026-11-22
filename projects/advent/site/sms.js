@@ -9,6 +9,7 @@
 //   sms.start()    lock screen → notification → thread, animated
 //   sms.showAll()  the whole thread at once (reading it again)
 //   sms.close()    (smsApp) go to that phone's home screen
+//   smsApp(screen, { …, home })  adds "Gå hjem" (and a working ‹) once all texts are in
 
 import { h, button } from "/felles.js";
 import { phoneStatus, beep } from "/trin.js";
@@ -56,9 +57,23 @@ export function smsRead(key) {
   try { return !!key && localStorage.getItem(key) === "1"; } catch { return false; }
 }
 
-export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾", avatar = "🐶", onDone: done = () => {}, tick = () => {} }) {
+export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾", avatar = "🐶", onDone: done = () => {}, home = null, tick = () => {} }) {
+  // With "home" (a phone that has a home screen): once all texts are in, a
+  // "Gå hjem" button and the ‹ arrow close the thread and then call home().
+  let canLeave = false;
+  const goHome = () => {
+    if (!canLeave) return;
+    screen.querySelector(".sms-gohome")?.remove();
+    close();
+    home?.();
+  };
   const onDone = () => {
     try { if (seenKey) localStorage.setItem(seenKey, "1"); } catch { /* private mode */ }
+    if (home) {
+      canLeave = true;
+      screen.querySelector(".sms-gohome")?.remove();
+      screen.append(button("Gå hjem", "sms-gohome", goHome));
+    }
     done();
   };
   screen.classList.add("sms-screen", "sms-mode");
@@ -79,7 +94,9 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
   // ---- the thread
   const thread = h("div", "sms-thread");
   const head = h("div", "sms-head");
-  head.append(h("span", "sms-back", "‹"), h("span", "sms-avatar", avatar), h("span", "sms-name", from));
+  const back = button("‹", "sms-back", goHome);
+  back.setAttribute("aria-label", "Tilbage");
+  head.append(back, h("span", "sms-avatar", avatar), h("span", "sms-name", from));
   const list = h("div", "sms-list");
   const input = h("div", "sms-input");
   input.append(h("span", "sms-plus", "+"), h("span", "sms-field", "iMessage"));
@@ -124,6 +141,8 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     tapHint.textContent = "";
     screen.classList.remove("open");
     screen.classList.add("sms-mode");
+    canLeave = false;
+    screen.querySelector(".sms-gohome")?.remove();
   }
 
   async function start() {
@@ -180,6 +199,8 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
   /** Leave the thread for the home screen underneath. */
   function close() {
     run++;
+    canLeave = false;
+    screen.querySelector(".sms-gohome")?.remove();
     screen.classList.remove("open", "sms-mode");
   }
 
