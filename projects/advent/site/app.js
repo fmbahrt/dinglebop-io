@@ -3,19 +3,41 @@
 // Each week lives in its own folder with a random name, e.g. site/1-Xk3.../
 // containing brev.txt and any photos. The URL is advent.dinglebop.io/<folder>;
 // the leading digit is the week number.
+//
+// The front page is not at "/" but at a random path, advent.dinglebop.io/<hjem>,
+// where site/<hjem>/portaler.json lists the weeks' folders. Nothing secret is in
+// this file (anyone can read it), so neither the front page nor the weeks can be
+// found from here.
 
 import { holdButton, runHint } from "/hints.js";
 import { smsPhone } from "/sms.js";
 import { DEBUG, link } from "/felles.js";
+import { cutout, ransomNote } from "/brev.js";
+import { portalSound } from "/lyd.js";
 
-// One memory portal per advent Sunday on the front page; it opens on that date.
-// Add ?debug to the front page URL to unlock them all.
+// One portal per advent Sunday on the front page; it opens on that date.
+// Add ?debug to the front page URL to unlock them all. The slugs come from
+// /<hjem>/portaler.json (see above).
 const SUNDAYS = [
-  { date: "2026-11-29", label: "29. november", slug: "1-1bCcfjnGB7cO" },
-  { date: "2026-12-06", label: "6. december", slug: "2-28B4Dct3RWPD" },
-  { date: "2026-12-13", label: "13. december", slug: "3-vYsSg1e7Eru6" },
-  { date: "2026-12-20", label: "20. december", slug: "4-HQqKNdpSzBlZ" },
+  { date: "2026-11-29", label: "29. november", slug: null },
+  { date: "2026-12-06", label: "6. december", slug: null },
+  { date: "2026-12-13", label: "13. december", slug: null },
+  { date: "2026-12-20", label: "20. december", slug: null },
 ];
+const HOME_KEY = "advent:hjem"; // the front page path, remembered for "← Alle portaler"
+
+/** The front page's portal list, if this path is the (secret) front page. */
+async function loadHome(path) {
+  if (!/^[A-Za-z0-9]{16,}$/.test(path)) return null;
+  try {
+    const r = await fetch(`/${path}/portaler.json`, { cache: "no-cache" });
+    if (!r.ok) return null;
+    const uger = (await r.json()).uger;
+    return Array.isArray(uger) ? uger : null;
+  } catch {
+    return null;
+  }
+}
 
 const $ = (sel) => document.querySelector(sel);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -191,6 +213,7 @@ function chip(text) {
 }
 
 function showHome() {
+  document.title = "Det store juleescaperoom";
   const reached = sundaysReached();
   // No candle wreath up top here: the portals are the candles (krans below).
   $("#wreath").replaceChildren();
@@ -204,77 +227,6 @@ function showHome() {
   const today = todayISO();
   const lock = codeLock();
   $("#stage").replaceChildren(ransomNote(), krans(today, lock), lock.el, ...(DEBUG ? [chip("🔓 Debug: alle portaler er åbne")] : []));
-}
-
-/** A title in cut-out magazine letters, like a proper ransom note. */
-function cutout(words, seed = 0) {
-  const title = document.createElement("p");
-  title.className = "ransom-title";
-  let i = seed;
-  for (const word of words) {
-    const w = document.createElement("span");
-    w.className = "ransom-word";
-    for (const c of word) {
-      const s = document.createElement("span");
-      s.className = `cut k${(i * 7) % 5}`;
-      s.style.setProperty("--r", `${((i * 37) % 13) - 6}deg`);
-      s.textContent = c;
-      w.append(s);
-      i++;
-    }
-    title.append(w);
-  }
-  return title;
-}
-
-/** Finn's ransom note: folded, with a notification badge until she has opened it. */
-function ransomNote() {
-  const KEY = "advent:finn-brev";
-  let seen = false;
-  try { seen = localStorage.getItem(KEY) === "1"; } catch { /* private mode */ }
-  const markSeen = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } };
-  const el = document.createElement("details");
-  el.className = "ransom";
-  const summary = document.createElement("summary");
-  summary.textContent = "🐾 Brev fra Finn";
-  if (!seen) {
-    el.classList.add("unread");
-    const badge = document.createElement("span");
-    badge.className = "ransom-badge";
-    badge.textContent = "1";
-    badge.setAttribute("aria-label", "ulæst");
-    summary.append(badge);
-  }
-  const title = cutout(["DIN", "GAVE", "ER", "MIN"]);
-  const body = document.createElement("div");
-  body.className = "ransom-body";
-  for (const text of [
-    "Kære Anne",
-    "Jeg har taget din adventsgave og låst den inde i MIN kiste. Med en hængelås. Fire cifre.",
-    "Hver søndag i advent åbner jeg en portal. Bag den venter en prøve. Klarer du den, får du et ciffer. Fire portaler, fire cifre, én kiste.",
-    "Jeg ved godt, hvor meget du hader escape rooms. Men jeg håber stadig, du har lyst til at lege med. 🥺",
-    "Ingen snyd.",
-    "Finn 🐾",
-    "PS. Godbidder fremskynder IKKE processen. Måske lidt.",
-  ]) {
-    const p = document.createElement("p");
-    p.textContent = text;
-    body.append(p);
-  }
-  body.lastElementChild.className = "ransom-ps";
-  body.children[5].className = "ransom-sign";
-  const stamp = document.createElement("span");
-  stamp.className = "ransom-paw";
-  stamp.textContent = "🐾";
-  stamp.setAttribute("aria-hidden", "true");
-  el.append(summary, title, body, stamp);
-  el.addEventListener("toggle", () => {
-    if (!el.open) return;
-    markSeen();
-    el.classList.remove("unread");
-    el.querySelector(".ransom-badge")?.remove();
-  });
-  return el;
 }
 
 /** A combination lock showing the digits found so far. */
@@ -492,63 +444,6 @@ function countdownTo(date, tag) {
   tick();
 }
 
-/**
- * The portal's sound, made with Web Audio (no files): open = a whoosh that
- * rises into a sparkly chime as she's pulled through (≈0.9 s, until the page
- * changes); locked = a dull clunk.
- */
-let sfx = null;
-function portalSound(open) {
-  try {
-    sfx ??= new AudioContext();
-    sfx.resume();
-  } catch { return; }
-  const ctx = sfx, t = ctx.currentTime + 0.02;
-  const out = ctx.createGain();
-  out.gain.value = 0.5;
-  out.connect(ctx.destination);
-  const tone = (type, f0, f1, start, dur, vol) => {
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = type;
-    o.frequency.setValueAtTime(f0, start);
-    o.frequency.exponentialRampToValueAtTime(f1, start + dur);
-    g.gain.setValueAtTime(0.0001, start);
-    g.gain.exponentialRampToValueAtTime(vol, start + Math.min(0.03, dur / 3));
-    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-    o.connect(g).connect(out);
-    o.start(start);
-    o.stop(start + dur + 0.05);
-  };
-  if (!open) {
-    tone("triangle", 140, 70, t, 0.18, 0.5);
-    tone("square", 90, 60, t + 0.09, 0.12, 0.12);
-    return;
-  }
-  // Whoosh: noise through a band-pass that sweeps up.
-  const len = 1.1;
-  const buf = ctx.createBuffer(1, ctx.sampleRate * len, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  const noise = ctx.createBufferSource();
-  noise.buffer = buf;
-  const bp = ctx.createBiquadFilter();
-  bp.type = "bandpass";
-  bp.Q.value = 1.2;
-  bp.frequency.setValueAtTime(300, t);
-  bp.frequency.exponentialRampToValueAtTime(4000, t + 0.85);
-  const ng = ctx.createGain();
-  ng.gain.setValueAtTime(0.0001, t);
-  ng.gain.exponentialRampToValueAtTime(0.35, t + 0.5);
-  ng.gain.exponentialRampToValueAtTime(0.0001, t + len);
-  noise.connect(bp).connect(ng).connect(out);
-  noise.start(t);
-  // The pull: a wobbly tone sliding up.
-  tone("sine", 180, 1400, t, 0.85, 0.22);
-  tone("triangle", 270, 2100, t + 0.05, 0.8, 0.08);
-  // …and the sparkle on the other side (C6 E6 G6 C7 E7).
-  [1047, 1319, 1568, 2093, 2637].forEach((f, k) => tone("triangle", f, f, t + 0.45 + k * 0.07, 0.5, 0.12));
-}
-
 /** Stepping through: the portal swallows the screen. */
 function warp(b) {
   if (reducedMotion) return;
@@ -572,13 +467,10 @@ async function opgave(slug) {
   }
 }
 
+/** A wrong link: says nothing about what this site is. */
 function showUnknown() {
-  drawWreath(0);
-  setHead({
-    eyebrow: "Det store juleescaperoom",
-    headline: "Hov, den portal findes ikke",
-    sub: "Prøv at scanne QR-koden igen.",
-  });
+  document.title = "🐾";
+  setHead({ eyebrow: "", headline: "Her er ikke noget 🐾", sub: "" });
   $("#stage").replaceChildren();
 }
 
@@ -590,9 +482,11 @@ function showWeek(data) {
   document.title = `${data.title} · Det store juleescaperoom`;
   const back = document.createElement("a");
   back.className = "back-link";
-  back.href = link("/");
+  let home = null;
+  try { home = localStorage.getItem(HOME_KEY); } catch { /* private mode */ }
+  back.href = link(`/${home}`);
   back.textContent = "← Alle portaler";
-  $(".wrap").prepend(back);
+  if (home) $(".wrap").prepend(back);
   drawWreath(week, { animate: true });
   setHead({
     eyebrow: `${week}. søndag i advent${sunday ? ` · ${sunday.label}` : ""}`,
@@ -601,6 +495,7 @@ function showWeek(data) {
 
   const stage = $("#stage");
   stage.replaceChildren();
+  fullscreenToggle();
   const scrollTo = (el) => el?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
 
   // Finn texts her first (sms.js); "Videre" puts the phone away and brings out the puzzle.
@@ -698,6 +593,52 @@ function showWeek(data) {
   else showLetter(true);
 }
 
+/**
+ * Fullscreen: the puzzle fills the whole screen. The mock iPhone loses its
+ * frame and fake status bar and becomes the screen she holds; scenes (the car,
+ * cartoons, the melody lock, cameras) get the whole screen too. CSS does the
+ * work (html.fs); where the browser allows it (Android, desktop, iPad) the
+ * Fullscreen API also hides the browser's own bars. iPhone Safari doesn't
+ * allow that for web pages, so there it's the CSS only. Remembered per device.
+ */
+const FS_KEY = "advent:fuldskærm";
+function fullscreenToggle() {
+  if (document.querySelector(".fs-toggle")) return;
+  const root = document.documentElement;
+  const canApi = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+  const apiOn = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "fs-toggle";
+  const draw = () => {
+    const on = root.classList.contains("fs");
+    btn.textContent = on ? "✕" : "⛶";
+    btn.setAttribute("aria-label", on ? "Luk fuld skærm" : "Fuld skærm");
+    btn.title = on ? "Luk fuld skærm" : "Fuld skærm";
+  };
+  const set = (on, fromApi = false) => {
+    root.classList.toggle("fs", on);
+    try { localStorage.setItem(FS_KEY, on ? "1" : "0"); } catch { /* private mode */ }
+    draw();
+    if (!fromApi && canApi) {
+      if (on && !apiOn()) (root.requestFullscreen?.({ navigationUI: "hide" }) ?? root.webkitRequestFullscreen?.())?.catch?.(() => {});
+      if (!on && apiOn()) (document.exitFullscreen?.() ?? document.webkitExitFullscreen?.())?.catch?.(() => {});
+    }
+    // Keep what she was looking at in view.
+    requestAnimationFrame(() => document.querySelector(".task:not([hidden]), .letter-step:not([hidden])")?.scrollIntoView({ block: "start" }));
+  };
+  btn.addEventListener("click", () => set(!root.classList.contains("fs")));
+  // Leaving the browser's fullscreen (Android back, Esc) leaves ours too.
+  for (const ev of ["fullscreenchange", "webkitfullscreenchange"]) {
+    document.addEventListener(ev, () => { if (!apiOn() && root.classList.contains("fs")) set(false, true); });
+  }
+  let saved = null;
+  try { saved = localStorage.getItem(FS_KEY); } catch { /* private mode */ }
+  root.classList.toggle("fs", saved === "1");
+  draw();
+  document.body.append(btn);
+}
+
 /** Finn's "photo" of his ransom collage: the week's title in cut-out letters. */
 function collage(data) {
   const words = data.title.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").trim().toLocaleUpperCase("da").split(/\s+/).filter(Boolean);
@@ -783,8 +724,13 @@ async function main() {
   snow();
   lights();
   const slug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ""));
-  if (!slug) return showHome();
-  if (!/^[1-4]-[A-Za-z0-9_-]{8,}$/.test(slug)) return showUnknown();
+  if (!/^[1-4]-[A-Za-z0-9_-]{8,}$/.test(slug)) {
+    const uger = slug ? await loadHome(slug) : null;
+    if (!uger) return showUnknown();
+    uger.forEach((u, i) => SUNDAYS[i] && (SUNDAYS[i].slug = u));
+    try { localStorage.setItem(HOME_KEY, slug); } catch { /* private mode */ }
+    return showHome();
+  }
 
   drawWreath(0);
   setHead({ eyebrow: "Det store juleescaperoom", headline: " " });

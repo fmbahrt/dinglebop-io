@@ -2426,3 +2426,128 @@ h1 {
 .kt-bubble.show { opacity: 1; transform: none; }
 .kt-bubble.finn { background: #fff3c4; }
 .kt-bubble.finn::after { left: 14%; border-top-color: #fff3c4; }
+
+/* ---------- Fullscreen (html.fs, the ⛶ button on a week page) ----------
+   The puzzle fills the screen: no header, wreath or back link, and the mock
+   iPhone becomes the screen itself (no frame, no fake status bar). */
+
+.fs-toggle {
+  position: fixed;
+  z-index: 60;
+  right: max(.75rem, env(safe-area-inset-right));
+  bottom: calc(.85rem + env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(233, 196, 106, .55);
+  border-radius: 50%;
+  background: rgba(11, 25, 20, .78);
+  color: var(--gold-soft);
+  font: 700 1.25rem/1 system-ui, sans-serif;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.fs-toggle:active { transform: scale(.92); }
+
+html.fs, html.fs body { height: 100%; overflow: hidden; }
+html.fs .head, html.fs .wreath, html.fs .back-link, html.fs .lights { display: none; }
+html.fs .wrap { min-height: 0; padding: 0; }
+html.fs #stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  margin: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: radial-gradient(130% 70% at 50% 0%, var(--pine) 0%, var(--night) 65%), var(--night);
+}
+/* Small, out of the way: the bottom-right corner (over the phone's home bar). */
+html.fs .fs-toggle { width: 2.2rem; height: 2.2rem; bottom: calc(.3rem + env(safe-area-inset-bottom)); right: max(.4rem, env(safe-area-inset-right)); font-size: .95rem; opacity: .7; }
+
+/* The task card: edge to edge, the puzzle first. */
+html.fs .task, html.fs .task.trin, html.fs .task.trin-phone { display: flex; flex-direction: column; min-height: 100%; margin: 0; padding: .6rem .5rem 1rem; border: 0; border-radius: 0; background: none; animation: none; }
+html.fs .task > .task-text { order: 2; margin: 1rem .5rem 0; font-size: .9rem; }
+html.fs .task.unlocked { justify-content: center; }
+html.fs .task-actions { margin-top: 0; padding: 1rem .75rem 4rem; }
+html.fs .step-stage { flex: 1; }
+html.fs .app { border-radius: 14px; }
+html.fs .letter-step { padding: 0 0 4rem; }
+
+/* The phone IS the screen. */
+html.fs .task.trin-phone:has(> .iph) { padding: 0; }
+html.fs .trin-phone > .iph, html.fs .letter-step .iph {
+  width: 100%;
+  max-width: none;
+  height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+html.fs .trin-phone > .iph .iph-screen, html.fs .letter-step .iph-screen { height: 100%; min-height: 0; border-radius: 0; }
+html.fs .trin-phone > .iph .iph-status, html.fs .letter-step .iph-status { display: none; }
+/* The phone that gets plugged into the car keeps its frame: the cable must fit below it. */
+html.fs .usb-phone .iph-screen { height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12rem); min-height: 22rem; }
+html.fs .iph-home { padding-top: 1.4rem; }
+html.fs .sms-phone { margin: 0; }
+html.fs .sms-thread .sms-head { padding-top: .6rem; }
+
+/* Scenes outside the phone (car, cartoon, melody lock, cameras) get the width. */
+html.fs .step-stage > .app, html.fs .step-stage > .scene { width: 100%; margin: 0 auto; max-width: 40rem; }
+
+/* Cartoons and drives: taller, so they fill the screen instead of a strip at the top. */
+html.fs .kt { aspect-ratio: 3 / 4; max-height: 70dvh; }
+html.fs .step-stage:has(> .film) { display: flex; flex-direction: column; justify-content: center; }
+
+/* ---------- Intro (intro.html / intro.js): Finn's letter, then find the poster ---------- */
+
+.intro { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100svh; padding: calc(max(1rem, env(safe-area-inset-top)) + 1rem) 1rem calc(2rem + env(safe-area-inset-bottom)); text-align: center; }
+.intro-nothing { color: var(--text-soft); font: 500 1.3rem/1.3 "Fraunces", Georgia, serif; }
+.intro-letter { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+/* The envelope */
+.intro-envelope { position: relative; width: min(19rem, 86vw); aspect-ratio: 3 / 2; padding: 0; border: 0; border-radius: 6px; background: linear-gradient(160deg, var(--kraft), var(--kraft-dark)); box-shadow: 0 24px 50px -16px rgba(0, 0, 0, .85), inset 0 0 0 1px rgba(0, 0, 0, .08); cursor: pointer; perspective: 800px; animation: intro-float 3s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
+.intro-envelope::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(to top right, transparent 49.5%, rgba(0, 0, 0, .07) 50%) left / 50% 100% no-repeat, linear-gradient(to top left, transparent 49.5%, rgba(0, 0, 0, .07) 50%) right / 50% 100% no-repeat; }
+.intro-flap { position: absolute; left: 0; right: 0; top: 0; height: 58%; background: linear-gradient(#e2cfa6, #d4bb8b); clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: 50% 0; transition: transform .6s cubic-bezier(.3, .8, .3, 1); filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .15)); }
+.intro-seal { position: absolute; left: 50%; top: 58%; display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #c3343f, var(--red-deep)); box-shadow: 0 3px 8px rgba(0, 0, 0, .4); font-size: 1.5rem; transform: translate(-50%, -50%); transition: opacity .3s; }
+.intro-env-label { position: absolute; left: 0; right: 0; bottom: 12%; color: var(--ink); font: 700 1.5rem/1 "Caveat", cursive; }
+.intro-envelope.open { animation: none; }
+.intro-envelope.open .intro-flap { transform: rotateX(180deg); }
+.intro-envelope.open .intro-seal { opacity: 0; }
+.intro-taphint { margin-top: 1.4rem; color: var(--gold-soft); font: 400 .95rem/1.3 "Special Elite", monospace; animation: bulb 2.2s ease-in-out infinite; }
+@keyframes intro-float { 50% { transform: translateY(-6px) rotate(-1deg); } }
+
+/* The letter, line by line */
+.intro-paper { margin-bottom: 1rem; animation: rise .7s cubic-bezier(.2, .8, .3, 1) both; }
+.intro-paper .ransom-paw { display: block; }
+.intro-line:not(.show) { display: none; }
+.intro-line.show { animation: rise .6s cubic-bezier(.2, .8, .3, 1) both; }
+.intro-next { animation: rise .5s ease both; }
+
+/* The camera, full screen */
+html.intro-camera, html.intro-camera body { height: 100%; overflow: hidden; }
+.intro-cam { position: fixed; inset: 0; z-index: 5; background: #000; }
+.intro-video, .intro-fx { position: absolute; inset: 0; width: 100%; height: 100%; }
+.intro-video { object-fit: cover; }
+.intro-fx { pointer-events: none; }
+.intro-cam-top, .intro-cam-bottom { position: absolute; left: 0; right: 0; z-index: 2; padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); text-align: center; }
+.intro-cam-top { top: 0; padding-top: calc(env(safe-area-inset-top) + .9rem); padding-bottom: 2.2rem; background: linear-gradient(rgba(5, 10, 20, .8), transparent); }
+.intro-cam-bottom { bottom: 0; padding-top: 2.5rem; padding-bottom: calc(env(safe-area-inset-bottom) + 1rem); background: linear-gradient(transparent, rgba(5, 10, 20, .85)); }
+.intro-cam-title { color: var(--gold); font: 500 1.35rem/1.2 "Fraunces", Georgia, serif; }
+.intro-cam-sub { margin-top: .3rem; color: #e9e3d4; font-size: .92rem; }
+.intro-status { min-height: 1.4em; color: #fff; font: 700 1.05rem/1.3 system-ui, sans-serif; text-shadow: 0 1px 4px rgba(0, 0, 0, .7); }
+.intro-start { margin-top: .8rem; }
+.intro-start[hidden], .intro-anyway[hidden] { display: none; }
+.intro-anyway { margin-top: .7rem; padding: .3rem; border: 0; background: none; color: var(--gold-soft); font: inherit; font-size: .85rem; text-decoration: underline; cursor: pointer; }
+.intro-debug { margin-top: .5rem; color: #9fd3ff; font: .7rem/1.3 ui-monospace, Menlo, monospace; }
+.intro-cam-bottom .debug-skip { margin-top: .6rem; }
+@media (prefers-reduced-motion: reduce) { .intro-envelope, .intro-taphint { animation: none; } }

@@ -1,5 +1,6 @@
-// Local preview with the same routing as nginx.conf:
-// real files are served, missing content files 404, everything else -> index.html.
+// Local preview with the same routing as nginx.conf: real files are served,
+// the secret paths (/<week folder>, /<hjem>) get index.html, the intro (/0-…)
+// gets intro.html, everything else 404s.
 // Supports Range requests, which Safari needs to play video.
 
 import { existsSync } from "node:fs";
@@ -10,6 +11,7 @@ import path from "node:path";
 const ROOT = path.resolve(import.meta.dirname, "..");
 const SITE = path.join(ROOT, "site");
 const PORT = Number(process.env.PORT ?? 5173);
+const APP_PATH = /^\/([0-4]-[A-Za-z0-9_-]{8,}|[A-Za-z0-9]{16,})\/?$/;
 const CONTENT = /\.(txt|json|jpe?g|png|webp|gif|mp4|mov|webm)$/i;
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript",
@@ -22,9 +24,9 @@ createServer(async (req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, "http://x").pathname);
   let file = path.join(SITE, path.normalize(pathname));
   const isFile = file.startsWith(SITE) && existsSync(file) && (await stat(file)).isFile();
-  if (!isFile) {
-    if (CONTENT.test(pathname)) return res.writeHead(404).end();
-    file = path.join(SITE, "index.html");
+  if (!isFile || pathname === "/") {
+    if (CONTENT.test(pathname) || !APP_PATH.test(pathname)) return res.writeHead(404, { "content-type": "text/plain" }).end("404\n");
+    file = path.join(SITE, /^\/0-/.test(pathname) ? "intro.html" : "index.html");
   }
   const body = await readFile(file);
   const headers = { "content-type": TYPES[path.extname(file).toLowerCase()] ?? "application/octet-stream", "cache-control": "no-cache", "accept-ranges": "bytes" };

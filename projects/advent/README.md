@@ -21,6 +21,61 @@ ugen er klaret, bliver portalen gylden med ✓. Der er kun én QR-kode: den
 til forsiden. Tilføj `?debug` til adressen for at låse alle op. I debug kan ugens gåde
 altid startes forfra med "↺ Start forfra".
 
+## Introen: QR-koden → Finns brev → find plakaten (`/0-nun8bGHjmO4x73BKgnNA`)
+
+QR-koden (`qr/forside.png`) peger på introen, som har sin egen hemmelige
+adresse. `0` betyder "før uge 1". Introen består af `site/intro.html` og
+`site/intro.js`, og `site/0-…/intro.json` har forsidens sti og `hold`
+(sekunder):
+
+1. Finns brev "afspilles": en kuvert, og så brevet linje for linje (tryk = resten
+   med det samme). Brevet står i `site/brev.js` og er det samme som "Brev fra
+   Finn" på forsiden, som derefter tæller som læst.
+2. "Videre" starter kameraet i fuld skærm. Hun skal finde Kusama-plakaten.
+   Genkendelsen kører kun på den del af billedet, hun selv ser.
+3. Mens plakaten er i billedet, åbner en portal oven på den: en gylden ramme
+   der tegnes rundt, en hvirvel indeni, gnister, og stuen bliver mørkere. Den
+   følger plakaten i perspektiv. Plakaten skal være i billedet i `hold` sekunder.
+   Et kort udfald (op til 1 sekund) sætter den bare på pause. Er den væk
+   længere, lukker portalen, og hun starter forfra.
+4. Når portalen er helt åben, fylder lyset skærmen, portallyden spiller, og hun
+   sendes videre til forsiden.
+
+Det huskes (`advent:intro-klaret`), så en ny scanning går direkte til forsiden.
+`?forfra` spiller introen igen. `?debug` giver en spring-over-knap og en
+debug-linje. Hints undervejs: efter 25 sekunder "det hænger på en væg 🖼️",
+efter 50 sekunder "Bjerge, en flod og græsmarker. Japan 🗻". Efter 2 minutter
+kommer et link "Gå ind alligevel".
+
+Genkendelsen (`site/plakat.js`, ORB) kører i en Web Worker
+(`site/plakat-worker.js`), så OpenCV aldrig får animationen til at hakke.
+Introen og workeren får `'unsafe-eval'` og `'wasm-unsafe-eval'` i CSP (se
+`nginx.conf`). Resten af sitet har den stramme CSP.
+
+## Forsiden (hemmelig adresse)
+
+Forsiden ligger ikke på `/`, men på en tilfældig sti:
+`https://advent.dinglebop.io/qvqdH8iwVaf9EJalg2AF`. Hun kommer dertil via introen. Mappen `site/qvqdH8iwVaf9EJalg2AF/` har
+`portaler.json` med ugernes mapper i rækkefølge. `app.js` er offentlig og
+indeholder derfor hverken forsidens sti eller ugernes links. `/` og alle andre
+stier giver 404 (nginx og `tools/serve.mjs`), og ugens "← Alle portaler" bruger
+den forside, hun sidst har åbnet. Ny adresse: omdøb mappen, og lav QR-koden om.
+
+## Fuld skærm (⛶)
+
+På ugens side sidder en ⛶-knap nederst til højre. Den skjuler sidehoved, krans
+og tilbage-link, så opgaven fylder hele skærmen (`html.fs` i `style.css`,
+`fullscreenToggle()` i `app.js`):
+
+- Mock-iPhonen mister ramme og falsk statuslinje og *er* skærmen.
+- Bil-telefonen beholder sin ramme, så USB-kablet kan være under den.
+- Tegnefilm, melodilås og kameraer fylder bredden, og tegnefilmene også højden.
+- Hint, "Læs Finns beskeder igen" og "Start forfra" ligger under opgaven.
+
+Hvor browseren tillader det (Android, desktop, iPad), skjuler Fullscreen API'et
+også browserens egne bjælker. iPhone tillader det ikke for websider, så der er
+det kun CSS. Valget huskes på enheden (`advent:fuldskærm`). ✕ lukker fuld skærm.
+
 ## Ugerne
 
 Hver uge er en mappe i `site/` med et tilfældigt navn (så man ikke kan gætte
@@ -286,10 +341,46 @@ med billede og navn; når alle er fundet, kommer tallet.
 Kameraet virker kun over HTTPS (eller `localhost`), så test kamera-gåderne på
 telefonen efter deploy. På Mac'en virker de på `localhost` med webcam'et.
 
+## Plakat-genkendelsen (`site/plakat.js`, testside: `/plakat-poc.html`)
+
+Introen finder Kusama-plakaten (Japanese Grasslands) med klassisk genkendelse
+af et fladt billede med OpenCV.js (`site/vendor/opencv/`, Apache-2.0).
+`/plakat-poc.html` er en testside, der viser punkter, inliers og
+afvisningsgrunde:
+
+- ORB-punkter i hvert kamerabillede (skaleret til 1280 px) matches mod plakatens
+  punkter i `site/plakat/orb.json`. Lowes ratio-test smider usikre match væk.
+- RANSAC finder den homografi (plakaten set i perspektiv), som flest match er
+  enige om. Mindst 20 inliers to billeder i træk betyder, at plakaten er fundet.
+  Den fundne plakat tegnes som en grøn firkant.
+- `?algo=akaze` bruger AKAZE i stedet (cirka 3× langsommere). `?side=960` gør
+  den hurtigere. `?norm=clahe` normaliserer lyset. SIFT findes ikke i den
+  færdigbyggede opencv.js.
+- Referencen er lavet ud fra et foto af *vores* plakat på væggen, rettet ud med
+  `window.plakat.rectify()`. Den rammer den rigtige print, lyset og glasset bedre
+  end butikkens produktbillede.
+- Plakaten er beskyttet af ophavsret, så selve billedet er **ikke** i repoet. Kun
+  punkterne (positioner og descriptors) er. Lav dem igen med
+  `/plakat-poc.html?lav`: vælg et beskåret, lige-på billede af plakaten, og læg de
+  downloadede JSON-filer i `site/plakat/`.
+- OpenCV.js kræver `'wasm-unsafe-eval'` og `'unsafe-eval'` i CSP. Det har kun
+  denne side (se `nginx.conf`).
+- Test på fotos fra stuen (dæmpet lys, genskin i glasset, planten foran):
+
+  | Plakaten | Inliers (grænse 20) |
+  |---|---|
+  | Tæt på | 1074 |
+  | Skråt, langt væk | 130 |
+  | Planten foran | 157 og 185 |
+  | Stuen uden plakaten (dør, loft, tv, kurv) | 0–4 |
+
+  Hvert billede tager cirka 65 ms på en Mac. Billedstørrelsen betød mest: ved 640
+  px var plakaten på afstand for lille (4–20 inliers).
+
 ## Se det lokalt
 
 ```sh
-node tools/serve.mjs   # http://localhost:5173/1-1bCcfjnGB7cO
+node tools/serve.mjs   # http://localhost:5173/qvqdH8iwVaf9EJalg2AF (forsiden)
 ```
 
 ## Deploy

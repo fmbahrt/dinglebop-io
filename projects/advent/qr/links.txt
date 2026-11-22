@@ -1,4 +1,8 @@
-Forside (den eneste QR-kode): https://advent.dinglebop.io/   -> qr/forside.png
+QR-koden (den eneste): https://advent.dinglebop.io/0-nun8bGHjmO4x73BKgnNA   -> qr/forside.png
+  = introen: Finns brev, find Kusama-plakaten med kameraet, så videre til forsiden.
+  Klaret én gang = husket, så en ny scanning går direkte til forsiden.
+Forsiden: https://advent.dinglebop.io/qvqdH8iwVaf9EJalg2AF
+(https://advent.dinglebop.io/ selv giver 404.)
 
 Uge 1: https://advent.dinglebop.io/1-1bCcfjnGB7cO
 Uge 2: https://advent.dinglebop.io/2-28B4Dct3RWPD

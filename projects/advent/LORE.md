@@ -133,7 +133,8 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 
 - [ ] Sæt `"tal"` for rum 2 og 4 i `opgave.json`
 - [ ] Stil hængelåsen til de fire tal (rum 1 → 4)
-- [ ] Print QR-koden til forsiden (`qr/forside.png`) og gus-billetten (`qr/uge-2-gus-billet.png`)
+- [ ] Print QR-koden (`qr/forside.png`). Den peger nu på introen `/0-nun8bGHjmO4x73BKgnNA` (Finns brev, så find Kusama-plakaten), som sender hende videre til forsiden. En gammel print til `/` virker ikke længere.
+- [ ] Kusama-plakaten skal hænge, hvor den hænger nu (genkendelsen er lavet ud fra et foto af den på væggen). og gus-billetten (`qr/uge-2-gus-billet.png`)
 - [ ] Find paraply, kuffert og vinglas frem til rum 2 (og Finn 🐶)
 - [ ] Køb en Panda-pose til rum 3
 - [ ] Test melodilåsen i rum 4 med rigtigt nynnen (`?debug` viser, hvilken sang den gætter på)
