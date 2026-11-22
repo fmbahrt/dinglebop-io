@@ -29,8 +29,10 @@ adresse. `0` betyder "før uge 1". Introen består af `site/intro.html` og
 (sekunder):
 
 1. Finns brev "afspilles": en kuvert, og så brevet linje for linje (tryk = resten
-   med det samme). Brevet står i `site/brev.js` og er det samme som "Brev fra
-   Finn" på forsiden, som derefter tæller som læst.
+   med det samme). Brevene står i `site/brev.js`. Introen bruger
+   `INTRO_LETTER` (afpresningsbrevet med cluet). Forsidens "Brev fra Finn" er
+   `HOME_LETTER`, og den har en badge, til hun har læst den: godt gået, og
+   sådan virker escape roomet.
 2. "Videre" starter kameraet i fuld skærm. Hun skal finde Kusama-plakaten.
    Genkendelsen kører kun på den del af billedet, hun selv ser.
 3. Mens plakaten er i billedet, åbner en portal oven på den: en gylden ramme
@@ -38,14 +40,20 @@ adresse. `0` betyder "før uge 1". Introen består af `site/intro.html` og
    følger plakaten i perspektiv. Plakaten skal være i billedet i `hold` sekunder.
    Et kort udfald (op til 1 sekund) sætter den bare på pause. Er den væk
    længere, lukker portalen, og hun starter forfra.
-4. Når portalen er helt åben, fylder lyset skærmen, portallyden spiller, og hun
-   sendes videre til forsiden.
+4. Når portalen er helt åben, *blomstrer* den: en lysring skyder ud, telefonen
+   vibrerer, og portalen bliver stående åben. Den pulserer og har en lysende
+   "tryk her"-prik i midten. Kameraet kører videre, og portalen følger plakaten.
+   Er plakaten ude af billedet, fader portalen ud, men den lukker ikke igen.
+5. Et tryk på portalen: lyset fylder skærmen, portallyden spiller, og hun sendes
+   videre til forsiden. Et tryk ved siden af får portalen til at ryste.
 
 Det huskes (`advent:intro-klaret`), så en ny scanning går direkte til forsiden.
 `?forfra` spiller introen igen. `?debug` giver en spring-over-knap og en
-debug-linje. Hints undervejs: efter 25 sekunder "det hænger på en væg 🖼️",
-efter 50 sekunder "Bjerge, en flod og græsmarker. Japan 🗻". Efter 2 minutter
-kommer et link "Gå ind alligevel".
+debug-linje. Cluet står i brevet ("Kunsten gemmer på en hemmelighed.", på
+Kusamas røde prikker). Kameraet viser ingen tekst, kun "📜 Læs brevet igen", som
+lægger brevet oven på kameraet, mens genkendelsen holder pause. Fejlbeskeder
+vises kun, hvis kameraet ikke får lov. Efter 2 minutter kommer et link "Gå ind
+alligevel".
 
 Genkendelsen (`site/plakat.js`, ORB) kører i en Web Worker
 (`site/plakat-worker.js`), så OpenCV aldrig får animationen til at hakke.
@@ -70,7 +78,7 @@ og tilbage-link, så opgaven fylder hele skærmen (`html.fs` i `style.css`,
 - Mock-iPhonen mister ramme og falsk statuslinje og *er* skærmen.
 - Bil-telefonen beholder sin ramme, så USB-kablet kan være under den.
 - Tegnefilm, melodilås og kameraer fylder bredden, og tegnefilmene også højden.
-- Hint, "Læs Finns beskeder igen" og "Start forfra" ligger under opgaven.
+- "Læs Finns beskeder igen" og "Start forfra" ligger under opgaven.
 
 Hvor browseren tillader det (Android, desktop, iPad), skjuler Fullscreen API'et
 også browserens egne bjælker. iPhone tillader det ikke for websider, så der er
@@ -126,12 +134,7 @@ Læg en `opgave.json` i uge-mappen. Flowet er så:
 - `løst`: teksten under tallet.
 - `overskrift` / `tekst` (valgfri): vises over gåden. Udelad dem for ikke at
   afsløre noget.
-- `knaphint` (valgfri): en lille "💡 Hint"-knap, der skal holdes inde i 1,5 s.
-  - `{ "type": "konfetti", "emoji": "🐼" }` regner emojien ud over skærmen
-    (`"antal"` styrer hvor mange, standard 80)
-  - `{ "type": "tekst", "tekst": "Kig i køkkenet 👀" }` viser en kort tekst
-
-  Nye typer tilføjes i `site/hints.js`.
+- Der er ingen hint-knap. Hints får hun ved at spørge Frederik i virkeligheden.
 - Står der tekst i `brev.txt` under overskriften, er det Finns beskeder, som vises før gåden.
 
 ### Gåde-typer

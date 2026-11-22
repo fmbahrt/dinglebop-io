@@ -9,7 +9,6 @@
 // this file (anyone can read it), so neither the front page nor the weeks can be
 // found from here.
 
-import { holdButton, runHint } from "/hints.js";
 import { smsPhone } from "/sms.js";
 import { DEBUG, link } from "/felles.js";
 import { cutout, ransomNote } from "/brev.js";
@@ -531,14 +530,13 @@ function showWeek(data) {
   if (sms) letterStep.append(sms.el, next);
   stage.append(letterStep);
 
-  // Under the puzzle: the hold-for-hint button, Finn's texts again and, once solved, "start over".
+  // Under the puzzle: Finn's texts again and, once solved, "start over". (No hint button: hints are asked for in real life.)
   let task = null, actions = null, replay = null;
   const ready = buildTask(data).catch((e) => (console.error(e), null)).then((t) => {
     task = t;
     if (!task) return;
     actions = document.createElement("div");
     actions.className = "task-actions";
-    if (data.opgave.knaphint) actions.append(holdButton((btn) => runHint(data.opgave.knaphint, btn)));
     if (sms) actions.append(actionButton("💬  Læs Finns beskeder igen", () => {
       // On the same phone if it's on screen; otherwise (e.g. after the car) a phone of their own.
       if (task.showMessages?.()) scrollTo(task.el);

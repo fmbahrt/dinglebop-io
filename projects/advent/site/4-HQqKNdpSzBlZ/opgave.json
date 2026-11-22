@@ -1,10 +1,6 @@
 {
   "type": "trin",
   "overskrift": "Køreturen hjem 🚗",
-  "knaphint": {
-    "type": "konfetti",
-    "emoji": "🚗"
-  },
   "tal": "?",
   "løst": "Du gjorde det. Alle fire cifre. Kisten er din. Undskyld. Kan jeg få en godbid nu? 🐾 – Finn",
   "trin": [

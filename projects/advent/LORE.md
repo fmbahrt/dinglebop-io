@@ -71,7 +71,7 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
     - Kryds og tværs: GRANITA, AIRBNB, PANDA, SOLCREME, SPRITZ, UMBRELLA, LIDL, STRAND
     - Find ordene (ordjagt, hun elsker dem): CATANIA, SIRACUSA, NOTO, TAORMINA, ETNA
   - **Duolingo:** italiensk-lektion
-  - **Kamera (Postkort):** Lav et postkort fra Sicilien derhjemme med det rigtige kamera. Finn 🐶, en paraply ☂️, en kuffert 🧳 og et (spritz)glas 🍷 skal være i billedet på én gang. Finn "bedømmer" hvert billede og giver ledetråde til det, der mangler (fx "Hvordan kom du overhovedet til Sicilien uden noget at pakke i? ✈️"). Finn var ikke med på Sicilien, så nu kommer Sicilien til Finn. Paraplyen bliver bedst genkendt, når den er slået op.
+  - **Kamera (Postkort):** Lav et postkort fra Sicilien derhjemme med det rigtige kamera. Finn 🐶 og sofaen 🛋️ skal være i billedet på én gang. Finn "bedømmer" hvert billede og giver ledetråde til det, der mangler (fx "Hvor skal man ellers ligge og drømme sig tilbage til Sicilien? 🛋️"). Finn var ikke med på Sicilien, så nu kommer Sicilien til Finn.
 - **Sjovt:** Finn er selv et ord i krydsordet ("Hunden 🐶"). Han er MEGET stolt.
 - **Video-idéer:**
   - Finn med solbriller og en citron: *"Ciao. Jeg var IKKE på Sicilien. Ingen spurgte mig."*
