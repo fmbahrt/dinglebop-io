@@ -18,7 +18,8 @@ hun har fundet. En portal er tåget og låst indtil sin søndag
 (`SUNDAYS` i `site/app.js`). Derefter hvirvler den med ugens emoji og titel
 (fra `overskrift` i `opgave.json`) og suger hende ind på ugens side. Når
 ugen er klaret, bliver portalen gylden med ✓. Der er kun én QR-kode: den
-til forsiden. Tilføj `?debug` til adressen for at låse alle op.
+til forsiden. Tilføj `?debug` til adressen for at låse alle op. I debug kan ugens gåde
+altid startes forfra med "↺ Start forfra".
 
 ## Ugerne
 
@@ -26,7 +27,7 @@ Hver uge er en mappe i `site/` med et tilfældigt navn (så man ikke kan gætte
 næste uges link). Tallet foran er ugenummeret. Links og QR-koder ligger i `qr/`.
 
 ```
-site/1-28B4Dct3RWPD/brev.txt   ->  https://advent.dinglebop.io/1-28B4Dct3RWPD
+site/1-1bCcfjnGB7cO/brev.txt   ->  https://advent.dinglebop.io/1-1bCcfjnGB7cO
 ```
 
 `brev.txt`:
@@ -56,8 +57,10 @@ Læg en `opgave.json` i uge-mappen. Flowet er så:
    før (eller løst en app), springer telefonen dem over næste gang
    (`advent:<uge>:sms-læst`). "Start forfra" viser dem igen. En uge uden telefon får en telefon
    alene til beskederne og en "Videre →"-knap.
-3. Under gåden kan hun "💬 Læs Finns beskeder igen" (de har ledetråde). Tråden
-   åbner på samme telefon, når den er på skærmen.
+3. Finns beskeder kan læses igen ved at åbne **Beskeder** i telefonens dock
+   (eller med "💬 Læs Finns beskeder igen" under gåden). "‹" eller "Gå hjem"
+   fører tilbage til hjemmeskærmen. Telefonen har altid samme størrelse, og
+   apps scroller indeni.
 4. Når gåden er løst, vises tallet. Telefonen husker det, og næste gang går
    den direkte til tallet.
 
@@ -78,7 +81,7 @@ Læg en `opgave.json` i uge-mappen. Flowet er så:
 
 ### Gåde-typer
 
-**`stregkode`**: scan den rigtige stregkode med kameraet (uge 1).
+**`stregkode`**: scan den rigtige stregkode med kameraet (uge 2).
 
 ```json
 { "type": "stregkode", "stregkode": "4037400716206", "tal": "9" }
@@ -87,7 +90,7 @@ Læg en `opgave.json` i uge-mappen. Flowet er så:
 `stregkode` er tallene under stregkoden (mellemrum er ligegyldige). Virker
 kameraet ikke, kan koden tastes ind.
 
-**`kryds`**: lille kryds og tværs (uge 2).
+**`kryds`**: lille kryds og tværs (uge 1).
 
 ```json
 { "type": "kryds", "tal": "4", "ord": [
@@ -133,11 +136,11 @@ langt hun er nået. Tallet kommer, når sidste trin er klaret.
 ] }
 ```
 
-Med `"visning": "telefon"` (uge 2: Sicilien, uge 3: hyggeaften) vises trinene
+Med `"visning": "telefon"` (uge 1: Sicilien, uge 3: hyggeaften) vises trinene
 som apps på hendes iPhone og kan løses i vilkårlig rækkefølge. Det er den samme
 telefon hver uge (`PHONE_APPS` i `trin.js`): ugens apps har et rødt badge, de
 andre siger bare `nej` ("Ikke nu – vi er på ferie 🍋").
-Uge 1 (saunagus) bruger den også: `"efter": "innercise"` på check-in (appen Bruce) holder
+Uge 2 (saunagus) bruger den også: `"efter": "innercise"` på check-in (appen Bruce) holder
 den lukket ("Du skal booke først 😉") til der er booket, og `"udenfor": true`
 på gussen gør, at telefonen lægges væk (`væk`-teksten), når alle apps er klaret,
 og gussen så kommer bagefter i det normale kort.
@@ -155,7 +158,7 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   har `genre`, `min`, `land`, `set`, `emoji`, `farve` (to farver) og `nej`.
   Præcis én serie skal opfylde alle krav og have `"rigtig": true`. `afspil` er
   teksten, når den rigtige afspilles.
-- `kryds` (`site/kryds.js`): samme krydsord som gåde-typen `kryds` (uge 2),
+- `kryds` (`site/kryds.js`): samme krydsord som gåde-typen `kryds` (uge 1),
   med valgfri `overskrift`. Med `ordjagt` får appen en ekstra fane med en
   ordjagt (`site/ordjagt.js`), og appen er først klaret, når begge er løst:
   `"ordjagt": { "navn": "Find ordene", "overskrift": "…", "ord": ["ETNA", …], "størrelse": 10, "baglæns": true }`.
@@ -176,19 +179,20 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   0.45) styrer, hvor sikker modellen skal være. Efter `nødudgang` sekunder
   (standard 240) kommer et link: "Tag billedet alligevel". Med `?debug` står
   scorerne for sidste billede under kameraet.
-- `duolingo` (`site/duolingo.js`): sproglektion (uge 2, italiensk). `sprog`
+- `duolingo` (`site/duolingo.js`): sproglektion (uge 1, italiensk). `sprog`
   (fx `it-IT`) bruges til oplæsning. `opgaver` er en liste af:
   `vælg` (billedkort, `valg` med `tekst`/`emoji`/`rigtig`), `byg` (sæt ord
   sammen: `sætning`, `ord`, `svar` = liste af godkendte svar; `"læs": false` hvis
   sætningen er dansk), `par` (`par` = [["il mare", "havet"], …]) og `udfyld`
-  (`før`, `efter`, `valg`, `svar`). Forkerte svar kommer igen til sidst.
+  (`før`, `efter`, `valg`, `svar`). Forkerte svar kommer igen til sidst, men en
+  opgave med `"sidst": true` er altid den allersidste (uge 1: lortepapiret 🧻).
 - `innercise` (`site/innercise.js`): book den rigtige gus i en booking-app (uge
   1). `besked` (sedlen øverst), `mål` (`dag`, `mester`, `efter` = tidligst
   time, `personer`), `dage`, `hold` (`dag`, `tid`, `titel`, `mester`, `ledige`,
   `tekst`; `nej` overstyrer svaret) og `billet` (teksten efter booking).
-- `qr` (`site/qrscan.js`): scan en QR-kode med kameraet (uge 1: billetten).
+- `qr` (`site/qrscan.js`): scan en QR-kode med kameraet (uge 2: billetten).
   `kode` er teksten i QR-koden, `hemmelig` er koden, der kan tastes i stedet.
-  Billetten til print ligger i `qr/uge-1-gus-billet.png` (og `.svg`).
+  Billetten til print ligger i `qr/uge-2-gus-billet.png` (og `.svg`).
 - `gus` (`site/gus.js`): lille tegnefilm i saunaen med gusmester Brian, tre
   runder med kold dukkert imellem, hver sværere: `rytme` (tryk VIFT! i takt;
   `slag`, `takt` i ms), `duft` (gentag rækkefølgen af dufte; `fra`/`til` antal)
@@ -207,16 +211,35 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   konfigurationen til de to trin herunder; `kort` har `adresse`, `by`, `tid`,
   `afstand`, `hjem` (svaret på "🏠 Hjem") og `forslag` (forkerte adresser med
   `nej`).
-- `sang` (`site/sang.js`): Finns melodilås (uge 4, sidste trin). Mikrofonen
-  lytter, og tonehøjden findes i browseren (YIN). `runder` er en liste af
-  `{ "toner": [0, 4, 7], "spil": true, "guide": true, "tekst": "…" }`. `toner`
-  er halvtoner i forhold til første tone, så toneart og oktav er ligegyldig;
-  kun springene op og ned skal passe (`tolerance`, standard 1.4 halvtone).
-  `spil` betyder, at Finn hyler melodien først. `guide: false` skjuler den gule
-  bjælke for næste tone. Det bruges i sidste runde, hvor hun selv skal kende
-  sangen. Med `?debug` vises lydniveau og frekvens, og knappen
-  "🎙 Optag melodi" giver `toner` for det, du synger. Efter `nødudgang`
-  sekunder (standard 300) kommer et link, så Finn kan åbne låsen.
+- `film` (`site/film.js`): en lille tegnefilm mellem to gåder (uge 4: mellem
+  ansigterne og melodilåsen). Det er samme køretur som Fitness World-scenen
+  (`site/koretur.js`), men med `"mål": "hus"` (huset med den låste bagdør,
+  `hus` er skiltet), `køretid` (sekunder), `passagerer` (Frederik og Finn i
+  vinduerne), `noder` (musiknoder ud af vinduet) og `bobler`
+  (`{ "fra": "frederik" | "finn", "tekst": "…", "ved": sekunder }`). `boble`
+  er den sidste replik, når bilen holder, og `knap` er knappen videre.
+  `"direkte": true` springer "Klaret ✓"-skærmen over efter filmen.
+- `sang` (`site/sang.js`): Finns melodilås (uge 4, sidste trin). Hver lås er en
+  julesang som emoji-gåde: `runder` er en liste af
+  `{ "emoji": "🔔🔔🔔 🛷💨", "titel": "Jingle Bells", "toner": [0, 3, -4, …] }`.
+  Hun gætter sangen og nynner en bid af den, hvor som helst i sangen og så
+  længe hun vil. Mikrofonen lytter (tonehøjden findes i browseren), og for hver
+  tone sammenligner Finn de seneste 12 spring med alle sangene i trinnet (fuzzy,
+  som "hum to search"). Låsen åbner, så snart ca. 8 toner passer, og en måler
+  ("Finn genkender… 60 %") viser, hvor tæt hun er. Noderne lyser op med måleren som i Guitar Hero (blå → grøn → guld, gnister ved 75 %+). En pause starter bare et
+  nyt forsøg. Toneart og oktav er ligegyldig, og lidt falsk er fint. Brug et
+  helt vers eller omkvæd som `toner`. Nynner hun en anden af sangene, siger Finn, hvilken den lød
+  som. `toner` er halvtoner i forhold til første tone, med gentagne toner slået
+  sammen. Lav dem fra en MIDI-fil med
+  `node tools/midi2toner.mjs sang.mid --spor N --antal 40` (uden `--spor`
+  listes sporene). `grænse` (standard 1.1) er, hvor langt fra nynnet må være.
+  Mens hun nynner, vises hver tone som en bjælke på sin halvtone med nodenavn
+  (H = B på engelsk), og de hørte toner står som brikker under. Med `?debug`
+  vises scorerne, "↺ Genstart melodilåsen" starter forfra fra lås 1, og
+  "🎙 Optag melodi" giver `toner` for det, du nynner.
+  Efter `nødudgang` sekunder (standard 300) kommer et link, så Finn kan åbne låsen.
+  Melodierne kommer fra frie MIDI-filer (Wikimedia Commons, CC0, og Mutopia,
+  public domain); kilden står i `_kilde`.
 - `spotify` (`site/spotify.js`): find den rigtige sang i en spilleliste (uge 4).
   `spilleliste`, `beskrivelse`, `sange` (`titel`, `kunstner`, `billede` eller
   `emoji` + `farve`, `rigtig`, `nej`) og `afspil` (linjer der vises, mens den
@@ -226,7 +249,7 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   `beskeder` for at ændre svarene fra de andre knapper.
 - `ansigter` (`site/ansigter.js`): samme ansigtsgenkendelse som gåde-typen
   `ansigter`, med `tekst` og `personer`. Den vises som en kamera-app (som
-  postkortet i uge 2): topbar med `mode` (standard "ANSIGTER") og `sted`
+  postkortet i uge 1): topbar med `mode` (standard "ANSIGTER") og `sted`
   (standard "Fitness World"), søgeren og de fundne ansigter nedenunder.
 - `panorama` (`site/panorama.js`): stå inde i et 360°-foto og tag det perfekte
   postkort ved at holde telefonen op som et kamera (gyroskop; ellers træk).
@@ -234,12 +257,12 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   (`yaw` = retning i grader, 0 = midten af fotoet; `pitch` = op/ned; `fov` =
   zoom), `hilsen`, `til`/`adresse`, og `reserve` (et `postkort`-trin, der bruges
   hvis telefonen ikke kan WebGL). Tilføj `?debug` til adressen for at se
-  retning/zoom, når `mål` skal justeres. Panoramaet i uge 2 (`palermo-360.jpg`)
+  retning/zoom, når `mål` skal justeres. Panoramaet i uge 1 (`palermo-360.jpg`)
   er "Quattro Canti" af Andreas Mischok via Poly Haven, CC0.
-- `postkort` (`site/postkort.js`): tag det perfekte postkort (uge 2, Noto).
+- `postkort` (`site/postkort.js`): tag det perfekte postkort (uge 1, Noto).
   `billede` (foto i uge-mappen), `mål` (`x`/`y` = punktet 0–1 i fotoet, der skal
   være i midten, og `zoom`), `start` (`x`, `y`, `zoom`, `drej` i grader),
-  `hilsen` (bagsiden), `til`/`adresse`. Fotoet i uge 2 (`noto.jpg`) er
+  `hilsen` (bagsiden), `til`/`adresse`. Fotoet i uge 1 (`noto.jpg`) er
   "Cathedral of San Nicolò, Noto, Sicily" af VanSky Studio, CC BY-SA 4.0
   (Wikimedia Commons). Byt det gerne ud med jeres eget.
 - `rema` (`site/rema.js`): scan selv. Samme scanner som `stregkode`, med
@@ -266,7 +289,7 @@ telefonen efter deploy. På Mac'en virker de på `localhost` med webcam'et.
 ## Se det lokalt
 
 ```sh
-node tools/serve.mjs   # http://localhost:5173/1-28B4Dct3RWPD
+node tools/serve.mjs   # http://localhost:5173/1-1bCcfjnGB7cO
 ```
 
 ## Deploy

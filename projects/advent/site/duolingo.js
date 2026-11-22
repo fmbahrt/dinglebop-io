@@ -15,6 +15,8 @@
 // "sætning" (byg) is read aloud in "sprog" when tapped. In "byg", "svar" lists
 // accepted answers; punctuation and case don't matter. If the sentence to read
 // is Danish and the words to pick are Italian, set "læs": false.
+// "sidst": true keeps an exercise as the very last one, also when wrong
+// answers are sent to the back of the queue.
 
 import { h, button } from "/felles.js";
 import { beep } from "/trin.js";
@@ -31,7 +33,8 @@ const clean = (s) => String(s ?? "").toLocaleLowerCase("da").replace(/[^\p{L}\p{
 
 export default function duolingo(cfg, { done }) {
   const lang = cfg.sprog ?? "it-IT";
-  const queue = (cfg.opgaver ?? []).map((ex, i) => ({ ...ex, i }));
+  const all = (cfg.opgaver ?? []).map((ex, i) => ({ ...ex, i }));
+  const queue = [...all.filter((ex) => !ex.sidst), ...all.filter((ex) => ex.sidst)];
   const total = queue.length;
   let right = 0;
   let mistakes = 0;
@@ -94,7 +97,9 @@ export default function duolingo(cfg, { done }) {
         setTimeout(() => beep(1319, 140), 100);
       } else {
         mistakes++;
-        queue.push(ex);
+        // Again at the end, but before an exercise marked "sidst".
+        const last = ex.sidst ? -1 : queue.findIndex((x) => x.sidst);
+        queue.splice(last < 0 ? queue.length : last, 0, ex);
         beep(196, 220);
         navigator.vibrate?.(160);
       }

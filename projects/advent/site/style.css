@@ -2151,8 +2151,7 @@ h1 {
 @keyframes bil-arrive { from { opacity: 0; filter: brightness(2.2) blur(3px); } }
 .usb { position: relative; padding-bottom: 7.5rem; transition: opacity .9s ease, transform .9s cubic-bezier(.5, 0, .75, 0); }
 .usb.away { opacity: 0; transform: translateY(18%) scale(.82); pointer-events: none; }
-.usb-phone { position: relative; max-width: 20rem; margin-top: .4rem; }
-.usb-phone .iph-screen { min-height: 33rem; }
+.usb-phone { position: relative; }
 .usb-port { position: absolute; left: 50%; bottom: 1px; width: 2.1rem; height: 6px; border-radius: 4px; background: #050506; box-shadow: inset 0 1px 2px rgba(255, 255, 255, .12); transform: translateX(-50%); }
 .usb-cable { position: absolute; left: 50%; top: calc(100% - 6rem); z-index: 1; display: flex; flex-direction: column; align-items: center; padding: .6rem 1.2rem 0; transform: translate(-50%, 0); touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
 .usb-cable.spring { transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); }
@@ -2259,8 +2258,8 @@ h1 {
 .stage > .env-wrap { margin-top: 2.6rem; }
 
 /* ---------- Finn's texts (sms.js) ---------- */
-.sms-phone { max-width: 21rem; margin-top: .4rem; }
-.sms-phone .iph-screen, .sms-screen.sms-mode { height: min(38rem, 76svh); min-height: 0; }
+.sms-phone { margin-top: .4rem; }
+
 .iph-homebar-static { position: absolute; left: 50%; bottom: .5rem; z-index: 4; width: 8.5rem; height: 5px; border-radius: 999px; background: rgba(255, 255, 255, .85); transform: translateX(-50%); pointer-events: none; }
 .sms-screen.open .iph-homebar-static { background: rgba(0, 0, 0, .8); }
 
@@ -2358,3 +2357,72 @@ h1 {
 @media (prefers-reduced-motion: reduce) { .fj-judging-paw { animation: none; } }
 .fj .btn { color: var(--ink); }
 .fj .cam-shutter[hidden] + * { margin-top: 0; }
+
+/* Every phone has the same size; apps scroll inside it (like the message thread). */
+.iph-screen { height: min(40rem, calc(100svh - 5rem)); min-height: 0; }
+.iph-home { min-height: 0; overflow-y: auto; }
+.iph-view { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.iph-view > .app { flex: 1 0 auto; }
+
+/* Notification and "Gå hjem" keep their own colours wherever the phone is. */
+.iph .sms-note { color: #000; font: inherit; }
+.iph .sms-note-text { color: #111; }
+.sms-gohome { position: absolute; left: 50%; bottom: 4.6rem; z-index: 6; padding: .55rem 1.2rem; border: 0; border-radius: 999px; background: rgba(0, 0, 0, .78); color: #fff; font: 600 .9rem/1.2 system-ui, -apple-system, sans-serif; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); transform: translateX(-50%); cursor: pointer; animation: rise .4s ease both, usb-gohome 1.8s ease-in-out .6s infinite; }
+.sms-back { border: 0; background: none; padding: 0 .4rem; cursor: pointer; }
+
+/* Melody lock: the emoji riddle. */
+.sl-riddle { min-height: 1.3em; margin-top: .5rem; font-size: 2.6rem; line-height: 1.2; letter-spacing: .08em; }
+.sl-riddle.pop { animation: sl-open .6s cubic-bezier(.2, 1.6, .4, 1) both; }
+.sl-msg.bad { color: #ffb4a8; }
+.sl-msg.ok { color: #5be38a; }
+.sl-scores { word-break: break-word; }
+.sl-solved { display: block; margin-top: .3rem; font: 600 1.05rem/1.4 "Nunito", system-ui, sans-serif; letter-spacing: 0; }
+
+/* Melody lock: piano roll and the notes heard. */
+.sl-canvas { height: 13rem; }
+.sl-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem; min-height: 2rem; margin-top: .7rem; }
+.sl-note { min-width: 2rem; padding: .25rem .45rem; border-radius: 8px; background: #2b2550; color: #cfe9ff; font: 700 .85rem/1.2 system-ui, sans-serif; box-shadow: inset 0 0 0 1px rgba(127, 209, 255, .3); }
+.sl-note.last { background: #7fd1ff; color: #0d0b16; animation: sl-click .35s cubic-bezier(.2, 1.6, .4, 1); }
+/* Guitar Hero: the notes Finn is matching glow with the meter (--heat 0…1), blue → green → gold. */
+.sl-notes { --heat: 0; --hue: calc(200 - 155 * var(--heat)); }
+.sl-note { opacity: .55; transition: background .3s, color .3s, box-shadow .3s, opacity .3s, transform .3s; }
+.sl-note.in { opacity: 1; background: hsl(var(--hue) calc(30% + 55% * var(--heat)) calc(22% + 14% * var(--heat))); color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .5); box-shadow: inset 0 0 0 1px hsl(var(--hue) 90% 65% / calc(.3 + .7 * var(--heat))), 0 0 calc(18px * var(--heat)) hsl(var(--hue) 100% 60% / var(--heat)); }
+.sl-note.last { background: hsl(var(--hue) 100% calc(72% + 10% * var(--heat))); color: #0d0b16; }
+.sl-notes.hot .sl-note.in { animation: sl-hot .9s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -90ms); }
+.sl-notes.hit .sl-note.in { animation: sl-hit .5s ease-out both; animation-delay: calc((12 - var(--i)) * 45ms); }
+@keyframes sl-hot { to { transform: translateY(-2px) scale(1.06); filter: brightness(1.25); } }
+@keyframes sl-hit { 50% { transform: translateY(-6px) scale(1.25); background: #fff6c2; color: #0d0b16; text-shadow: none; box-shadow: 0 0 26px #ffd27f; } 100% { background: #ffd27f; color: #0d0b16; text-shadow: none; box-shadow: 0 0 16px #ffd27f; } }
+@media (prefers-reduced-motion: reduce) { .sl-notes.hot .sl-note.in, .sl-notes.hit .sl-note.in { animation: none; } }
+.sl-notes-empty { color: #8a84a8; font-size: .85rem; }
+.sl-rec .debug-skip + .debug-skip { margin-top: .5rem; }
+.sl-meter { position: relative; height: 1.6rem; margin: .7rem auto 0; max-width: 18rem; overflow: hidden; border-radius: 999px; background: #2b2550; box-shadow: inset 0 0 0 1px rgba(127, 209, 255, .25); }
+.sl-meter-fill { position: absolute; inset: 0; background: linear-gradient(90deg, #7fd1ff, #5be38a); transform: scaleX(0); transform-origin: 0 50%; transition: transform .35s ease; }
+.sl-meter.warm .sl-meter-fill { box-shadow: 0 0 14px rgba(91, 227, 138, .6); }
+.sl-meter-text { position: relative; display: grid; place-items: center; height: 100%; color: #fff; font: 700 .8rem/1 system-ui, sans-serif; text-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+
+/* ---- The drive home cartoon (film.js / koretur.js with "mål": "hus") */
+.film { padding: 0; background: none; text-align: center; }
+.film .film-next { display: flex; margin: 1rem auto 0; color: var(--ink); animation: rise .5s ease both; }
+.kt-house { position: absolute; bottom: 22%; left: 0; width: 44%; height: 52%; will-change: transform; }
+.kt-house-roof { position: absolute; left: -6%; right: -6%; top: 0; height: 34%; background: #5a1e22; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.kt-house-sign { position: absolute; left: 50%; top: 20%; z-index: 1; padding: .1rem .4rem; border-radius: 3px; background: #f6efdf; color: #2b1d0e; font: 800 .62rem/1.2 system-ui, sans-serif; white-space: nowrap; transform: translateX(-50%); box-shadow: 0 0 8px rgba(255, 231, 168, .5); }
+.kt-house-wall { position: absolute; left: 0; right: 0; top: 34%; bottom: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 8% 0 10%; background: linear-gradient(#e9dcc2, #cdbb98); }
+.kt-house-windows { display: flex; gap: .3rem; margin-bottom: 38%; }
+.kt-house-windows span { display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border: 2px solid #6b4a17; background: linear-gradient(#ffeaa8, #e8c76a); font-size: .75rem; box-shadow: 0 0 10px rgba(255, 220, 130, .6); }
+.kt-house-door { position: relative; width: 28%; height: 66%; border-radius: 4px 4px 0 0; background: linear-gradient(#5b3a1e, #3b2410); }
+.kt-house-wreath { position: absolute; left: 50%; top: 12%; font-size: .75rem; transform: translateX(-50%); }
+.kt-house-lock { position: absolute; left: 50%; top: 52%; font-size: .9rem; transform: translateX(-50%); }
+.kt.stopped .kt-house-lock { animation: kt-lock 1.2s ease-in-out infinite; }
+@keyframes kt-lock { 0%, 60%, 100% { transform: translateX(-50%) rotate(0); } 70% { transform: translateX(-50%) rotate(-14deg); } 85% { transform: translateX(-50%) rotate(12deg); } }
+/* Frederik driving, Finn in the back. */
+.kt-driver, .kt-finn { position: absolute; top: 6%; font-size: clamp(.8rem, 4vw, 1.1rem); line-height: 1; transform: translateX(-50%); }
+.kt-driver { left: 66%; }
+.kt-finn { left: 43%; }
+.kt.moving .kt-driver { animation: kt-sing .5s ease-in-out infinite alternate; }
+@keyframes kt-sing { to { transform: translateX(-50%) rotate(-8deg) translateY(-1px); } }
+.kt-note { position: absolute; left: 34%; bottom: 22%; z-index: 4; font-size: 1rem; pointer-events: none; animation: kt-note 2.2s ease-out forwards; }
+@keyframes kt-note { from { opacity: 0; transform: translate(0, 0) scale(.6); } 15% { opacity: 1; } to { opacity: 0; transform: translate(var(--dx), -5.5rem) rotate(20deg) scale(1.2); } }
+/* Bubbles during the drive; Finn's tail points at the back seat. */
+.kt-bubble.show { opacity: 1; transform: none; }
+.kt-bubble.finn { background: #fff3c4; }
+.kt-bubble.finn::after { left: 14%; border-top-color: #fff3c4; }

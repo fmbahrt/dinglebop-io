@@ -9,33 +9,33 @@
     "emoji": "🧖"
   },
   "tal": "9",
-  "løst": "Brian holdt ikke tæt. Typisk. Første ciffer er dit 🐾 – Finn",
+  "løst": "Brian holdt ikke tæt. Typisk. Andet ciffer er dit 🐾 – Finn",
   "trin": [
     {
       "type": "innercise",
       "navn": "Book",
       "ikon": "🗓️",
       "klaret": "Gussen er booket!",
-      "besked": "Book os på Brians aftengus søndag d. 29/11 efter kl. 18 – vi er 2 😉",
+      "besked": "Book os på Brians aftengus søndag d. 6/12 efter kl. 18 – vi er 2 😉",
       "mål": {
-        "dag": "Søn 29/11",
+        "dag": "Søn 6/12",
         "mester": "Brian",
         "efter": 18,
         "personer": 2
       },
       "dage": [
-        "Man 23/11",
-        "Tir 24/11",
-        "Ons 25/11",
-        "Tor 26/11",
-        "Fre 27/11",
-        "Lør 28/11",
-        "Søn 29/11"
+        "Man 30/11",
+        "Tir 1/12",
+        "Ons 2/12",
+        "Tor 3/12",
+        "Fre 4/12",
+        "Lør 5/12",
+        "Søn 6/12"
       ],
       "startdag": 0,
       "hold": [
         {
-          "dag": "Man 23/11",
+          "dag": "Man 30/11",
           "tid": "18:30",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Mette",
@@ -44,7 +44,7 @@
           "tekst": "Saunagus, åndedræt, dufte og isbad"
         },
         {
-          "dag": "Tir 24/11",
+          "dag": "Tir 1/12",
           "tid": "12:00",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Jonas",
@@ -53,7 +53,7 @@
           "tekst": "Saunagus, åndedræt, dufte og isbad"
         },
         {
-          "dag": "Tir 24/11",
+          "dag": "Tir 1/12",
           "tid": "18:30",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Brian",
@@ -63,7 +63,7 @@
           "venteliste": 4
         },
         {
-          "dag": "Ons 25/11",
+          "dag": "Ons 2/12",
           "tid": "18:00",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Sofie",
@@ -72,7 +72,7 @@
           "tekst": "Saunagus, åndedræt, dufte og isbad"
         },
         {
-          "dag": "Tor 26/11",
+          "dag": "Tor 3/12",
           "tid": "19:00",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Brian",
@@ -81,7 +81,7 @@
           "tekst": "Saunagus, åndedræt, dufte og isbad"
         },
         {
-          "dag": "Fre 27/11",
+          "dag": "Fre 4/12",
           "tid": "17:30",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Jonas",
@@ -90,7 +90,7 @@
           "tekst": "Saunagus, åndedræt, dufte og isbad"
         },
         {
-          "dag": "Fre 27/11",
+          "dag": "Fre 4/12",
           "tid": "19:00",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Brian",
@@ -99,7 +99,7 @@
           "tekst": "Brian sætter weekenden i gang 🔥"
         },
         {
-          "dag": "Lør 28/11",
+          "dag": "Lør 5/12",
           "tid": "10:00",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Mette",
@@ -108,7 +108,7 @@
           "tekst": "Mint, åndedræt og havbad"
         },
         {
-          "dag": "Lør 28/11",
+          "dag": "Lør 5/12",
           "tid": "19:30",
           "titel": "Sydhavn - Is & ild",
           "mester": "Brian",
@@ -117,7 +117,7 @@
           "tekst": "Eukalyptus, tobaksolie og iskold afslutning"
         },
         {
-          "dag": "Søn 29/11",
+          "dag": "Søn 6/12",
           "tid": "10:00",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Brian",
@@ -126,7 +126,7 @@
           "tekst": "Brian om morgenen. Kaffe bagefter ☕"
         },
         {
-          "dag": "Søn 29/11",
+          "dag": "Søn 6/12",
           "tid": "17:00",
           "titel": "Sydhavn - Honning-gus",
           "mester": "Brian",
@@ -135,7 +135,7 @@
           "tekst": "Honning, havsalt og isbad"
         },
         {
-          "dag": "Søn 29/11",
+          "dag": "Søn 6/12",
           "tid": "18:30",
           "titel": "Sydhavn - Saunagus og isbad",
           "mester": "Mette",
@@ -144,7 +144,7 @@
           "tekst": "Saunagus, åndedræt, dufte og isbad"
         },
         {
-          "dag": "Søn 29/11",
+          "dag": "Søn 6/12",
           "tid": "19:30",
           "titel": "Sydhavn - Is & ild",
           "mester": "Brian",
@@ -153,7 +153,7 @@
           "tekst": "Eukalyptus, tobaksolie og iskold afslutning"
         },
         {
-          "dag": "Søn 29/11",
+          "dag": "Søn 6/12",
           "tid": "21:00",
           "titel": "Sydhavn - Midnatsgus",
           "mester": "Brian",
@@ -176,7 +176,7 @@
       "titel": "Check-in",
       "overskrift": "Scan din billet",
       "kode": "INNERCISE:GUS:EBM66B5N",
-      "hemmelig": "KILT-2911",
+      "hemmelig": "KILT-0612",
       "velkommen": "Velkommen til gus! Sauna 2 er klar 🧖",
       "efter": "innercise",
       "låst": "Du skal booke først 😉",

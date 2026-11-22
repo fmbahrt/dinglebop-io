@@ -135,12 +135,15 @@ export default function bil(cfg, ctx) {
   const parts = [list, ignition, dash, go];
   if (cfg.telefon === false) root.append(...parts);
   else {
+    // The phone stands on the page like on the other days (not inside the car app's styles).
     root.classList.add("usb-mode");
+    root.classList.remove("app");
     root.append(usbPhone(cfg.telefon ?? {}, {
       bil: cfg.bil ?? "Opel Corsa",
       sms: cfg.sms ?? null,
       onConnected: () => {
         root.classList.remove("usb-mode");
+        root.classList.add("app");
         root.replaceChildren(...parts);
         root.classList.add("arrive");
         root.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -1,23 +1,29 @@
-// Step "sang": Finn's melody lock. The phone's microphone listens (pitch
-// detection runs in the browser); she sings melodies back to open the lock.
-// Notes are semitones relative to the first one, so any key and any octave works;
-// only the steps up and down have to be right.
+// Step "sang": Finn's melody lock. Each lock is a Christmas song as an emoji
+// riddle; she guesses the song and hums it into the phone's microphone. Pitch
+// detection runs in the browser (YIN), the hummed notes become steps up and down,
+// and those are matched (fuzzy, like "hum to search") against every song in the
+// step, continuously: she can hum any part of the song, for as long as it
+// takes; the lock clicks open as soon as Finn is sure (about 8 notes that fit),
+// a meter shows how sure he is, and a pause just starts a new attempt.
+// Any key or octave works, and a bit off-key is fine.
 //
-//   { "type": "sang", "overskrift": "Finns melodilås 🎤", "tekst": "…",
+//   { "type": "sang", "tekst": "…",
 //     "runder": [
-//       { "toner": [0, 4, 7], "spil": true, "tekst": "Finn hyler. Syng efter!" },
-//       { "toner": [0, 2, 4, 2, 0], "spil": false, "guide": false, "tekst": "…" } ] }
+//       { "emoji": "🔔🔔🔔 🛷💨", "titel": "Jingle Bells", "toner": [0, 3, -4, -2, 0, …] },
+//       … ] }
 //
-// "spil": Finn plays the notes first (and the next note is shown as a bar).
-// "guide": false hides the bar (the last round: she has to know the song).
-// "tolerance" (semitones, default 1.4) and "grundtone" (MIDI, default 62) are optional.
-// With ?debug there is a recorder: sing a melody and copy its "toner".
+// "toner" are semitones relative to the first note, with repeated notes merged
+// (humming doesn't separate them). Get them from a MIDI file with
+// tools/midi2toner.mjs (use a whole verse or chorus). "grænse" (default 1.1)
+// is how far off (average semitones per step) a hum may be. With ?debug the match scores are shown and
+// there is a recorder that turns a hum into "toner".
 
 import { h, button, DEBUG } from "/felles.js";
 
 const MIN_HZ = 75, MAX_HZ = 1100;
 const toMidi = (f) => 69 + 12 * Math.log2(f / 440);
-const toHz = (m) => 440 * 2 ** ((m - 69) / 12);
+const NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "H"];
+const noteName = (m) => NAMES[((Math.round(m) % 12) + 12) % 12];
 
 /** YIN pitch detection. Returns Hz, or 0 if there is no clear pitch. */
 function yin(buf, sr) {
@@ -76,7 +82,7 @@ function listener({ onFrame, onNote }) {
     }
     quiet = 0;
     const mid = seg && median(seg.vals);
-    if (!seg || Math.abs(m - mid) > 0.9) seg = { vals: [], sent: false };
+    if (!seg || Math.abs(m - mid) > 0.6) seg = { vals: [], sent: false };
     seg.vals.push(m);
     if (seg.vals.length > 9) seg.vals.shift();
     if (!seg.sent && seg.vals.length >= 5) {
@@ -125,106 +131,147 @@ function median(a) {
   return s[s.length >> 1];
 }
 
-/** Finn howls the notes (a sine with a bit of vibrato and a glide). Returns its length in ms. */
-function howl(ctx, notes, base) {
-  const t0 = ctx.currentTime + 0.05, step = 0.5;
-  const osc = ctx.createOscillator();
-  const vib = ctx.createOscillator();
-  const vibGain = ctx.createGain();
-  const g = ctx.createGain();
-  osc.type = "triangle";
-  vib.frequency.value = 5.5;
-  vibGain.gain.value = 6;
-  vib.connect(vibGain).connect(osc.frequency);
-  osc.connect(g).connect(ctx.destination);
-  g.gain.setValueAtTime(0, t0);
-  notes.forEach((n, i) => {
-    const t = t0 + i * step;
-    osc.frequency.setTargetAtTime(toHz(base + n), t, i ? 0.03 : 0.001);
-    g.gain.setTargetAtTime(0.22, t, 0.02);
-    g.gain.setTargetAtTime(0.05, t + step - 0.08, 0.02);
-  });
-  const end = t0 + notes.length * step;
-  g.gain.setTargetAtTime(0, end - 0.05, 0.05);
-  osc.start(t0);
-  vib.start(t0);
-  osc.stop(end + 0.3);
-  vib.stop(end + 0.3);
-  return (end - ctx.currentTime) * 1000 + 300;
+
+// ---------- matching a hum against the songs ----------
+
+/** Merge repeated notes (as in the "toner" lists). */
+function collapse(notes) {
+  const out = [];
+  for (const n of notes) if (!out.length || Math.abs(n - out.at(-1)) > 0.5) out.push(n);
+  return out;
+}
+const steps = (a) => a.slice(1).map((n, i) => n - a[i]);
+
+const WINDOW = 12; // the last this many steps of the hum are matched
+const NEED = 7;    // steps (8 notes) before Finn will decide
+
+/**
+ * How far a hum (its steps) is from the best-fitting part of a song (its steps),
+ * as average semitones per step; lower is better. The hum may start and end
+ * anywhere in the song. Alignment with skips, so a missed or extra note costs
+ * a bit instead of ruining it.
+ */
+function distance(hum, ref) {
+  const SKIP = 2;
+  const cost = (a, b) => {
+    const d = Math.abs(a - b);
+    return Math.min(d, Math.abs(d - 12), 4); // an octave slip is forgiven
+  };
+  const n = hum.length, m = ref.length;
+  if (!n) return Infinity;
+  let prev = new Float64Array(m + 1); // row 0: starting anywhere in the song is free
+  for (let i = 1; i <= n; i++) {
+    const row = new Float64Array(m + 1);
+    row[0] = i * SKIP;
+    for (let j = 1; j <= m; j++) {
+      row[j] = Math.min(prev[j - 1] + cost(hum[i - 1], ref[j - 1]), prev[j] + SKIP, row[j - 1] + SKIP);
+    }
+    prev = row;
+  }
+  return Math.min(...prev) / n; // …and ending anywhere
+}
+
+/** Every song, best match first: [{ song, d }], for the last WINDOW steps of the hum. */
+function rank(notes, songs) {
+  const hum = steps(collapse(notes).slice(-(WINDOW + 1)));
+  return songs.map((song) => ({ song, d: distance(hum, steps(song.toner)) })).sort((a, b) => a.d - b.d);
 }
 
 export default function sang(cfg, { done }) {
   const rounds = (cfg.runder ?? []).map((r) => ({ ...r, toner: (r.toner ?? []).map(Number) }));
-  const tol = Number(cfg.tolerance ?? 1.4);
-  const base = Number(cfg.grundtone ?? 62);
+  const limit = Number(cfg.grænse ?? 1.1);
 
   const root = h("div", "app sl");
   const head = h("div", "sl-head");
   const lockIcon = h("div", "sl-lock", "🔒");
   const shackles = h("div", "sl-rounds");
   head.append(lockIcon, shackles);
+  const riddle = h("p", "sl-riddle");
   const title = h("p", "sl-title");
   const canvas = h("canvas", "sl-canvas");
-  const pins = h("div", "sl-pins");
+  const dots = h("div", "sl-notes"); // the notes Finn has heard, by name
   const msg = h("p", "sl-msg");
   const startBtn = button("🎤 Start mikrofonen", "btn sl-start", () => begin());
-  const again = button("🐶 Hør Finn igen", "sl-again", () => play());
-  again.hidden = true;
-  const restart = button("↺ Forfra", "sl-again", () => resetRound("Forfra – syng hele stykket 🎶"));
-  restart.hidden = true;
+  // How sure Finn is (fills up while she hums the right song).
+  const meter = h("div", "sl-meter");
+  const meterFill = h("span", "sl-meter-fill");
+  const meterText = h("span", "sl-meter-text", "Finn genkender… 0 %");
+  meter.append(meterFill, meterText);
+  const restart = button("↺ Forfra", "sl-again", () => listen("Forfra – nyn fra starten 🎶"));
   const tools = h("div", "sl-tools");
-  tools.append(again, restart);
+  tools.append(restart);
+  tools.hidden = true;
   const way = button("Låsen hører ikke efter? Lad Finn åbne den", "fj-anyway", () => (mic.live ? nextRound() : finish()));
   way.hidden = true;
   const debugLine = DEBUG ? h("p", "face-debug sl-debug", "debug: mikrofonen er slukket") : null;
+  const scores = DEBUG ? h("p", "face-debug sl-scores", "") : null;
   root.append(
     ...(cfg.tekst ? [h("p", "sl-intro", cfg.tekst)] : []),
-    head, title, canvas, pins, msg, startBtn, tools, way, ...(debugLine ? [debugLine] : []),
+    head, riddle, title, canvas, dots, meter, msg, startBtn, tools, way,
+    ...(debugLine ? [debugLine, scores] : []),
   );
 
-  let r = -1;          // current round
-  let i = 0;           // next note in the round
-  let last = null;     // midi of the last hit (sung)
-  let lastAt = 0;      // when the last hit was
+  let r = -1;          // current lock
+  let notes = [];      // hummed notes in this attempt
+  let lastNoteAt = 0;
+  let judging = false;
   let trace = [];      // [{ t, m }] for the drawing
-  let wayTimer = 0;
-  let raf = 0;
+  let wayTimer = 0, raf = 0, quietTimer = 0;
+  let lastVoiced = 0;   // last frame with a pitch (to judge after a real pause)
+  let waitQuiet = false; // after a verdict: ignore humming until she has paused
   const mic = listener({ onFrame, onNote });
 
   function drawRounds() {
     shackles.replaceChildren(...rounds.map((_, k) => h("span", k < r ? "done" : k === r ? "on" : "")));
   }
+  function drawDots() {
+    const heard = collapse(notes);
+    if (!heard.length) return dots.replaceChildren(h("span", "sl-notes-empty", "Toner Finn hører: …"));
+    // The notes Finn is matching (the last WINDOW+1) light up with the meter,
+    // Guitar Hero style; older ones fade out.
+    dots.replaceChildren(...heard.slice(-16).map((m, k, a) => {
+      const back = a.length - 1 - k;
+      const chip = h("span", `sl-note${back === 0 ? " last" : ""}${back <= WINDOW ? " in" : ""}`, noteName(m));
+      chip.style.setProperty("--i", String(back));
+      return chip;
+    }));
+  }
 
   function showRound() {
     const round = rounds[r];
-    i = 0;
-    last = null;
-    title.textContent = round.tekst ?? (round.spil ? "Finn hyler. Syng efter! 🐶" : "Syng melodien 🎶");
-    pins.replaceChildren(...round.toner.map(() => h("span", "sl-pin")));
-    again.hidden = !round.spil;
-    restart.hidden = false;
+    riddle.textContent = round.emoji ?? "🎵";
+    riddle.classList.remove("pop");
+    void riddle.offsetWidth;
+    riddle.classList.add("pop");
+    title.textContent = round.tekst ?? `Lås ${r + 1}: Hvilken julesang er det? Nyn en bid af den – hvor som helst i sangen 🎶`;
     drawRounds();
     clearTimeout(wayTimer);
     wayTimer = setTimeout(() => (way.hidden = false), Number(cfg.nødudgang ?? 300) * 1000);
-    if (round.spil) setTimeout(play, 500);
+    listen("");
   }
 
-  function play() {
-    const round = rounds[r];
-    if (!mic.ctx || !round) return;
-    resetRound("");
-    const ms = howl(mic.ctx, round.toner, base);
-    mic.mute(ms);
-    msg.textContent = "🐶 Auuuu…";
-    setTimeout(() => { if (msg.textContent === "🐶 Auuuu…") msg.textContent = "Din tur! 🎤"; }, ms);
+  /** A fresh attempt. */
+  function listen(text) {
+    notes = [];
+    lastNoteAt = 0;
+    judging = false;
+    clearTimeout(quietTimer);
+    msg.className = "sl-msg";
+    msg.textContent = text;
+    setMeter(0);
+    drawDots();
   }
-
-  function resetRound(text) {
-    i = 0;
-    last = null;
-    pins.querySelectorAll(".sl-pin").forEach((p) => p.classList.remove("hit"));
-    if (text != null) msg.textContent = text;
+  function setMeter(p) {
+    meterFill.style.transform = `scaleX(${p.toFixed(3)})`;
+    meterText.textContent = `Finn genkender… ${Math.round(p * 100)} %`;
+    meter.classList.toggle("warm", p > 0.5);
+    heat = p;
+    dots.style.setProperty("--heat", p.toFixed(3));
+    dots.classList.toggle("hot", p > 0.75);
+    if (p === 0) dots.classList.remove("hit");
   }
+  /** Meter → colour: blue (cold) → green → gold (about to click). */
+  const heatHue = (p) => 200 - 155 * p;
 
   async function begin() {
     startBtn.disabled = true;
@@ -238,6 +285,7 @@ export default function sang(cfg, { done }) {
       return;
     }
     startBtn.hidden = true;
+    tools.hidden = false;
     msg.textContent = "";
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(draw);
@@ -246,27 +294,50 @@ export default function sang(cfg, { done }) {
 
   function onNote(m) {
     if (recording) return record(m);
-    const round = rounds[r];
-    if (!round || i >= round.toner.length) return;
-    const now = performance.now();
-    if (i > 0 && now - lastAt > 3500) resetRound("Forfra – syng hele stykket i ét 🎶");
-    if (i === 0) return hit(m, now);
-    const expected = last + (round.toner[i] - round.toner[i - 1]);
-    // Octave slips (the pitch detector or her voice jumping) are forgiven.
-    const d = ((((m - expected) % 12) + 18) % 12) - 6;
-    if (Math.abs(d) <= tol) hit(expected + d, now);
+    if (judging || waitQuiet || r < 0 || r >= rounds.length) return;
+    notes.push(m);
+    lastNoteAt = performance.now();
+    if (!msg.textContent || msg.classList.contains("bad")) {
+      msg.className = "sl-msg";
+      msg.textContent = "Finn lytter… 👂";
+    }
+    drawDots();
+    judge();
   }
 
-  function hit(m, now) {
-    last = m;
-    lastAt = now;
-    const pin = pins.children[i];
-    pin?.classList.add("hit");
-    navigator.vibrate?.(12);
-    i++;
-    if (i >= rounds[r].toner.length) {
-      msg.textContent = "Klik! 🔓";
-      setTimeout(() => nextRound(), 900);
+  /** After every note: is it the right song yet, or clearly another one? */
+  function judge() {
+    if (judging || r < 0 || r >= rounds.length) return;
+    const k = collapse(notes).length - 1; // steps hummed so far
+    if (k < 3) return setMeter(0);
+    const ranking = rank(notes, rounds);
+    const target = rounds[r];
+    const mine = ranking.find((x) => x.song === target);
+    const other = ranking.find((x) => x.song !== target);
+    if (scores) scores.textContent = `debug: ${ranking.map(({ song, d }) => `${song.titel ?? song.emoji} ${d.toFixed(2)}`).join(" · ")} (grænse ${limit}, ${k} spring) · noter ${collapse(notes).slice(-(WINDOW + 1)).map(noteName).join(" ")}`;
+    // The meter shows what actually opens the lock: close enough AND the best of
+    // the songs. (If another song fits better it stays below 100 %.)
+    const fit = Math.max(0, Math.min(1, (2 - mine.d) / (2 - limit)));
+    const best = !other || mine.d <= other.d;
+    setMeter(Math.min(1, k / NEED) * fit * (best ? 1 : 0.9));
+
+    if (k >= NEED && mine.d <= limit && best) {
+      judging = true;
+      setMeter(1);
+      dots.classList.add("hit");
+      navigator.vibrate?.([30, 50, 120]);
+      msg.className = "sl-msg ok";
+      msg.textContent = `Klik! 🔓 ${target.titel ?? ""} ${target.emoji ?? ""}`.trim();
+      return setTimeout(() => nextRound(), 1600);
+    }
+    if (k >= NEED + 1 && other && other.d <= limit && other.d < mine.d - 0.4) {
+      navigator.vibrate?.(120);
+      msg.className = "sl-msg bad";
+      msg.textContent = `Det lyder som ${other.song.titel}… men det er ikke den, jeg tænker på 🐾`;
+      notes = [];
+      waitQuiet = true; // a fresh start once she pauses
+      setMeter(0);
+      drawDots();
     }
   }
 
@@ -284,18 +355,43 @@ export default function sang(cfg, { done }) {
 
   function finish() {
     clearTimeout(wayTimer);
+    clearTimeout(quietTimer);
+    r = rounds.length;
     drawRounds();
     mic.stop();
     cancelAnimationFrame(raf);
     lockIcon.textContent = "🔓";
     lockIcon.classList.add("open");
+    riddle.replaceChildren(...rounds.map((x) => h("span", "sl-solved", `${x.emoji ?? "🎵"}  ${x.titel ?? ""}`)));
     title.textContent = cfg.åben ?? "Melodilåsen er åben! 🎉";
     msg.textContent = "";
-    tools.hidden = true;
-    canvas.hidden = true;
-    pins.hidden = true;
+    for (const e of [tools, canvas, dots, meter, way]) e.hidden = true;
     navigator.vibrate?.([30, 50, 120]);
-    root.append(button("Videre ✓", "btn", done));
+    videre?.remove();
+    videre = button("Videre ✓", "btn", done);
+    root.append(videre);
+  }
+  let videre = null;
+
+  /** Debug: start the melody lock over from lock 1. */
+  function restartLock() {
+    clearTimeout(quietTimer);
+    r = -1;
+    videre?.remove();
+    videre = null;
+    lockIcon.textContent = "🔒";
+    lockIcon.classList.remove("open", "click");
+    for (const e of [canvas, dots, meter]) e.hidden = false;
+    if (mic.live) {
+      tools.hidden = false;
+      nextRound();
+    } else {
+      riddle.textContent = "";
+      title.textContent = "";
+      startBtn.hidden = false;
+      startBtn.disabled = false;
+      drawRounds();
+    }
   }
 
   // ---- the SingStar-ish trace: her pitch over the last few seconds
@@ -303,13 +399,26 @@ export default function sang(cfg, { done }) {
     const t = performance.now();
     trace.push({ t, m });
     while (trace.length && t - trace[0].t > 4000) trace.shift();
+    if (m != null) lastVoiced = t;
+    // A pause just means a new attempt (no penalty, nothing to judge).
+    const quiet = t - lastVoiced;
+    if (waitQuiet && quiet > 700) waitQuiet = false;
+    if (!judging && notes.length && quiet > 1800) {
+      notes = [];
+      setMeter(0);
+      drawDots();
+    }
   }
 
+  // Piano roll: every held note is a bar on its nearest semitone, with its name.
+  let viewCentre = null;
+  let heat = 0, glow = 0; // meter value, and the smoothed glow drawn from it
+  const sparks = [];
   function draw() {
     raf = requestAnimationFrame(draw);
     if (debugLine) {
-      const { rms, hz, notes } = mic.info;
-      debugLine.textContent = `debug: niveau ${rms.toFixed(3)} · ${hz ? `${Math.round(hz)} Hz (${toMidi(hz).toFixed(1)})` : "ingen tone"} · ${notes} toner hørt · ${mic.ctx?.sampleRate} Hz`;
+      const { rms, hz, notes: n } = mic.info;
+      debugLine.textContent = `debug: niveau ${rms.toFixed(3)} · ${hz ? `${Math.round(hz)} Hz (${noteName(toMidi(hz))}, ${toMidi(hz).toFixed(1)})` : "ingen tone"} · ${n} toner hørt`;
     }
     const dpr = Math.min(devicePixelRatio || 1, 2);
     const W = canvas.clientWidth, H = canvas.clientHeight;
@@ -318,50 +427,83 @@ export default function sang(cfg, { done }) {
     const g = canvas.getContext("2d");
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
-    const voiced = trace.filter((p) => p.m != null).map((p) => p.m);
-    const centre = last ?? (voiced.length ? median(voiced) : base);
-    const span = 14; // semitones on screen
-    const y = (m) => H / 2 - ((m - centre) / span) * H;
-    // lanes
-    g.strokeStyle = "rgba(255,255,255,.06)";
-    for (let k = -7; k <= 7; k++) { g.beginPath(); g.moveTo(0, y(centre + k)); g.lineTo(W, y(centre + k)); g.stroke(); }
-    const now = performance.now();
-    const x = (t) => W * 0.75 - ((now - t) / 3000) * W * 0.75;
-    // the next note to hit (rounds with a guide)
-    const round = rounds[r];
-    if (round && last != null && i < round.toner.length && round.guide !== false) {
-      const target = last + (round.toner[i] - round.toner[i - 1]);
-      g.fillStyle = "rgba(255, 214, 10, .35)";
-      g.strokeStyle = "#ffd60a";
-      const bh = H / span;
-      g.beginPath();
-      g.roundRect(W * 0.62, y(target) - bh / 2, W * 0.32, bh, bh / 2);
-      g.fill();
-      g.stroke();
-    }
-    // her voice
-    g.strokeStyle = "#7fd1ff";
-    g.lineWidth = 4;
-    g.lineCap = "round";
-    g.beginPath();
-    let pen = false;
+
+    // Group the frames into bars (a held note), quantized to a semitone.
+    const bars = [];
+    let cur = null;
     for (const p of trace) {
-      if (p.m == null) { pen = false; continue; }
-      if (pen) g.lineTo(x(p.t), y(p.m));
-      else g.moveTo(x(p.t), y(p.m));
-      pen = true;
+      if (p.m == null) { cur = null; continue; }
+      if (cur && Math.abs(p.m - cur.mean) < 0.6) {
+        cur.mean += (p.m - cur.mean) / ++cur.n;
+        cur.t1 = p.t;
+      } else {
+        cur = { t0: p.t, t1: p.t, mean: p.m, n: 1 };
+        bars.push(cur);
+      }
     }
-    g.stroke();
-    const lastP = trace.at(-1);
-    if (lastP?.m != null) {
-      g.fillStyle = "#fff";
+    for (const bar of bars) bar.note = Math.round(bar.mean);
+    const live = trace.at(-1)?.m != null ? bars.at(-1) : null;
+
+    // Which semitones are on screen: follow her, but only when she leaves the view.
+    const ROWS = 13, half = (ROWS - 1) / 2;
+    const recent = bars.at(-1)?.note;
+    if (viewCentre == null && recent != null) viewCentre = recent;
+    if (recent != null && Math.abs(recent - viewCentre) > half - 1) viewCentre = recent;
+    const c = viewCentre ?? 60;
+    const lane = H / ROWS, gutter = 30;
+    const yOf = (n) => (half - (n - c)) * lane;
+
+    g.font = `600 ${Math.min(12, lane * 0.62)}px system-ui, sans-serif`;
+    g.textBaseline = "middle";
+    for (let k = -half; k <= half; k++) {
+      const n = c + k, y = yOf(n);
+      const black = NAMES[((n % 12) + 12) % 12].includes("#");
+      g.fillStyle = live && live.note === n ? "rgba(127, 209, 255, .18)" : black ? "rgba(0, 0, 0, .25)" : "rgba(255, 255, 255, .035)";
+      g.fillRect(gutter, y, W - gutter, lane);
+      g.fillStyle = live && live.note === n ? "#7fd1ff" : black ? "rgba(255,255,255,.35)" : "rgba(255,255,255,.6)";
+      g.textAlign = "right";
+      g.fillText(noteName(n), gutter - 6, y + lane / 2);
+    }
+
+    glow += (heat - glow) * 0.12;
+    const hue = heatHue(glow);
+    const now = performance.now();
+    const x = (t) => gutter + (W - gutter) * 0.9 - ((now - t) / 3500) * (W - gutter) * 0.9;
+    for (const bar of bars) {
+      if (bar.note < c - half || bar.note > c + half) continue;
+      const x0 = Math.max(gutter, x(bar.t0)), x1 = x(bar.t1) + 4;
+      if (x1 <= gutter + 2) continue;
+      const y = yOf(bar.note) + 2, w = Math.max(6, x1 - x0), hh = lane - 4;
+      // The hotter Finn's guess, the warmer and brighter the bars glow.
+      g.fillStyle = bar === live ? `hsl(${hue} 100% ${88 + glow * 8}%)` : `hsl(${hue} ${70 + glow * 30}% ${68 + glow * 6}%)`;
+      g.shadowColor = `hsl(${hue} 100% 60%)`;
+      g.shadowBlur = glow * 22 + (bar === live ? 6 : 0);
       g.beginPath();
-      g.arc(x(lastP.t), y(lastP.m), 6, 0, Math.PI * 2);
+      g.roundRect(x0, y, w, hh, Math.min(6, hh / 2));
+      g.fill();
+      g.shadowBlur = 0;
+      // On fire: sparks fly off the note she's holding.
+      if (bar === live && glow > 0.6 && Math.random() < glow) {
+        sparks.push({ x: x1, y: y + hh / 2, vx: -0.5 - Math.random() * 1.5, vy: (Math.random() - 0.5) * 2.4, life: 1 });
+      }
+      if (w > 18) {
+        g.fillStyle = "#0d0b16";
+        g.textAlign = "left";
+        g.fillText(noteName(bar.note), x0 + 5, y + hh / 2);
+      }
+    }
+    for (let k = sparks.length - 1; k >= 0; k--) {
+      const s = sparks[k];
+      s.x += s.vx; s.y += s.vy; s.vy += 0.05; s.life -= 0.035;
+      if (s.life <= 0) { sparks.splice(k, 1); continue; }
+      g.fillStyle = `hsl(${hue - 10} 100% ${60 + s.life * 30}% / ${s.life})`;
+      g.beginPath();
+      g.arc(s.x, s.y, 1 + s.life * 2.2, 0, Math.PI * 2);
       g.fill();
     }
   }
 
-  // ---- debug: record a melody → "toner"
+  // ---- debug: record a hum → "toner"
   let recording = null;
   const recBox = h("div", "sl-rec");
   if (DEBUG) {
@@ -370,17 +512,16 @@ export default function sang(cfg, { done }) {
       if (!recording) {
         if (!mic.live) await begin().catch(() => {});
         recording = [];
-        out.textContent = "Syng nu… tryk igen for at stoppe";
+        out.textContent = "Nyn nu… tryk igen for at stoppe";
         recBtn.textContent = "⏹ Stop optagelse";
       } else {
-        const notes = recording;
+        const rec = collapse(recording);
         recording = null;
         recBtn.textContent = "🎙 Optag melodi (debug)";
-        const rel = notes.map((m) => Math.round(m - notes[0])).filter((n, k, a) => k === 0 || n !== a[k - 1]);
-        out.textContent = `"toner": ${JSON.stringify(rel)}`;
+        out.textContent = `"toner": ${JSON.stringify(rec.map((m) => Math.round(m - rec[0])))}`;
       }
     });
-    recBox.append(recBtn, out);
+    recBox.append(button("↺ Genstart melodilåsen (debug)", "debug-skip", restartLock), recBtn, out);
     root.append(recBox);
   }
   function record(m) {
@@ -394,6 +535,7 @@ export default function sang(cfg, { done }) {
       mic.stop();
       cancelAnimationFrame(raf);
       clearTimeout(wayTimer);
+      clearTimeout(quietTimer);
     },
   };
 }

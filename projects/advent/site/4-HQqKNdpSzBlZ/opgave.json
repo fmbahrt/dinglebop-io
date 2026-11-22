@@ -460,50 +460,140 @@
           "billede": "kendis-3.jpg"
         }
       ],
-      "sted": "Fitness World"
+      "sted": "Fitness World",
+      "klaret": "Alle tre kendisser fundet! 🏋️ Nu kører vi hjem."
+    },
+    {
+      "type": "film",
+      "navn": "Hjem",
+      "ikon": "🎶",
+      "direkte": true,
+      "mål": "hus",
+      "hus": "ANNE 🏠",
+      "køretid": 10,
+      "passagerer": true,
+      "noder": true,
+      "skilte": [
+        "Strandvejen",
+        "Hellerup",
+        "Snart hjemme"
+      ],
+      "bobler": [
+        {
+          "fra": "frederik",
+          "tekst": "🎶 La la laaa, la-la-la laaaa… 🎶",
+          "ved": 0.4
+        },
+        {
+          "fra": "finn",
+          "tekst": "Åh nej. Nu synger han igen. 🙉",
+          "ved": 2.8
+        },
+        {
+          "fra": "frederik",
+          "tekst": "🎶 Daa-da-da DAAA, da-da-daaaa! 🎶",
+          "ved": 5.0
+        },
+        {
+          "fra": "finn",
+          "tekst": "Hver. Eneste. Gang. Hele vejen hjem til Anne. 🐾",
+          "ved": 7.6
+        }
+      ],
+      "fra": "finn",
+      "boble": "…Men ved du hvad? Det giver mig en idé 😏 Bagdøren er låst. Den åbner kun for den rigtige julesang. 🔒🎶",
+      "knap": "Til bagdøren →"
     },
     {
       "type": "sang",
       "navn": "Melodilåsen",
       "ikon": "🎤",
       "klaret": "Melodilåsen er åben! 🎶",
-      "tekst": "Næsten hjemme. Men Finn har sat en melodilås på bagdøren 🔒🎶 Den åbner kun for den rigtige sang. Han starter. Du synger efter.",
-      "åben": "Låsen er åben! Finn hyler med fra bagsædet 🐶🎶",
+      "tekst": "Næsten hjemme. Men Finn har sat tre melodilåse på bagdøren 🔒🎶 Gæt julesangen ud fra emojierne, og nyn en bid af den. Finn siger til, når han kan genkende den.",
+      "åben": "Alle tre låse er åbne! Finn hyler med fra bagsædet 🐶🎶",
       "runder": [
         {
+          "emoji": "🔔🔔🔔 🛷💨",
+          "titel": "Jingle Bells",
           "toner": [
             0,
-            4,
-            7
+            3,
+            -4,
+            -2,
+            0,
+            1,
+            0,
+            -2,
+            0,
+            -2,
+            3,
+            0,
+            3,
+            -4,
+            -2,
+            0,
+            1,
+            0,
+            3,
+            1,
+            -2,
+            -4
           ],
-          "spil": true,
-          "tekst": "Lås 1: Finn hyler. Syng efter! 🐶"
+          "_kilde": "Wikimedia Commons, File:Jingle Bells.mid (CC0), spor 1 (hele omkvædet/verset)"
         },
         {
+          "emoji": "⏮️🎄 ❤️🎁 💔",
+          "titel": "Last Christmas",
+          "toner": [0, -2, -7, 0, 1, -2, -7, 0, 1, -2, 0, -2, -7, 0, 1, -2],
+          "_kilde": "Selv transskriberet efter gehør: kun intervallerne i omkvædets første linjer (ingen MIDI-fil i repoet)"
+        },
+        {
+          "emoji": "😄🎄 😍🎄",
+          "titel": "Glade jul",
           "toner": [
             0,
             2,
-            4,
+            0,
+            -3,
+            0,
+            2,
+            0,
+            -3,
             7,
-            4
-          ],
-          "spil": true,
-          "tekst": "Lås 2: Lidt længere nu 🐶"
-        },
-        {
-          "toner": [
+            4,
+            5,
             0,
             2,
-            4,
             5,
             4,
             2,
-            0
+            0,
+            2,
+            0,
+            -3,
+            2,
+            5,
+            4,
+            2,
+            0,
+            2,
+            0,
+            -3,
+            7,
+            10,
+            7,
+            4,
+            5,
+            9,
+            5,
+            0,
+            -3,
+            0,
+            -2,
+            -5,
+            -7
           ],
-          "spil": false,
-          "guide": false,
-          "_todo": "Optag omkvædet med ?debug → 🎙 Optag melodi, og sæt tonerne ind her",
-          "tekst": "Sidste lås: Omkvædet fra den sang, vi altid synger på vej hjem 🎶"
+          "_kilde": "Mutopia Project, Gruber: Stille Nacht (public domain), spor 1 (hele omkvædet/verset)"
         }
       ]
     }

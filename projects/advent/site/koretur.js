@@ -1,14 +1,21 @@
 // A small 2D side-scrolling drive: our car along Strandvejen at night, the
-// Øresund and Sweden's lights behind, street signs and lamps passing, until
-// Fitness World appears and the car pulls over. Used at the end of "bil".
+// Øresund and Sweden's lights behind, street signs and lamps passing, until the
+// destination appears and the car pulls over. Used at the end of "bil"
+// (Fitness World) and by the "film" step (home, with singing).
 //
 //   driveScene({ farve: "#b9c2cc", skilte: ["Strandvejen", "Østerbro"],
 //                boble: "Har jeg nogensinde fortalt…" }).play() → Promise
+//
+// Optional: "mål": "hus" (home instead of the gym, "hus": its sign),
+// "køretid" (seconds at speed, default 3.2), "passagerer": true (driver and
+// Finn in the windows), "noder": true (music notes out of the window) and
+// "bobler": [{ "fra": "frederik" | "finn", "tekst": "…", "ved": seconds }]
+// during the drive; "boble" (with "fra") is the last one, when the car stops.
 
 import { h } from "/felles.js";
 
 const SPEED = 420;       // px/s at cruising speed (foreground)
-const CRUISE = 3.2;      // seconds at full speed before braking
+const CRUISE = 3.2;      // seconds at full speed before braking (default)
 const BRAKE = 2.2;       // seconds to stop
 const svgUrl = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 
@@ -62,29 +69,65 @@ export function driveScene(cfg = {}) {
     return s;
   });
 
-  const gym = h("div", "kt-gym");
-  const gymSign = h("div", "kt-gym-sign", cfg.gym ?? "FITNESS WORLD");
-  const windows = h("div", "kt-gym-windows");
-  for (const e of ["🏋️", "🏃", "🚴", "🏋️‍♀️"]) windows.append(h("span", null, e));
-  gym.append(gymSign, windows);
+  // Where we're going: the gym, or home (a house with a locked back door).
+  let gym;
+  if (cfg.mål === "hus") {
+    gym = h("div", "kt-house");
+    const roof = h("div", "kt-house-roof");
+    const wall = h("div", "kt-house-wall");
+    const wins = h("div", "kt-house-windows");
+    for (const e of ["🎄", "🕯️"]) wins.append(h("span", null, e));
+    const door = h("div", "kt-house-door");
+    door.append(h("span", "kt-house-wreath", "🎶"), h("span", "kt-house-lock", "🔒"));
+    wall.append(wins, door);
+    gym.append(roof, h("div", "kt-house-sign", cfg.hus ?? "HJEM 🏠"), wall);
+  } else {
+    gym = h("div", "kt-gym");
+    const gymSign = h("div", "kt-gym-sign", cfg.gym ?? "FITNESS WORLD");
+    const windows = h("div", "kt-gym-windows");
+    for (const e of ["🏋️", "🏃", "🚴", "🏋️‍♀️"]) windows.append(h("span", null, e));
+    gym.append(gymSign, windows);
+  }
 
   const car = h("div", "kt-car");
   car.innerHTML = carSvg(cfg.farve ?? "#b9c2cc");
+  if (cfg.passagerer) car.append(h("span", "kt-driver", cfg.fører ?? "🧑"), h("span", "kt-finn", "🐶"));
   const bubble = h("p", "kt-bubble", cfg.boble ?? "Har jeg nogensinde fortalt, hvem jeg har trænet med derinde? 😏");
+  const speak = (who, text) => {
+    bubble.textContent = text;
+    bubble.classList.toggle("finn", who === "finn");
+    bubble.classList.remove("show");
+    void bubble.offsetWidth;
+    bubble.classList.add("show");
+  };
+  const cruise = Number(cfg.køretid ?? CRUISE);
+  const said = new Set();
+  let lastNote = 0;
+  const note = () => {
+    const n = h("span", "kt-note", ["🎵", "🎶", "🎵", "🎼"][(Math.random() * 4) | 0]);
+    n.style.setProperty("--dx", `${(Math.random() * 40 + 10).toFixed(0)}px`);
+    el.append(n);
+    setTimeout(() => n.remove(), 2200);
+  };
 
   el.append(layers.sweden, layers.sea, layers.trees, ...signs, gym, layers.lamps, layers.road, car, bubble);
 
   function play() {
     return new Promise((resolve) => {
-      const total = SPEED * (CRUISE + BRAKE / 2); // distance travelled until stopped
+      const total = SPEED * (cruise + BRAKE / 2); // distance travelled until stopped
       const t0 = performance.now();
       el.classList.add("moving");
       const step = (now) => {
         const t = (now - t0) / 1000;
         // Constant speed, then a smooth stop (v falls linearly to 0).
-        const tb = Math.min(Math.max(t - CRUISE, 0), BRAKE);
-        const d = SPEED * Math.min(t, CRUISE) + SPEED * (tb - (tb * tb) / (2 * BRAKE));
-        const v = t < CRUISE ? 1 : 1 - tb / BRAKE;
+        const tb = Math.min(Math.max(t - cruise, 0), BRAKE);
+        const d = SPEED * Math.min(t, cruise) + SPEED * (tb - (tb * tb) / (2 * BRAKE));
+        const v = t < cruise ? 1 : 1 - tb / BRAKE;
+        // Speech bubbles on the way, and music notes out of the window.
+        (cfg.bobler ?? []).forEach((b, i) => {
+          if (t >= Number(b.ved ?? 0) && !said.has(i)) { said.add(i); speak(b.fra, b.tekst); }
+        });
+        if (cfg.noder && v > 0.2 && now - lastNote > 380) { lastNote = now; note(); }
         layers.sweden.style.backgroundPositionX = `${-d * 0.04}px`;
         layers.sea.style.backgroundPositionX = `${-d * 0.1}px`;
         layers.trees.style.backgroundPositionX = `${-d * 0.45}px`;
@@ -96,8 +139,9 @@ export function driveScene(cfg = {}) {
         gym.style.transform = `translateX(${w * 0.3 + (total - d) * 0.8}px)`;
         el.style.setProperty("--spin", `${(d / 47) * 57.3}deg`);
         car.style.setProperty("--bob", v > 0.05 ? `${Math.sin(t * 22) * 0.8}px` : "0px");
-        if (t < CRUISE + BRAKE) return requestAnimationFrame(step);
+        if (t < cruise + BRAKE) return requestAnimationFrame(step);
         el.classList.remove("moving");
+        if (cfg.bobler) speak(cfg.fra ?? "finn", cfg.boble ?? "");
         el.classList.add("stopped");
         setTimeout(resolve, 3200);
       };

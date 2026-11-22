@@ -33,6 +33,7 @@ const STEPS = {
   panorama: () => import("/panorama.js"),
   fotojagt: () => import("/fotojagt.js"),
   sang: () => import("/sang.js"),
+  film: () => import("/film.js"),
   bil: () => import("/bil.js"),
   innercise: () => import("/innercise.js"),
   qr: () => import("/qrscan.js"),
@@ -126,6 +127,8 @@ export async function trinOpgave(opgave, ctx) {
       current?.deactivate?.();
       current = null;
       if (n + 1 >= steps.length) return solve();
+      // A cartoon in between needs no "well done": straight on.
+      if (steps[n].direkte) return show(n + 1);
       const box = h("div", "step-done");
       box.append(
         h("p", "step-done-check", "✓"),
@@ -149,6 +152,7 @@ export async function trinOpgave(opgave, ctx) {
     const mine = ++gen;
     const done = new Set(solvedApps.get() ?? []);
     let open = -1;
+    let openMessages = null; // set below when Finn's texts live on this phone
 
     const phone = h("div", "iph");
     const screen = h("div", "iph-screen");
@@ -186,7 +190,8 @@ export async function trinOpgave(opgave, ctx) {
         }),
         ...extra.map((i) => (appBtn[i] = icon({ navn: steps[i].navn, ikon: steps[i].ikon ?? "📱", farve: "#555" }, () => openApp(i), badgeFor(i)))),
       );
-      dock.replaceChildren(...PHONE_DOCK.map((a) => icon(a, nope)));
+      // Beskeder opens Finn's thread again (when this week has one).
+      dock.replaceChildren(...PHONE_DOCK.map((a) => icon(a, a.navn === "Beskeder" ? () => (openMessages?.() || nope()) : nope)));
     };
     const left = () => inPhone.filter((i) => !done.has(i)).length;
     const hint = h("p", "iph-hint");
@@ -272,21 +277,14 @@ export async function trinOpgave(opgave, ctx) {
     // "Gå hjem" then shows the apps. Only on a fresh start, not halfway through.
     phoneMessages = null;
     if (opgave.sms) {
-      const app = smsApp(screen, {
-        ...opgave.sms,
-        tick,
-        onDone: () => {
-          screen.querySelector(".usb-gohome")?.remove();
-          const b = button("Gå hjem", "usb-gohome", () => { b.remove(); app.close(); });
-          screen.append(b);
-        },
-      });
+      const app = smsApp(screen, { ...opgave.sms, tick, home: () => {} });
       phoneMessages = () => {
         if (mine !== gen || !phone.isConnected || phone.classList.contains("away")) return false;
         if (open >= 0) goHome();
         app.showAll();
         return true;
       };
+      openMessages = () => phoneMessages();
       // Fresh start: the texts first. Read before, or halfway through: straight to the apps.
       if (done.size === 0 && !smsRead(opgave.sms.seenKey)) requestAnimationFrame(() => app.start());
       else app.close();
