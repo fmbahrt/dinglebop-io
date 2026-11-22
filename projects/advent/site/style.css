@@ -423,46 +423,6 @@ h1 {
 .task-actions .btn { margin-top: 0; }
 
 /* Hold-to-reveal hint button: --p (0..1) fills it from the left. */
-.hold-btn {
-  --p: 0;
-  position: relative;
-  overflow: hidden;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  transition: transform .15s ease;
-}
-.hold-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(233, 196, 106, .4);
-  transform: scaleX(var(--p));
-  transform-origin: left;
-}
-.hold-btn > span { position: relative; }
-.hold-btn.holding { transform: scale(.95); }
-
-.hint-bubble {
-  margin-top: 1rem;
-  padding: .85rem 1.1rem;
-  border-radius: 14px;
-  background: rgba(233, 196, 106, .12);
-  color: var(--gold-soft);
-  text-wrap: pretty;
-  animation: rise .5s cubic-bezier(.2, .8, .3, 1) both;
-}
-
-.confetti {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 /* ---------- Inline camera scanner ---------- */
 
 .scan-view {
@@ -2551,3 +2511,20 @@ html.intro-camera, html.intro-camera body { height: 100%; overflow: hidden; }
 .intro-debug { margin-top: .5rem; color: #9fd3ff; font: .7rem/1.3 ui-monospace, Menlo, monospace; }
 .intro-cam-bottom .debug-skip { margin-top: .6rem; }
 @media (prefers-reduced-motion: reduce) { .intro-envelope, .intro-taphint { animation: none; } }
+
+/* Finn's letter, Kusama style (the poster is the clue): a dense field of red
+   dots on top, the cut-out title overlapping its lower edge like the name on a
+   Kusama poster, then the handwriting on plain paper. */
+.ransom-paper { overflow: hidden; border-radius: 3px; background: #f6efdf; box-shadow: 0 26px 50px -22px rgba(0, 0, 0, .8); }
+.ransom-dots { display: block; width: calc(100% - 2rem); height: 8.5rem; margin: 1rem 1rem 0; background: #eef1ec; fill: #d0222b; }
+.ransom-paper .ransom-title { position: relative; z-index: 1; background: none; box-shadow: none; }
+.ransom-dots + .ransom-title { margin-top: -1.55rem; padding-top: 0; }
+.ransom-paper .ransom-body { background: none; box-shadow: none; }
+
+/* Camera: just "read the letter again" */
+.intro-cam-bottom { padding-top: 1.5rem; }
+.intro-status:empty { display: none; }
+.intro-reread { display: block; margin: 0 auto; padding: .7rem 1.3rem; border: 1px solid rgba(233, 196, 106, .6); border-radius: 999px; background: rgba(11, 25, 20, .72); color: var(--gold-soft); font: 400 .95rem/1.2 "Special Elite", monospace; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.intro-reread[hidden] { display: none; }
+.intro-reread-layer { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: calc(env(safe-area-inset-top) + 1.2rem) 1rem calc(env(safe-area-inset-bottom) + 1.5rem); overflow-y: auto; background: rgba(5, 10, 20, .78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: rise .4s ease both; }
+.intro-reread-layer .intro-paper { width: min(100%, 22rem); margin: 0; }

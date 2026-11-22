@@ -3,10 +3,6 @@
   "visning": "telefon",
   "nej": "Ikke nu – vi er på ferie 🍋",
   "overskrift": "Ferien på Sicilien 🍋",
-  "knaphint": {
-    "type": "konfetti",
-    "emoji": "🍋"
-  },
   "tal": "?",
   "løst": "Okay, okay. I VAR der. Uden mig. Første ciffer er dit 🐾 – Finn",
   "trin": [
@@ -238,22 +234,10 @@
           "ledetråd": "Hvor er hovedpersonen?! Postkortet er intet værd uden mig 🐾"
         },
         {
-          "klasse": "umbrella",
-          "navn": "Parasol",
-          "emoji": "☂️",
-          "ledetråd": "Uden noget at holde solen væk med får man solstik ☀️"
-        },
-        {
-          "klasse": "suitcase",
-          "navn": "Kuffert",
-          "emoji": "🧳",
-          "ledetråd": "Hvordan kom du overhovedet til Sicilien uden noget at pakke i? ✈️"
-        },
-        {
-          "klasse": "wine glass",
-          "navn": "Spritz",
-          "emoji": "🍷",
-          "ledetråd": "Ingen solnedgang uden noget at skåle i 🌅"
+          "klasse": "couch",
+          "navn": "Sofa",
+          "emoji": "🛋️",
+          "ledetråd": "Hvor skal man ellers ligge og drømme sig tilbage til Sicilien? 🛋️"
         }
       ],
       "hilsen": "Ciao bella!\nSå kom jeg endelig med til Sicilien. Næsten. 🐾",

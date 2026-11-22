@@ -1,12 +1,19 @@
 // The escape room's intro, at its own secret URL /0-<random> (the QR code she
 // scans in real life):
 //
-//   1. Finn's letter is "played": an envelope, then the letter line by line.
+//   1. Finn's ransom note (INTRO_LETTER in brev.js) is "played": an envelope,
+//      then the letter line by line. (The front page has its own letter.)
 //   2. "Videre" starts the camera (a tap, so phones allow it).
-//   3. She must find the Kusama poster on the wall. While it's in view a magic
-//      portal opens on it (following the poster in perspective); keep it in
-//      view for `hold` seconds. Lose it for more than ~1 s and it starts over.
-//   4. A flash, the portal sound, and on to the front page.
+//   3. She must find the Kusama poster on the wall (the letter's clue: "Kunsten
+//      gemmer på en hemmelighed"; no text on the camera, only "Læs brevet
+//      igen"). While it's in view a magic portal opens on it (following the
+//      poster in perspective); keep it in view for `hold` seconds. Lose it for
+//      more than ~1 s and it starts over.
+//   4. Fully open, it blooms (a ring of light) and stays open, breathing, with
+//      a glowing "tap here" dot. The camera stays live: it keeps following the poster, and fades
+//      while the poster is out of view (but never closes again).
+//   5. A tap on the portal: a flash, the portal sound, and on to the front page.
+//      (A tap beside it makes it wobble.)
 //
 // Done once = remembered (localStorage), so scanning the QR code again goes
 // straight to the front page. ?forfra plays it again; ?debug adds a skip button.
@@ -16,7 +23,7 @@
 // so OpenCV never blocks the animation.
 
 import { h, button, DEBUG, link } from "/felles.js";
-import { letterParts, markLetterSeen } from "/brev.js";
+import { letterParts, INTRO_LETTER } from "/brev.js";
 import { portalSound } from "/lyd.js";
 import { NEEDS } from "/plakat.js";
 
@@ -50,7 +57,6 @@ async function main() {
   // Start loading the detector while she reads (opencv.js is ~10 MB).
   const finder = startFinder();
   await playLetter();
-  markLetterSeen();
   await findPoster(finder, Number(cfg.hold ?? 3.5) * 1000);
   try { localStorage.setItem(DONE_KEY, "1"); } catch { /* ignore */ }
   location.replace(home);
@@ -77,9 +83,9 @@ function playLetter() {
       await sleep(700);
       const letter = h("article", "ransom intro-paper");
       letter.setAttribute("open", "");
-      const [title, body, stamp] = letterParts();
-      letter.append(title, body, stamp);
-      const lines = [...body.children];
+      const parts = letterParts(INTRO_LETTER);
+      letter.append(...parts);
+      const lines = [...parts[0].querySelector(".ransom-body").children];
       lines.forEach((p) => p.classList.add("intro-line"));
       env.replaceWith(letter);
       // Line by line; a tap shows the rest at once.
@@ -137,19 +143,20 @@ function findPoster(finder, HOLD) {
     video.playsInline = true;
     video.setAttribute("playsinline", "");
     const fx = h("canvas", "intro-fx");
-    const top = h("div", "intro-cam-top");
-    top.append(h("p", "intro-cam-title", "Finn har gemt indgangen 🐾"), h("p", "intro-cam-sub", "Den er gemt i et kunstværk derhjemme. Find det med kameraet 🔍"));
-    const status = h("p", "intro-status", "Starter kameraet…");
+    // No text on the camera: the letter is the clue. Only a way to read it again
+    // (and messages if the camera or the detector fails).
+    const status = h("p", "intro-status", "");
     const bottom = h("div", "intro-cam-bottom");
+    const reread = button("📜 Læs brevet igen", "intro-reread", () => showLetter());
     const start = button("📷 Start kameraet", "btn intro-start", () => begin());
     start.hidden = true;
     const anyway = button("Driller kameraet? Gå ind alligevel →", "intro-anyway", () => finish(false));
     anyway.hidden = true;
-    bottom.append(status, start, anyway);
+    bottom.append(status, reread, start, anyway);
     if (DEBUG) bottom.append(button("⏭ Spring over (debug)", "debug-skip", () => finish(false)));
     const debugLine = DEBUG ? h("p", "intro-debug", "") : null;
     if (debugLine) bottom.append(debugLine);
-    scene.append(video, fx, top, bottom);
+    scene.append(video, fx, bottom);
     root.replaceChildren(scene);
     document.documentElement.classList.add("intro-camera");
 
@@ -159,20 +166,31 @@ function findPoster(finder, HOLD) {
     let foundNow = false;      // was it in the latest frame?
     let quad = null, target = null; // the poster's corners on screen (smoothed / latest)
     let crop = null;           // the part of the video she sees (object-fit: cover)
+    let paused = false;        // the letter is open on top
+    let bloomed = 0;           // when the portal was fully open (0 = not yet); then it waits for a tap
+    let vis = 0;               // after blooming: fades the portal out/in as the poster leaves/returns
+    let nudged = -1;           // a tap beside the portal: it wobbles
     const sparks = [];
     const t0 = performance.now();
 
-    // Hints while she's looking, and a way in if the camera won't cooperate.
-    const hints = [
-      [25000, "Psst… det hænger på en væg 🖼️"],
-      [50000, "Bjerge, en flod og græsmarker. Japan 🗻"],
-    ];
-    const hintTimers = hints.map(([ms, text]) => setTimeout(() => { if (!target && !finished) status.textContent = text; }, ms));
+    // A way in if the camera won't cooperate.
     const anywayTimer = setTimeout(() => { anyway.hidden = false; }, 120000);
+
+    /** Finn's letter again, on top of the camera (detection pauses meanwhile). */
+    function showLetter() {
+      paused = true;
+      const layer = h("div", "intro-reread-layer");
+      const paper = h("article", "ransom intro-paper");
+      paper.setAttribute("open", "");
+      paper.append(...letterParts(INTRO_LETTER));
+      const close = button("Tilbage til kameraet ✕", "btn intro-next", () => { layer.remove(); paused = false; });
+      layer.append(paper, close);
+      scene.append(layer);
+    }
 
     async function begin() {
       start.hidden = true;
-      status.textContent = "Starter kameraet…";
+      status.textContent = "";
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
@@ -187,7 +205,6 @@ function findPoster(finder, HOLD) {
         anyway.hidden = false;
         return;
       }
-      status.textContent = "Henter Finns magi…";
       try {
         await finder.ready;
       } catch (e) {
@@ -196,7 +213,7 @@ function findPoster(finder, HOLD) {
         if (debugLine) debugLine.textContent = `debug: ${e.message}`;
         return;
       }
-      status.textContent = "Find kunstværket 🔍";
+      status.textContent = "";
       running = true;
       loop();
     }
@@ -215,7 +232,7 @@ function findPoster(finder, HOLD) {
     const gctx = grab.getContext("2d", { willReadFrequently: true });
     async function loop() {
       while (running) {
-        if (!video.videoWidth) { await sleep(100); continue; }
+        if (!video.videoWidth || paused) { await sleep(150); continue; }
         crop = visible();
         const k = Math.min(1, SIDE / Math.max(crop.w, crop.h));
         grab.width = Math.round(crop.w * k);
@@ -230,7 +247,8 @@ function findPoster(finder, HOLD) {
           // grab px → screen px
           const sx = video.clientWidth / grab.width, sy = video.clientHeight / grab.height;
           target = r.quad.map(([x, y]) => [x * sx, y * sy]);
-          quad ??= target.map((p) => [...p]);
+          // (re)appearing: start where the poster is, don't glide in from the old spot
+          if (!quad || (bloomed && vis < 0.1)) quad = target.map((p) => [...p]);
         }
         if (debugLine && r) debugLine.textContent = `debug: ${r.inliers} inliers${r.why ? ` (afvist: ${r.why})` : ""} · spredning ${Math.round(r.spread * 100)} % · ${Math.round(r.ms)} ms · ${grab.width}×${grab.height} · ${Math.round(progress * 100)} %`;
       }
@@ -248,19 +266,17 @@ function findPoster(finder, HOLD) {
       // blurry frame, a hand) just pauses it; gone longer than GRACE closes it.
       const seen = !!target && now - lastSeen < GRACE;
       if (!seen && target) target = null;
-      if (!finished) {
+      if (!finished && !bloomed) {
         if (seen && foundNow) progress = Math.min(1, progress + (dt * 1000) / HOLD);
         else if (!seen) progress = Math.max(0, progress - dt * 2.2); // closes in under half a second
-        if (progress >= 1) finish(true);
-        if (running) {
-          status.textContent = seen
-            ? progress < 0.98 ? `Hold den i billedet… ✨ ${Math.round(progress * 100)} %` : "Portalen åbner! ✨"
-            : progress > 0 ? "Hov, den forsvandt 🙈" : status.textContent.startsWith("Hold") || status.textContent.startsWith("Hov") ? "Find kunstværket 🔍" : status.textContent;
-        }
+        if (progress >= 1) bloom(now);
       }
+      // Once bloomed it stays open; it only fades while the poster is out of view.
+      if (bloomed) vis += ((seen ? 1 : 0) - vis) * Math.min(1, dt * 6);
       // follow the poster smoothly between detections
       if (target && quad) quad = quad.map((p, i) => [p[0] + (target[i][0] - p[0]) * Math.min(1, dt * 10), p[1] + (target[i][1] - p[1]) * Math.min(1, dt * 10)]);
       draw(now / 1000, dt);
+      if (DEBUG) window.introPortal = { quad, bloomed: !!bloomed, vis, progress };
     }
     requestAnimationFrame(frame);
 
@@ -272,10 +288,18 @@ function findPoster(finder, HOLD) {
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, W, H);
       const p = progress;
-      if (quad && p > 0) {
+      const now = t * 1000;
+      g.globalAlpha = bloomed && !finished ? vis : 1;
+      if (quad && p > 0 && g.globalAlpha > 0.01) {
         const path = () => { g.beginPath(); quad.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); };
         const cx = quad.reduce((a, q) => a + q[0], 0) / 4, cy = quad.reduce((a, q) => a + q[1], 0) / 4;
         const R = Math.max(...quad.map(([x, y]) => Math.hypot(x - cx, y - cy)));
+        // a tap beside it: a little wobble
+        if (nudged >= 0 && now - nudged < 450) {
+          const k = 1 - (now - nudged) / 450;
+          g.save();
+          g.translate(Math.sin((now - nudged) / 28) * 9 * k, 0);
+        } else g.save();
         // the room dims around the poster
         g.save();
         g.beginPath();
@@ -321,8 +345,49 @@ function findPoster(finder, HOLD) {
         g.stroke();
         g.setLineDash([]);
         g.shadowBlur = 0;
+        if (bloomed && !finished) {
+          // Bloom: a ring of light shoots out, then the portal breathes and waits for a tap.
+          const since = (now - bloomed) / 1000;
+          if (since < 1.1) {
+            const k = since / 1.1;
+            g.beginPath();
+            g.arc(cx, cy, R * (0.6 + 1.8 * k), 0, Math.PI * 2);
+            g.lineWidth = 14 * (1 - k) + 1;
+            g.strokeStyle = `rgba(255, 236, 170, ${0.9 * (1 - k)})`;
+            g.shadowColor = "#ffe9a8";
+            g.shadowBlur = 30;
+            g.stroke();
+            g.shadowBlur = 0;
+          }
+          const breath = 0.5 + 0.5 * Math.sin(t * 3.2);
+          path();
+          g.lineWidth = 3 + 5 * breath;
+          g.strokeStyle = `rgba(255, 245, 210, ${0.35 + 0.4 * breath})`;
+          g.shadowColor = "#fff2c4";
+          g.shadowBlur = 20 + 25 * breath;
+          g.stroke();
+          g.shadowBlur = 0;
+          // "Tap here": a glowing dot in the middle with two ripples (drawn, not
+          // an emoji, so it looks the same on every phone).
+          for (const off of [0, 0.5]) {
+            const ripple = (t * 0.8 + off) % 1;
+            g.beginPath();
+            g.arc(cx, cy, R * 0.06 + R * 0.3 * ripple, 0, Math.PI * 2);
+            g.lineWidth = 3;
+            g.strokeStyle = `rgba(255, 255, 255, ${0.8 * (1 - ripple)})`;
+            g.stroke();
+          }
+          g.beginPath();
+          g.arc(cx, cy, R * (0.045 + 0.01 * breath), 0, Math.PI * 2);
+          g.fillStyle = "#fffbea";
+          g.shadowColor = "#fff2c4";
+          g.shadowBlur = 25;
+          g.fill();
+          g.shadowBlur = 0;
+        }
+        g.restore();
         // sparks fly off the frame
-        const n = Math.round(p * 6);
+        const n = Math.round(p * (bloomed ? 3 : 6));
         for (let k = 0; k < n; k++) {
           const i = (Math.random() * 4) | 0, f = Math.random();
           const a = quad[i], b = quad[(i + 1) % 4];
@@ -332,6 +397,7 @@ function findPoster(finder, HOLD) {
           sparks.push({ x, y, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v - 30, life: 1, hue: 40 + Math.random() * 30 });
         }
       }
+      g.globalAlpha = 1;
       for (let k = sparks.length - 1; k >= 0; k--) {
         const s = sparks[k];
         s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 60 * dt; s.life -= dt * 1.3;
@@ -356,14 +422,48 @@ function findPoster(finder, HOLD) {
       }
     }
 
+    /** Fully open: stop counting, burst, and wait for her to tap the portal. */
+    function bloom(now) {
+      bloomed = now;
+      vis = 1;
+      progress = 1;
+      clearTimeout(anywayTimer);
+      navigator.vibrate?.([20, 40, 60]);
+      for (let k = 0; k < 60 && quad; k++) {
+        const cx = quad.reduce((a, q) => a + q[0], 0) / 4, cy = quad.reduce((a, q) => a + q[1], 0) / 4;
+        const ang = Math.random() * Math.PI * 2, v = 120 + Math.random() * 260;
+        sparks.push({ x: cx, y: cy, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, life: 1, hue: 35 + Math.random() * 40 });
+      }
+    }
+
+    /** Is (x, y) on the portal (a little generous around the edge)? */
+    function onPortal(x, y) {
+      if (!quad) return false;
+      const cx = quad.reduce((a, q) => a + q[0], 0) / 4, cy = quad.reduce((a, q) => a + q[1], 0) / 4;
+      const q = quad.map(([qx, qy]) => [cx + (qx - cx) * 1.15, cy + (qy - cy) * 1.15]);
+      let inside = false;
+      for (let i = 0, j = 3; i < 4; j = i++) {
+        const [xi, yi] = q[i], [xj, yj] = q[j];
+        if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+      }
+      return inside;
+    }
+
+    // Tapping the open portal is the way in.
+    scene.addEventListener("click", (e) => {
+      if (!bloomed || finished || e.target.closest("button, .intro-reread-layer")) return;
+      const box = fx.getBoundingClientRect();
+      if (vis > 0.5 && onPortal(e.clientX - box.left, e.clientY - box.top)) finish(true);
+      else nudged = performance.now();
+    });
+
     async function finish(magic) {
       if (finished) return;
       finished = true;
       running = false;
-      hintTimers.forEach(clearTimeout);
       clearTimeout(anywayTimer);
       progress = 1;
-      status.textContent = magic ? "Portalen er åben! ✨" : "Ind i escape roomet…";
+      reread.hidden = true;
       portalSound(true);
       navigator.vibrate?.([30, 50, 140]);
       if (!magic) flash = 0;
