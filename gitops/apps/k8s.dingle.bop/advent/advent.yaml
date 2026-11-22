@@ -43,7 +43,7 @@ spec:
       containers:
         - name: nginx
           # Bump to the sha-<commit> tag pushed by .github/workflows/advent.yml.
-          image: ghcr.io/fmbahrt/advent:sha-f0c36762bff2
+          image: ghcr.io/fmbahrt/advent:sha-3bb49675088e
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
