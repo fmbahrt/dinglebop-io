@@ -9,7 +9,8 @@
 //   sms.start()    lock screen → notification → thread, animated
 //   sms.showAll()  the whole thread at once (reading it again)
 //   sms.close()    (smsApp) go to that phone's home screen
-//   smsApp(screen, { …, home })  adds "Gå hjem" (and a working ‹) once all texts are in
+//   smsApp(screen, { …, home })  adds an iOS home indicator ("Stryg op for at gå
+//                                hjem", swipe up or tap) and a working ‹ once all texts are in
 
 import { h, button } from "/felles.js";
 import { phoneStatus, beep } from "/trin.js";
@@ -58,8 +59,9 @@ export function smsRead(key) {
 }
 
 export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾", avatar = "🐶", onDone: done = () => {}, home = null, tick = () => {} }) {
-  // With "home" (a phone that has a home screen): once all texts are in, a
-  // "Gå hjem" button and the ‹ arrow close the thread and then call home().
+  // With "home" (a phone that has a home screen): once all texts are in, the
+  // home indicator (swipe up, like iOS) and the ‹ arrow close the thread and
+  // then call home().
   let canLeave = false;
   const goHome = () => {
     if (!canLeave) return;
@@ -72,10 +74,28 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     if (home) {
       canLeave = true;
       screen.querySelector(".sms-gohome")?.remove();
-      screen.append(button("Gå hjem", "sms-gohome", goHome));
+      screen.append(homeIndicator());
     }
     done();
   };
+  /** iOS style: "Stryg op for at gå hjem" over the home indicator; swipe up (or tap). */
+  function homeIndicator() {
+    const el = button("", "sms-gohome", goHome);
+    el.setAttribute("aria-label", "Gå hjem");
+    el.append(h("span", "sms-gohome-text", "Stryg op for at gå hjem"), h("span", "sms-gohome-bar"));
+    let y0 = null;
+    el.addEventListener("pointerdown", (e) => { y0 = e.clientY; el.setPointerCapture?.(e.pointerId); });
+    el.addEventListener("pointermove", (e) => {
+      if (y0 == null) return;
+      const up = Math.max(0, y0 - e.clientY);
+      el.style.setProperty("--lift", `${Math.min(up, 40)}px`);
+      if (up > 36) { y0 = null; goHome(); }
+    });
+    const reset = () => { y0 = null; el.style.setProperty("--lift", "0px"); };
+    el.addEventListener("pointerup", reset);
+    el.addEventListener("pointercancel", reset);
+    return el;
+  }
   screen.classList.add("sms-screen", "sms-mode");
   const msgs = [...(collage ? [{ collage }] : []), ...messages(body)];
   // The notification shows the first real line (skipping a short "Kære Anne").

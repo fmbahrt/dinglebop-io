@@ -18,7 +18,7 @@
 // is how far off (average semitones per step) a hum may be. With ?debug the match scores are shown and
 // there is a recorder that turns a hum into "toner".
 
-import { h, button, DEBUG } from "/felles.js";
+import { h, button, DEBUG, mediaError } from "/felles.js";
 
 const MIN_HZ = 75, MAX_HZ = 1100;
 const toMidi = (f) => 69 + 12 * Math.log2(f / 440);
@@ -94,11 +94,15 @@ function listener({ onFrame, onNote }) {
 
   return {
     async start() {
+      // The audio context is made and resumed right away (iOS wants that inside
+      // the tap), but not awaited before asking for the mic (Android is happier
+      // when getUserMedia comes first).
       ctx ??= new AudioContext();
-      await ctx.resume();
+      const resumed = ctx.resume().catch(() => {});
       stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
       });
+      await resumed;
       const src = ctx.createMediaStreamSource(stream);
       const an = ctx.createAnalyser();
       an.fftSize = 2048;
@@ -278,9 +282,9 @@ export default function sang(cfg, { done }) {
     msg.textContent = "Starter mikrofonen…";
     try {
       await mic.start();
-    } catch {
+    } catch (e) {
       startBtn.disabled = false;
-      msg.textContent = "Jeg fik ikke lov at bruge mikrofonen. Tryk igen og vælg \"Tillad\" 🎤";
+      msg.textContent = mediaError(e, "mikrofonen");
       way.hidden = false;
       return;
     }

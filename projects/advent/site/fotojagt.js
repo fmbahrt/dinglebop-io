@@ -30,6 +30,14 @@ const CLASSES = {
   "cell phone": 77, book: 84, clock: 85, vase: 86, scissors: 87, "teddy bear": 88,
 };
 
+// Photos are judged at this size (snapshotCanvas).
+const PHOTO_W = 900, PHOTO_H = 1200;
+
+// The model is ~18 MB, and its first run compiles TensorFlow's WebGL shaders
+// (seconds on a phone). So: download it in the background as soon as the week
+// is open (preload, called by trin.js), and warm it up (one run on a blank photo
+// of the real size) when the camera app opens. Her first photo is then judged
+// as fast as the rest.
 let ready = null;
 function loadModel() {
   return (ready ??= (async () => {
@@ -41,6 +49,23 @@ function loadModel() {
     ready = null;
     throw e;
   }));
+}
+let warm = null;
+function warmModel() {
+  return (warm ??= loadModel().then(async ({ tf, model }) => {
+    const blank = tf.zeros([1, PHOTO_H, PHOTO_W, 3], "int32");
+    tf.dispose([await model.executeAsync(blank)].flat());
+    blank.dispose();
+    return { tf, model };
+  }).catch((e) => {
+    warm = null;
+    throw e;
+  }));
+}
+
+/** Download the model in the background (trin.js calls this when the week opens). */
+export function preload() {
+  loadModel().catch(() => {});
 }
 
 /** Best score and box (0–1, [y1, x1, y2, x2]) per wanted class in one picture (canvas/video). */
@@ -126,11 +151,20 @@ export default function fotojagt(cfg, { done }) {
   let wayTimer = 0;
   let busy = false;
 
-  cam.onLive(() => {
+  // Load and warm up Finn's eyes as soon as the app opens (while the camera
+  // starts); the shutter waits until he's ready, so no photo is slow.
+  let finnReady = false;
+  const finnLoading = warmModel().then(() => true, () => false).then((ok) => { finnReady = true; return ok; });
+
+  cam.onLive(async () => {
+    if (!finnReady) {
+      shutter.disabled = true;
+      msg.className = "cam-msg fj-verdict fj-wait";
+      msg.textContent = "Finn gør sig klar… 🐾";
+      await finnLoading;
+      if (msg.classList.contains("fj-wait")) { msg.className = "cam-msg fj-verdict"; msg.textContent = ""; }
+    }
     shutter.disabled = false;
-    cam.setMsg("");
-    // Fetch the model in the background; it only runs when a photo is taken.
-    loadModel().catch(() => {});
     clearTimeout(wayTimer);
     wayTimer = setTimeout(() => (way.hidden = false), Number(cfg.nødudgang ?? 240) * 1000);
   });
@@ -172,7 +206,7 @@ export default function fotojagt(cfg, { done }) {
     const t0 = performance.now();
     let res = null;
     try {
-      const { tf, model } = await loadModel();
+      const { tf, model } = await warmModel();
       res = await detect(tf, model, canvas, things.map((t) => t.id ?? 0));
     } catch (e) {
       console.error(e);
@@ -242,8 +276,8 @@ export default function fotojagt(cfg, { done }) {
     const video = cam.video;
     const VW = video.videoWidth, VH = video.videoHeight;
     const c = document.createElement("canvas");
-    c.width = 900;
-    c.height = 1200;
+    c.width = PHOTO_W;
+    c.height = PHOTO_H;
     const ctx = c.getContext("2d");
     if (VW) {
       const s = Math.max(c.width / VW, c.height / VH);
