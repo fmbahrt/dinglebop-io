@@ -28,8 +28,10 @@ adresse. `0` betyder "før uge 1". Introen består af `site/intro.html` og
 `site/intro.js`, og `site/0-…/intro.json` har forsidens sti og `hold`
 (sekunder):
 
-1. Finns brev "afspilles": en kuvert, og så brevet linje for linje (tryk = resten
-   med det samme). Brevene står i `site/brev.js`. Introen bruger
+1. Finns brev "afspilles": en kuvert, der rives op og foldes ud med papirlyd
+   (`paperSound()`), og så skriver brevet sig selv frem bogstav for bogstav med et
+   skrivemaskine-klik per bogstav (`typeSound()`, begge i `site/lyd.js`, lavet med
+   Web Audio). Tryk = resten med det samme. Brevene står i `site/brev.js`. Introen bruger
    `INTRO_LETTER` (afpresningsbrevet med cluet). Forsidens "Brev fra Finn" er
    `HOME_LETTER`, og den har en badge, til hun har læst den: godt gået, og
    sådan virker escape roomet.
@@ -62,6 +64,18 @@ Genkendelsen (`site/plakat.js`, ORB) kører i en Web Worker
 (`site/plakat-worker.js`), så OpenCV aldrig får animationen til at hakke.
 Introen og workeren får `'unsafe-eval'` og `'wasm-unsafe-eval'` i CSP (se
 `nginx.conf`). Resten af sitet har den stramme CSP.
+
+**Gyro-tracking (eksperimentelt, kun med `?tracking`).** ORB giver kun få svar i
+sekundet på en telefon, og hvert svar er gammelt, når det kommer. Så halter
+rammen efter, når hun drejer telefonen. Med `?tracking` flytter gyroskopet
+(`site/gyro.js`, `devicemotion`) portalen med telefonens rotation, ~60 gange i
+sekundet. Hvert svar fra ORB flyttes desuden med den rotation, der er sket,
+siden billedet blev taget. En rotation af kameraet flytter billedet med
+homografien K·R·K⁻¹. Brændvidden regnes ud fra et antaget synsfelt på 67° på
+den lange led. `?tracking=70` ændrer det, hvis rammen skyder over eller under,
+når man drejer. På iPhone skal den have lov til bevægelsesdata, og den spørger
+ved tryk på "Videre". Uden gyro, fx på en computer, virker introen som før.
+`?debug` viser gyro-frekvensen.
 
 ## Forsiden (hemmelig adresse)
 
