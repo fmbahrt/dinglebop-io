@@ -110,3 +110,28 @@ export function intro(opgave) {
     ...(opgave.tekst ? [h("p", "task-text", opgave.tekst)] : []),
   ];
 }
+
+/** In an app's built-in browser (QR scanner, Facebook, Instagram …)? Those
+ *  borrow the app's permissions and usually may not use the microphone. */
+export function inAppBrowser() {
+  const ua = navigator.userAgent;
+  return /; wv\)/.test(ua) || /FBAN|FBAV|Instagram|Line\/|Snapchat|GSA\//.test(ua);
+}
+
+/**
+ * A helpful message when the microphone or camera won't open, from the error's
+ * name. what = "mikrofonen" | "kameraet". In debug the raw error is appended.
+ */
+export function mediaError(e, what) {
+  const ios = /iPhone|iPad/.test(navigator.userAgent);
+  const browser = ios ? "Safari" : "Chrome";
+  const name = e?.name ?? "";
+  let text;
+  if (!navigator.mediaDevices?.getUserMedia) text = `Den her browser kan ikke bruge ${what}. Åbn siden i ${browser} 🙏`;
+  else if (inAppBrowser()) text = `Den indbyggede browser må ikke bruge ${what}. Åbn siden i ${browser} (⋮ → "Åbn i ${browser}") 🙏`;
+  else if (name === "NotAllowedError" || name === "SecurityError") text = `Jeg fik ikke lov at bruge ${what}. Tryk på 🔒 ved adressen, tillad ${what}, og prøv igen.`;
+  else if (name === "NotFoundError" || name === "OverconstrainedError") text = `Jeg kan ikke finde ${what} på telefonen 🤔`;
+  else if (name === "NotReadableError" || name === "AbortError") text = `En anden app bruger ${what} lige nu. Luk den, og prøv igen.`;
+  else text = `${what[0].toUpperCase()}${what.slice(1)} ville ikke starte. Prøv igen.`;
+  return DEBUG ? `${text} (${name || "?"}: ${e?.message ?? e})` : text;
+}

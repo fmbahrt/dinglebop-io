@@ -2281,8 +2281,6 @@ h1 {
 .usb-cable { transition: translate .7s cubic-bezier(.2, .9, .3, 1), opacity .5s ease; }
 .usb-cable.spring { transition: transform .35s cubic-bezier(.3, 1.4, .5, 1), translate .7s cubic-bezier(.2, .9, .3, 1), opacity .5s ease; }
 .usb.waiting .usb-cable { opacity: 0; translate: 0 5rem; pointer-events: none; }
-.usb-gohome { position: absolute; left: 50%; bottom: 4.6rem; z-index: 6; padding: .55rem 1.2rem; border: 0; border-radius: 999px; background: rgba(0, 0, 0, .78); color: #fff; font: 600 .9rem/1.2 system-ui, -apple-system, sans-serif; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); transform: translateX(-50%); cursor: pointer; animation: rise .4s ease both, usb-gohome 1.8s ease-in-out .6s infinite; }
-@keyframes usb-gohome { 50% { box-shadow: 0 0 0 6px rgba(0, 122, 255, .25), 0 6px 18px rgba(0, 0, 0, .3); } }
 .sms-screen.sms-mode .iph-homebar { display: none; }
 .sms-screen .sms-list { padding-bottom: 3.8rem; }
 /* No card box around step puzzles (like the phone weeks); the solved number keeps its card. */
@@ -2327,7 +2325,13 @@ h1 {
 /* Notification and "Gå hjem" keep their own colours wherever the phone is. */
 .iph .sms-note { color: #000; font: inherit; }
 .iph .sms-note-text { color: #111; }
-.sms-gohome { position: absolute; left: 50%; bottom: 4.6rem; z-index: 6; padding: .55rem 1.2rem; border: 0; border-radius: 999px; background: rgba(0, 0, 0, .78); color: #fff; font: 600 .9rem/1.2 system-ui, -apple-system, sans-serif; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); transform: translateX(-50%); cursor: pointer; animation: rise .4s ease both, usb-gohome 1.8s ease-in-out .6s infinite; }
+/* iOS: "Stryg op for at gå hjem" above the home indicator, which nudges upward now and then. */
+.sms-gohome { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; --lift: 0px; height: 1.7rem; padding: 0; border: 0; background: none; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.sms-gohome-bar { position: absolute; left: 50%; bottom: .5rem; width: 8.5rem; height: 5px; border-radius: 999px; background: #000; transform: translate(-50%, calc(-1 * var(--lift))); animation: sms-home-nudge 2.6s ease-in-out .8s infinite; }
+.sms-gohome-text { position: absolute; left: 0; right: 0; bottom: 4.3rem; color: #8e8e93; font: 500 .78rem/1 system-ui, -apple-system, sans-serif; text-align: center; transform: translateY(calc(-1 * var(--lift))); animation: fade-in .5s ease both, sms-home-text 2.6s ease-in-out .8s infinite; }
+@keyframes sms-home-nudge { 0%, 70%, 100% { transform: translate(-50%, calc(-1 * var(--lift))); } 80% { transform: translate(-50%, calc(-8px - var(--lift))); } 90% { transform: translate(-50%, calc(-1 * var(--lift))); } }
+@keyframes sms-home-text { 0%, 65%, 100% { opacity: .85; } 80% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sms-gohome-bar, .sms-gohome-text { animation: none; } }
 .sms-back { border: 0; background: none; padding: 0 .4rem; cursor: pointer; }
 
 /* Melody lock: the emoji riddle. */

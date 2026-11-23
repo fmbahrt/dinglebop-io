@@ -5,7 +5,7 @@
 //   cam.onLive(() => cam.run(async (video) => { ...; return done; }));
 //   cam.start(); cam.stop();
 
-import { h, button } from "/felles.js";
+import { h, button, mediaError } from "/felles.js";
 
 const CAMERA_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>`;
 
@@ -51,10 +51,10 @@ export function camera({ shape = "wide", laser = true } = {}) {
           audio: false,
           video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
         });
-      } catch {
+      } catch (e) {
         if (mine !== session) return;
         startBtn.hidden = false;
-        api.setMsg("Jeg fik ikke lov at bruge kameraet. Tryk på knappen og vælg \"Tillad\".", true);
+        api.setMsg(mediaError(e, "kameraet"), true);
         return;
       }
       if (mine !== session) return s.getTracks().forEach((t) => t.stop());

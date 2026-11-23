@@ -22,9 +22,9 @@
 // The poster is found by plakat.js running in a Web Worker (plakat-worker.js),
 // so OpenCV never blocks the animation.
 
-import { h, button, DEBUG, link } from "/felles.js";
+import { h, button, DEBUG, link, mediaError } from "/felles.js";
 import { letterParts, INTRO_LETTER } from "/brev.js";
-import { portalSound } from "/lyd.js";
+import { portalSound, bloomSound, unlockAudio } from "/lyd.js";
 import { NEEDS } from "/plakat.js";
 
 const DONE_KEY = "advent:intro-klaret";
@@ -78,6 +78,7 @@ function playLetter() {
       if (opened) return;
       opened = true;
       env.classList.add("open");
+      unlockAudio(); // her tap: from now on the page may make sound (the bloom comes without a tap)
       hint.remove();
       navigator.vibrate?.(30);
       await sleep(700);
@@ -95,7 +96,7 @@ function playLetter() {
         p.classList.add("show");
         if (!fast) await sleep(Math.min(2600, 500 + p.textContent.length * 28));
       }
-      const next = button("Videre →", "btn intro-next", () => resolve());
+      const next = button("Videre →", "btn intro-next", () => { unlockAudio(); resolve(); });
       scene.append(next);
       next.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
     }
@@ -200,7 +201,7 @@ function findPoster(finder, HOLD) {
         await video.play();
       } catch (e) {
         if (debugLine) debugLine.textContent = `debug: ${e?.name}: ${e?.message}`;
-        status.textContent = "Jeg fik ikke lov at bruge kameraet. Tryk igen og vælg \"Tillad\" 📷";
+        status.textContent = mediaError(e, "kameraet");
         start.hidden = false;
         anyway.hidden = false;
         return;
@@ -429,6 +430,7 @@ function findPoster(finder, HOLD) {
       progress = 1;
       clearTimeout(anywayTimer);
       navigator.vibrate?.([20, 40, 60]);
+      bloomSound();
       for (let k = 0; k < 60 && quad; k++) {
         const cx = quad.reduce((a, q) => a + q[0], 0) / 4, cy = quad.reduce((a, q) => a + q[1], 0) / 4;
         const ang = Math.random() * Math.PI * 2, v = 120 + Math.random() * 260;

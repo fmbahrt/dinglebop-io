@@ -40,8 +40,11 @@ adresse. `0` betyder "før uge 1". Introen består af `site/intro.html` og
    følger plakaten i perspektiv. Plakaten skal være i billedet i `hold` sekunder.
    Et kort udfald (op til 1 sekund) sætter den bare på pause. Er den væk
    længere, lukker portalen, og hun starter forfra.
-4. Når portalen er helt åben, *blomstrer* den: en lysring skyder ud, telefonen
-   vibrerer, og portalen bliver stående åben. Den pulserer og har en lysende
+4. Når portalen er helt åben, *blomstrer* den: en lysring skyder ud, en
+   blomstrings-lyd spiller (`bloomSound()` i `site/lyd.js`: et varmt akkord-swell,
+   en glitrende tonerække og en klokke), telefonen vibrerer, og portalen bliver
+   stående åben. Lyden låses op ved hendes tryk på kuverten (`unlockAudio()`),
+   for iPhone tillader ellers ikke lyd, der ikke kommer fra et tryk. Den pulserer og har en lysende
    "tryk her"-prik i midten. Kameraet kører videre, og portalen følger plakaten.
    Er plakaten ude af billedet, fader portalen ud, men den lukker ikke igen.
 5. Et tryk på portalen: lyset fylder skærmen, portallyden spiller, og hun sendes
@@ -237,6 +240,16 @@ fanen er åben (også på tværs af links); `?nodebug` slår det fra.
   0.45) styrer, hvor sikker modellen skal være. Efter `nødudgang` sekunder
   (standard 240) kommer et link: "Tag billedet alligevel". Med `?debug` står
   scorerne for sidste billede under kameraet.
+
+  Modellen fylder cirka 18 MB, og første kørsel kompilerer WebGL-shadere, hvilket
+  tager sekunder på en telefon. Derfor sker to ting i forvejen:
+  - Modellen downloades i baggrunden 2,5 sekunder efter, at ugen er åbnet
+    (`preload()`, som `trin.js` kalder for alle trin, der har den).
+  - Den varmes op med én kørsel på et tomt billede i rigtig størrelse, når
+    kamera-appen åbnes.
+
+  Udløseren er låst med "Finn gør sig klar… 🐾", indtil modellen er klar. Første
+  billede bliver derfor bedømt lige så hurtigt som resten.
 - `duolingo` (`site/duolingo.js`): sproglektion (uge 1, italiensk). `sprog`
   (fx `it-IT`) bruges til oplæsning. `opgaver` er en liste af:
   `vælg` (billedkort, `valg` med `tekst`/`emoji`/`rigtig`), `byg` (sæt ord

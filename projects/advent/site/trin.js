@@ -90,11 +90,15 @@ export function phoneIcon(a, onTap, badge) {
 
 export async function trinOpgave(opgave, ctx) {
   const steps = opgave.trin ?? [];
-  const makers = await Promise.all(steps.map(async (s) => {
+  const modules = await Promise.all(steps.map(async (s) => {
     const load = STEPS[s.type];
     if (!load) throw new Error(`ukendt trin-type: ${s.type}`);
-    return (await load()).default;
+    return load();
   }));
+  const makers = modules.map((m) => m.default);
+  // Heavy steps (the photo hunt's 18 MB model) may start downloading in the
+  // background a little after the page is up, so they're ready when she gets there.
+  setTimeout(() => modules.forEach((m, i) => m.preload?.(steps[i])), 2500);
   const progress = store(`advent:${ctx.slug}:trin`);
   let current = null;
   let active = false;
