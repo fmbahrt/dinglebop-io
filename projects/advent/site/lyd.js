@@ -132,3 +132,106 @@ export function bloomSound() {
   note("sine", 1568 * 2.76, t + 0.45, 0.005, 1.2, 0.05);
   note("sine", 1568 * 5.4, t + 0.45, 0.005, 0.5, 0.02);
 }
+
+// ---------- Paper and typing (the intro letter) ----------
+
+function audio() {
+  try {
+    sfx ??= new AudioContext();
+    sfx.resume();
+    return sfx;
+  } catch { return null; }
+}
+
+let noiseBuf = null;
+/** One second of white noise, shared by all the paper and key sounds. */
+function noise(ctx) {
+  if (noiseBuf?.sampleRate === ctx.sampleRate) return noiseBuf;
+  noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return noiseBuf;
+}
+
+/** A short burst of filtered noise: the building block for paper and keys. */
+function grain(ctx, out, start, dur, freq, q, vol, type = "bandpass") {
+  const src = ctx.createBufferSource();
+  src.buffer = noise(ctx);
+  const f = ctx.createBiquadFilter();
+  f.type = type;
+  f.frequency.value = freq;
+  f.Q.value = q;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, start);
+  g.gain.exponentialRampToValueAtTime(vol, start + Math.min(0.004, dur / 4));
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  src.connect(f).connect(g).connect(out);
+  src.start(start, Math.random() * 0.9, dur + 0.02);
+}
+
+/** Crackle: many tiny random grains, like paper being bent. */
+function crinkle(ctx, out, start, dur, perSec, vol) {
+  const n = Math.round(dur * perSec);
+  for (let k = 0; k < n; k++) {
+    const t = start + Math.random() * dur;
+    grain(ctx, out, t, 0.006 + Math.random() * 0.03, 1800 + Math.random() * 5000, 0.8 + Math.random() * 2, vol * (0.3 + Math.random() * 0.7));
+  }
+}
+
+/** A soft swish of paper sliding: noise through a band-pass that sweeps. */
+function swish(ctx, out, start, dur, f0, f1, vol) {
+  const src = ctx.createBufferSource();
+  src.buffer = noise(ctx);
+  const f = ctx.createBiquadFilter();
+  f.type = "bandpass";
+  f.Q.value = 0.9;
+  f.frequency.setValueAtTime(f0, start);
+  f.frequency.exponentialRampToValueAtTime(f1, start + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, start);
+  g.gain.exponentialRampToValueAtTime(vol, start + dur * 0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  src.connect(f).connect(g).connect(out);
+  src.start(start, Math.random() * 0.4, dur + 0.05);
+}
+
+/**
+ * Paper sounds for Finn's letter. "open": the envelope flap is torn open
+ * (a crackle and a rip, ≈0.6 s). "unfold": the letter slides out and is
+ * folded open (a swish, crackles and a soft snap as it flattens, ≈0.7 s).
+ */
+export function paperSound(kind = "unfold") {
+  const ctx = audio();
+  if (!ctx) return;
+  const t = ctx.currentTime + 0.02;
+  const out = ctx.createGain();
+  out.gain.value = 0.9;
+  out.connect(ctx.destination);
+  if (kind === "open") {
+    crinkle(ctx, out, t, 0.25, 70, 0.25);
+    // The rip: a rough, rising tear.
+    swish(ctx, out, t + 0.12, 0.35, 1200, 4500, 0.35);
+    crinkle(ctx, out, t + 0.12, 0.35, 140, 0.3);
+    return;
+  }
+  swish(ctx, out, t, 0.45, 600, 2200, 0.3);          // sliding out
+  crinkle(ctx, out, t + 0.05, 0.4, 90, 0.22);
+  swish(ctx, out, t + 0.4, 0.25, 2500, 900, 0.22);    // the fold opening
+  crinkle(ctx, out, t + 0.42, 0.2, 120, 0.25);
+  grain(ctx, out, t + 0.62, 0.05, 500, 0.7, 0.45, "lowpass"); // flat: a soft snap
+}
+
+/**
+ * One typewriter key: a sharp click with a little body under it. Called for
+ * every letter as the text types itself, so each one varies a bit.
+ */
+export function typeSound() {
+  const ctx = audio();
+  if (!ctx) return;
+  const t = ctx.currentTime + 0.005;
+  const out = ctx.createGain();
+  out.gain.value = 0.35 + Math.random() * 0.15;
+  out.connect(ctx.destination);
+  grain(ctx, out, t, 0.012 + Math.random() * 0.01, 2600 + Math.random() * 1800, 1.5, 0.5);
+  grain(ctx, out, t + 0.002, 0.035, 160 + Math.random() * 60, 1, 0.35, "lowpass");
+}

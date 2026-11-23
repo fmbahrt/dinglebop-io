@@ -24,14 +24,22 @@
 
 import { h, button, DEBUG, link, mediaError } from "/felles.js";
 import { letterParts, INTRO_LETTER } from "/brev.js";
-import { portalSound, bloomSound, unlockAudio } from "/lyd.js";
+import { portalSound, bloomSound, unlockAudio, paperSound, typeSound } from "/lyd.js";
 import { NEEDS } from "/plakat.js";
+import { startGyro, warpPoints } from "/gyro.js";
 
 const DONE_KEY = "advent:intro-klaret";
 const NEED = NEEDS.orb;
 const GRACE = 1000;   // ms without the poster before the portal closes again
 const SIDE = 1280;    // frames to the worker: long side in px
 const params = new URLSearchParams(location.search);
+// ?tracking: the gyroscope moves the portal with the phone between (slow)
+// detections, see gyro.js. ?tracking=70 sets the camera's field of view (long
+// side, degrees) if the default doesn't fit the phone.
+const TRACKING = params.has("tracking");
+const FOV = (Number(params.get("tracking")) || 67) * (Math.PI / 180);
+const LAG = 50;       // ms: the camera picture on screen is this old (both grabbed and shown frames)
+let gyro = null;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const root = document.getElementById("intro");
 const sleep = (ms) => new Promise((r) => setTimeout(r, reducedMotion ? 0 : ms));
@@ -79,6 +87,7 @@ function playLetter() {
       opened = true;
       env.classList.add("open");
       unlockAudio(); // her tap: from now on the page may make sound (the bloom comes without a tap)
+      paperSound("open");
       hint.remove();
       navigator.vibrate?.(30);
       await sleep(700);
@@ -89,18 +98,48 @@ function playLetter() {
       const lines = [...parts[0].querySelector(".ransom-body").children];
       lines.forEach((p) => p.classList.add("intro-line"));
       env.replaceWith(letter);
-      // Line by line; a tap shows the rest at once.
-      let fast = false;
+      paperSound("unfold");
+      await sleep(650);
+      // Line by line, typed letter by letter with a key sound; a tap shows the rest at once.
+      let fast = reducedMotion;
       letter.addEventListener("click", () => { fast = true; });
       for (const p of lines) {
         p.classList.add("show");
-        if (!fast) await sleep(Math.min(2600, 500 + p.textContent.length * 28));
+        await typeLine(p, () => fast);
+        if (!fast) await sleep(450);
       }
-      const next = button("Videre →", "btn intro-next", () => { unlockAudio(); resolve(); });
+      const next = button("Videre →", "btn intro-next", () => {
+        unlockAudio();
+        if (TRACKING) gyro ??= startGyro(); // her tap: iPhone only asks for motion access on a tap
+        resolve();
+      });
       scene.append(next);
       next.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
     }
   });
+}
+
+const graphemes = (text) => (Intl.Segmenter
+  ? [...new Intl.Segmenter("da", { granularity: "grapheme" }).segment(text)].map((x) => x.segment)
+  : Array.from(text));
+
+/** Type out an element's text letter by letter (keeping its markup), a key click per letter. */
+async function typeLine(el, isFast) {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push([walker.currentNode, walker.currentNode.textContent]);
+  for (const [node] of nodes) node.textContent = "";
+  for (const [node, text] of nodes) {
+    let typed = "";
+    for (const c of graphemes(text)) {
+      if (isFast()) break;
+      typed += c;
+      node.textContent = typed;
+      if (c.trim()) typeSound();
+      await sleep(/[.,!?:]/.test(c) ? 180 : 24 + Math.random() * 20);
+    }
+    node.textContent = text;
+  }
 }
 
 // ---------- 2–3. Find the poster ----------
@@ -184,6 +223,7 @@ function findPoster(finder, HOLD) {
       const paper = h("article", "ransom intro-paper");
       paper.setAttribute("open", "");
       paper.append(...letterParts(INTRO_LETTER));
+      paperSound("unfold");
       const close = button("Tilbage til kameraet ✕", "btn intro-next", () => { layer.remove(); paused = false; });
       layer.append(paper, close);
       scene.append(layer);
@@ -219,6 +259,14 @@ function findPoster(finder, HOLD) {
       loop();
     }
 
+    /** The camera as seen on screen: [focal length px, centre x, centre y] (for gyro.js). */
+    function lens() {
+      const vw = video.videoWidth || 1, vh = video.videoHeight || 1;
+      const W = video.clientWidth, H = video.clientHeight;
+      const k = Math.max(W / vw, H / vh);
+      return [((Math.max(vw, vh) / 2) / Math.tan(FOV / 2)) * k, W / 2, H / 2];
+    }
+
     /** The part of the video that's on screen (object-fit: cover crops it). */
     function visible() {
       const vw = video.videoWidth, vh = video.videoHeight;
@@ -235,6 +283,7 @@ function findPoster(finder, HOLD) {
       while (running) {
         if (!video.videoWidth || paused) { await sleep(150); continue; }
         crop = visible();
+        const grabT = performance.now();
         const k = Math.min(1, SIDE / Math.max(crop.w, crop.h));
         grab.width = Math.round(crop.w * k);
         grab.height = Math.round(crop.h * k);
@@ -248,15 +297,18 @@ function findPoster(finder, HOLD) {
           // grab px → screen px
           const sx = video.clientWidth / grab.width, sy = video.clientHeight / grab.height;
           target = r.quad.map(([x, y]) => [x * sx, y * sy]);
+          // The answer is old: move it by how the phone has turned since the frame was grabbed.
+          // (Up to the last animation frame; frame() moves it on from there.)
+          if (gyro?.active) target = warpPoints(target, gyro.between(grabT - LAG, lastGyro - LAG), ...lens());
           // (re)appearing: start where the poster is, don't glide in from the old spot
           if (!quad || (bloomed && vis < 0.1)) quad = target.map((p) => [...p]);
         }
-        if (debugLine && r) debugLine.textContent = `debug: ${r.inliers} inliers${r.why ? ` (afvist: ${r.why})` : ""} · spredning ${Math.round(r.spread * 100)} % · ${Math.round(r.ms)} ms · ${grab.width}×${grab.height} · ${Math.round(progress * 100)} %`;
+        if (debugLine && r) debugLine.textContent = `debug: ${r.inliers} inliers${r.why ? ` (afvist: ${r.why})` : ""} · spredning ${Math.round(r.spread * 100)} % · ${Math.round(r.ms)} ms · ${grab.width}×${grab.height} · ${Math.round(progress * 100)} %${TRACKING ? ` · gyro ${gyro?.active ? `${gyro.hz} Hz` : "slukket"}` : ""}`;
       }
     }
 
     // ---- the magic, at 60 fps
-    let lastT = performance.now();
+    let lastT = performance.now(), lastGyro = lastT;
     let flash = 0;
     function frame(now) {
       if (finished && flash >= 1) return;
@@ -274,6 +326,13 @@ function findPoster(finder, HOLD) {
       }
       // Once bloomed it stays open; it only fades while the poster is out of view.
       if (bloomed) vis += ((seen ? 1 : 0) - vis) * Math.min(1, dt * 6);
+      // With ?tracking the gyro moves the portal (and the last answer) as the phone turns.
+      if (gyro?.active && video.videoWidth) {
+        const R = gyro.between(lastGyro - LAG, now - LAG), L = lens();
+        if (quad) quad = warpPoints(quad, R, ...L);
+        if (target) target = warpPoints(target, R, ...L);
+      }
+      lastGyro = now;
       // follow the poster smoothly between detections
       if (target && quad) quad = quad.map((p, i) => [p[0] + (target[i][0] - p[0]) * Math.min(1, dt * 10), p[1] + (target[i][1] - p[1]) * Math.min(1, dt * 10)]);
       draw(now / 1000, dt);
@@ -472,6 +531,7 @@ function findPoster(finder, HOLD) {
       await sleep(magic ? 1100 : 600);
       stream?.getTracks().forEach((tr) => tr.stop());
       finder.stop();
+      gyro?.stop();
       resolve();
     }
 
