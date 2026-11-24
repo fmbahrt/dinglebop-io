@@ -6,14 +6,21 @@
 //
 //   const sms = smsPhone({ body, slug, collage, onDone });   its own phone
 //   const sms = smsApp(screen, { body, slug, collage, onDone });   inside another phone
+//   smsApp(screen, { …, extra })  more messages after the week's own, e.g. the
+//                  digit when the week is solved ({ text } or { digit, label })
 //   sms.start()    lock screen → notification → thread, animated
+//   sms.start({ history: true })  the same, but the week's own messages are
+//                  already in the thread; only the extra ones arrive
 //   sms.showAll()  the whole thread at once (reading it again)
 //   sms.close()    (smsApp) go to that phone's home screen
+//   sms.notify(onTap)  a banner over the home screen (a text while in use)
+//   sms.openLatest()   open the thread: old texts there, the extra ones type in
 //   smsApp(screen, { …, home })  adds an iOS home indicator ("Stryg op for at gå
 //                                hjem", swipe up or tap) and a working ‹ once all texts are in
 
 import { h, button } from "/felles.js";
 import { phoneStatus, beep } from "/trin.js";
+import { cutout } from "/brev.js";
 
 const IMAGE = /^[\w.-]+\.(jpe?g|png|webp|gif)$/i;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -21,7 +28,7 @@ const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** Paragraphs → messages; long paragraphs are split at sentence ends. */
 function messages(body) {
   const out = [];
-  for (const para of body.split(/\n\s*\n/)) {
+  for (const para of String(body ?? "").split(/\n\s*\n/)) {
     const text = para.trim();
     if (!text) continue;
     if (IMAGE.test(text)) { out.push({ photo: text }); continue; }
@@ -58,7 +65,7 @@ export function smsRead(key) {
   try { return !!key && localStorage.getItem(key) === "1"; } catch { return false; }
 }
 
-export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾", avatar = "🐶", onDone: done = () => {}, home = null, tick = () => {} }) {
+export function smsApp(screen, { body, slug, collage, seenKey, extra = [], from = "Finn 🐾", avatar = "🐶", onDone: done = () => {}, home = null, tick = () => {} }) {
   // With "home" (a phone that has a home screen): once all texts are in, the
   // home indicator (swipe up, like iOS) and the ‹ arrow close the thread and
   // then call home().
@@ -97,10 +104,14 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     return el;
   }
   screen.classList.add("sms-screen", "sms-mode");
-  const msgs = [...(collage ? [{ collage }] : []), ...messages(body)];
+  const own = [...(collage ? [{ collage }] : []), ...messages(body)];
+  const msgs = [...own, ...extra];
   // The notification shows the first real line (skipping a short "Kære Anne").
-  const texts = msgs.filter((m) => m.text).map((m) => m.text);
-  const firstText = texts.find((t) => t.length > 15) ?? texts[0] ?? "📷 Billede";
+  const firstOf = (list) => {
+    const texts = list.filter((m) => m.text).map((m) => m.text);
+    return texts.find((t) => t.length > 15) ?? texts[0] ?? "📷 Billede";
+  };
+  let firstText = firstOf(msgs);
 
   // ---- lock screen
   const lock = h("div", "sms-lock");
@@ -134,7 +145,14 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
 
   function bubble(m, animate) {
     let b;
-    if (m.collage) {
+    if (m.digit != null) {
+      // Finn's answer: the digit cut out of a magazine, like his collage.
+      b = h("div", "sms-bubble sms-pic sms-digit");
+      const paper = h("div", "sms-collage");
+      paper.append(cutout([String(m.digit)], 7));
+      b.append(paper);
+      if (m.label) b.append(h("span", "sms-digit-label", m.label));
+    } else if (m.collage) {
       b = h("div", "sms-bubble sms-pic");
       b.append(m.collage.cloneNode(true));
     } else if (m.photo) {
@@ -165,8 +183,11 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     screen.querySelector(".sms-gohome")?.remove();
   }
 
-  async function start() {
+  let history = 0; // messages already in the thread when it opens (start({ history }))
+  async function start({ history: old = false } = {}) {
     reset();
+    history = old ? own.length : 0;
+    firstText = firstOf(msgs.slice(history));
     const mine = run;
     await wait(900);
     if (mine !== run) return;
@@ -188,7 +209,11 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     if (mine !== run || screen.classList.contains("open")) return;
     screen.classList.add("open");
     await wait(450);
-    for (const m of msgs) {
+    if (history) {
+      list.append(...msgs.slice(0, history).map((m) => bubble(m, false)), h("p", "sms-day", `Nu ${time.textContent}`));
+      toBottom();
+    }
+    for (const m of msgs.slice(history)) {
       if (mine !== run) return;
       const typing = h("div", "sms-bubble sms-typing");
       typing.append(h("i"), h("i"), h("i"));
@@ -216,6 +241,32 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     onDone();
   }
 
+  /**
+   * A new text while the phone is in use (the digit): a banner drops down over
+   * the home screen, buzz; a tap on it calls onTap (→ openLatest). It slides
+   * away again after a while (the badge on Beskeder stays, see trin.js).
+   */
+  function notify(onTap) {
+    screen.querySelector(".iph-banner")?.remove();
+    const note = button("", "sms-note iph-banner", () => { note.remove(); onTap(); });
+    const top = h("span", "sms-note-top");
+    top.append(h("span", "sms-note-app", "💬"), h("span", "sms-note-label", "BESKEDER"), h("span", "sms-note-when", "nu"));
+    note.append(top, h("span", "sms-note-from", from), h("span", "sms-note-text", firstOf(extra.length ? extra : msgs)));
+    screen.append(note);
+    if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.([60, 80, 60]);
+    beep(1568, 90);
+    setTimeout(() => beep(2093, 120), 120);
+    setTimeout(() => { note.classList.add("gone"); setTimeout(() => note.remove(), 450); }, 7000);
+  }
+
+  /** Straight into the thread: the old texts are there, the new ones type in. */
+  function openLatest() {
+    screen.querySelector(".iph-banner")?.remove();
+    reset();
+    history = extra.length ? own.length : 0;
+    openThread(run);
+  }
+
   /** Leave the thread for the home screen underneath. */
   function close() {
     run++;
@@ -224,5 +275,13 @@ export function smsApp(screen, { body, slug, collage, seenKey, from = "Finn 🐾
     screen.classList.remove("open", "sms-mode");
   }
 
-  return { start, showAll, close };
+  /** Take this thread off the screen (another smsApp takes over the phone). */
+  function destroy() {
+    run++;
+    skip?.();
+    for (const el of [lock, thread, screen.querySelector(".sms-gohome"), screen.querySelector(".iph-banner")]) el?.remove();
+    screen.classList.remove("open", "sms-mode");
+  }
+
+  return { start, showAll, close, notify, openLatest, destroy };
 }

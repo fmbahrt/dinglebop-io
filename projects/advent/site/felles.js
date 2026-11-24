@@ -56,8 +56,10 @@ export function shake(el) {
  *   renderLocked(card, solve)  draws the puzzle into card; call solve() when done
  *   activate / deactivate      start/stop anything live (camera) while visible
  *   onReset                    clear the puzzle's own saved progress
+ *   renderSolved(card, animate) draw the solved view yourself (default: the
+ *                              digit on a golden card)
  */
-export function taskShell(opgave, { week, slug }, { renderLocked, activate = () => {}, deactivate = () => {}, onReset = () => {} }) {
+export function taskShell(opgave, { week, slug }, { renderLocked, renderSolved = null, activate = () => {}, deactivate = () => {}, onReset = () => {} }) {
   const solved = store(`advent:${slug}:løst`);
   const card = h("section", "task");
   const listeners = [];
@@ -68,11 +70,17 @@ export function taskShell(opgave, { week, slug }, { renderLocked, activate = () 
   }
 
   function showUnlocked(animate) {
+    if (renderSolved) {
+      // (Keep the card's classes: the puzzle may keep what's on screen.)
+      card.classList.remove("unlocked", "pop");
+      card.classList.add("solved");
+      return renderSolved(card, animate);
+    }
     card.className = `task unlocked${animate ? " pop" : ""}`;
     card.replaceChildren(
       h("p", "task-label", `Klaret · ciffer ${week} af 4`),
       h("p", "task-number", opgave.tal ?? "?"),
-      h("p", "task-text", opgave.løst ?? "Godt klaret! Husk tallet 🎉"),
+      h("p", "task-text", [opgave.løst ?? "Godt klaret! Husk tallet 🎉"].flat().join(" ")),
     );
   }
 

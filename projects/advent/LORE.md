@@ -46,7 +46,7 @@ Hans motiv (skifter lidt efter humør):
 - Kort, dramatisk, lidt for selvsikker. Gerne en skurke-pause: *"…ja. Det var mig."*
 - Ord han elsker: **MIN**, **godbid**, **pølse**, **sofa**, **hemmelig**.
 - Han kalder sig selv "mesterhjernen", "kisteejer" eller "hund".
-- Italiensk (uge 1): *"Bau bau" = "giv mig pølse"*.
+- Italiensk (uge 1): *"Vov vov" = "giv mig pølse"*.
 
 ---
 
@@ -83,6 +83,7 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 
 - **Historien:** Finn er jaloux på Brian, for vi snakker om ham hele tiden ("Har du set Brians kilt?"). Så han har givet andet ciffer til Brian: *"Hvis han er så fantastisk, kan han jo passe på det."* Brian blev betalt med en godbid (tog to). Hun skal booke gussen, tjekke ind og overleve tre runder med Brian.
 - **Finns motiv:** Jalousi. Saunaen er det eneste sted, han ikke kan komme med, og når vi kommer hjem, taler vi kun om Brian. Han prøvede selv at vifte med et håndklæde. Han spiste det.
+- **Cifret:** Efter gusen skriver Brian selv til hende med cifret (Finn bad ham holde tæt, han tog to godbidder).
 - **Gåden (spoiler):** Book i Innercise: søndag 6/12 kl. 19:30 med Brian, 2 pladser. Tjek ind i Bruce ved at scanne QR-billetten, der er gemt derhjemme (eller taste koden `KILT-0612`). Telefonen lægges væk. Gus: vift i takt, gentag duftene, helikopter-vift.
 - **Rekvisitter:** Den printede billet: `qr/uge-2-gus-billet.png`. Gem den et sted.
 - **Video-idéer:**
@@ -116,7 +117,7 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 - Hun har alle fire cifre, og kodelåsen på forsiden gløder: *"Alle cifre fundet – åbn kisten! 🎁"*.
 - Hun åbner den fysiske kiste.
 - **Video-idé, Finns tilståelse:** Finn med nissehue og hundeøjne: *"Undskyld, Anne. Jeg ville bare være med i advent. Og tak fordi du legede med, selvom du hader escape rooms. … Kan jeg få en godbid nu?"*
-- Bonus: En lille seddel i kisten fra Finn: *"Jeg har IKKE spist noget af gaven. Næsten ikke. 🐾"*
+- Bonus: En lille seddel i kisten fra Finn: *"Jeg har IKKE kigget i kisten. Kun lidt. Med det ene øje. 🐾"*
 
 ---
 

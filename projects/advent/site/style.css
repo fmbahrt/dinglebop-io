@@ -2238,6 +2238,14 @@ h1 {
 .sms-note-when { margin-left: auto; }
 .sms-note-from { margin-top: .15rem; font-weight: 700; font-size: .92rem; }
 .sms-note-text { display: -webkit-box; overflow: hidden; font-size: .88rem; line-height: 1.3; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+/* Solved after a step outside the phone: the phone comes back up. */
+.iph.iph-back { animation: rise .6s cubic-bezier(.2, .8, .3, 1) both; }
+/* A text while the phone is in use: a banner drops down over the home screen. */
+.iph-banner { position: absolute; z-index: 30; top: 2.7rem; left: .5rem; right: .5rem; width: auto; animation: iph-banner-in .5s cubic-bezier(.2, 1.2, .4, 1) both; }
+.iph-banner.gone { animation: iph-banner-out .4s ease-in both; }
+@keyframes iph-banner-in { from { transform: translateY(-140%); opacity: 0; } }
+@keyframes iph-banner-out { to { transform: translateY(-140%); opacity: 0; } }
+html.fs .trin-phone > .iph .iph-banner { top: max(.5rem, env(safe-area-inset-top)); }
 .sms-taphint { min-height: 1.3em; margin-top: .8rem; font-size: .8rem; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, .4); animation: fade-in .4s ease both; }
 .sms-screen.open .sms-lock { display: none; }
 
@@ -2263,6 +2271,11 @@ h1 {
 .sms-collage { padding: .7rem .5rem .8rem; border-radius: 18px; background: #f6efdf; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
 .sms-collage .ransom-title { padding: 0; background: none; column-gap: .45rem; row-gap: .3rem; }
 .sms-collage .cut { min-width: 1.15rem; font-size: 1.05rem; }
+/* Solved: Finn texts the digit, cut out big. */
+.sms-digit { display: flex; flex-direction: column; align-items: center; gap: .3rem; overflow: visible; }
+.sms-digit .sms-collage { padding: 1rem 1.6rem 1.1rem; }
+.sms-digit .cut { min-width: 3.2rem; font-size: 3.4rem; line-height: 1.05; }
+.sms-digit-label { color: #8e8e93; font-size: .7rem; font-weight: 600; letter-spacing: .04em; }
 .sms-typing { display: flex; gap: .25rem; padding: .7rem .85rem; }
 .sms-typing i { width: .45rem; height: .45rem; border-radius: 50%; background: #8e8e93; animation: sms-dot 1.2s ease-in-out infinite; }
 .sms-typing i:nth-child(2) { animation-delay: .15s; }
