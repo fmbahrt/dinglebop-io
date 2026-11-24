@@ -5,7 +5,12 @@
   "væk": "Telefonen i skabet – nu er det gus! 📵🧖",
   "overskrift": "Saunagus 🧖",
   "tal": "9",
-  "løst": "Brian holdt ikke tæt. Typisk. Andet ciffer er dit 🐾 – Finn",
+  "løstFra": { "navn": "Brian", "avatar": "🧖‍♂️" },
+  "løst": [
+    "Hej Anne! Brian her. Gusmesteren 🧖‍♂️",
+    "Godt viftet i aften. Finn bad mig holde tæt. Han betalte mig en godbid. Jeg tog to 😏",
+    "Men du overlevede tre runder med Disturbed og tobaksolie, så du har fortjent det. Her er hans ciffer:"
+  ],
   "trin": [
     {
       "type": "innercise",

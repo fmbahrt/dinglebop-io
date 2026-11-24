@@ -23,6 +23,10 @@ altid startes forfra med "↺ Start forfra".
 
 ## Introen: QR-koden → Finns brev → find plakaten (`/0-nun8bGHjmO4x73BKgnNA`)
 
+> **Fast adresse!** QR-koden er printet (`qr/forside-a4.pdf`). Mappen
+> `site/0-nun8bGHjmO4x73BKgnNA` må aldrig omdøbes eller flyttes, og stien må
+> ikke ændres i nginx eller gitops.
+
 QR-koden (`qr/forside.png`) peger på introen, som har sin egen hemmelige
 adresse. `0` betyder "før uge 1". Introen består af `site/intro.html` og
 `site/intro.js`, og `site/0-…/intro.json` har forsidens sti og `hold`
@@ -95,7 +99,7 @@ og tilbage-link, så opgaven fylder hele skærmen (`html.fs` i `style.css`,
 - Mock-iPhonen mister ramme og falsk statuslinje og *er* skærmen.
 - Bil-telefonen beholder sin ramme, så USB-kablet kan være under den.
 - Tegnefilm, melodilås og kameraer fylder bredden, og tegnefilmene også højden.
-- "Læs Finns beskeder igen" og "Start forfra" ligger under opgaven.
+- "Start forfra" ligger under opgaven.
 
 Hvor browseren tillader det (Android, desktop, iPad), skjuler Fullscreen API'et
 også browserens egne bjælker. iPhone tillader det ikke for websider, så der er
@@ -138,17 +142,27 @@ Læg en `opgave.json` i uge-mappen. Flowet er så:
    (`advent:<uge>:sms-læst`). "Start forfra" viser dem igen. En uge uden telefon får en telefon
    alene til beskederne og en "Videre →"-knap.
 3. Finns beskeder kan læses igen ved at åbne **Beskeder** i telefonens dock
-   (eller med "💬 Læs Finns beskeder igen" under gåden). "‹" eller "Gå hjem"
+   (der er ingen knap under telefonen: beskederne bor på telefonen). "‹" eller "Gå hjem"
    fører tilbage til hjemmeskærmen. Telefonen har altid samme størrelse, og
    apps scroller indeni.
-4. Når gåden er løst, vises tallet. Telefonen husker det, og næste gang går
-   den direkte til tallet.
+4. Når gåden er løst, kommer telefonen frem igen (`trin`-gåder), uden
+   låseskærm, som en telefon man er i gang med: en notifikation glider ned over
+   hjemmeskærmen (bzzz), og **Beskeder** får et rødt "1", til hun åbner den
+   (`advent:<uge>:ciffer-læst`). I tråden kommer Finns nye besked med
+   `løst`-teksten og så cifret, klippet ud i
+   store bogstaver som hans collage ("Ciffer 2 af 4"). Ugens første beskeder
+   står allerede over den i tråden. Uge 2 får telefonen tilbage fra skabet efter
+   gusen, og uge 4 (bilen) får den, når melodilåsen er låst op: vi er hjemme.
+   Telefonen husker, at ugen er løst, og næste gang åbner den direkte på tråden
+   med cifret, så svaret altid kan vises frem. "Stryg op" viser hjemmeskærmen
+   ("Alt er klaret ✨"), og **Beskeder** i docken åbner tråden igen. Andre gåde-typer viser tallet på et gyldent kort.
 
 ### Fælles felter
 
 - `type`: hvilken gåde (se nedenfor).
 - `tal`: det tal, der låses op.
-- `løst`: teksten under tallet.
+- `løst`: Finns besked lige før cifret (eller teksten under tallet). En liste giver flere beskeder.
+- `løstFra` (valgfri): `{ "navn": "Brian", "avatar": "🧖‍♂️" }`: en anden sender cifret i sin egen tråd (uge 2: Brian efter gusen).
 - `overskrift` / `tekst` (valgfri): vises over gåden. Udelad dem for ikke at
   afsløre noget.
 - Der er ingen hint-knap. Hints får hun ved at spørge Frederik i virkeligheden.

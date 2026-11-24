@@ -525,23 +525,19 @@ function showWeek(data) {
   const carStep = smsData && isTrin ? data.opgave.trin?.find((t) => t.type === "bil" && t.telefon !== false) : null;
   const phoneWeek = smsData && isTrin && data.opgave.visning === "telefon";
   if (carStep) carStep.sms = smsData;
-  if (phoneWeek) data.opgave.sms = smsData;
+  // (Also the car week: its last text, the digit, comes on her phone too.)
+  if (isTrin && smsData) data.opgave.sms = smsData;
   const inPhone = !!(carStep || phoneWeek);
   if (sms) letterStep.append(sms.el, next);
   stage.append(letterStep);
 
-  // Under the puzzle: Finn's texts again and, once solved, "start over". (No hint button: hints are asked for in real life.)
+  // Under the puzzle: once solved, "start over". Finn's texts are in Beskeder on the phone. (No hint button: hints are asked for in real life.)
   let task = null, actions = null, replay = null;
   const ready = buildTask(data).catch((e) => (console.error(e), null)).then((t) => {
     task = t;
     if (!task) return;
     actions = document.createElement("div");
     actions.className = "task-actions";
-    if (sms) actions.append(actionButton("💬  Læs Finns beskeder igen", () => {
-      // On the same phone if it's on screen; otherwise (e.g. after the car) a phone of their own.
-      if (task.showMessages?.()) scrollTo(task.el);
-      else showLetter(false);
-    }));
     replay = actionButton("↺  Start forfra", () => {
       try { localStorage.removeItem(seenKey); } catch { /* ignore */ }
       task.reset();

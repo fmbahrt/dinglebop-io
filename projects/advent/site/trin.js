@@ -14,6 +14,11 @@
 // step is solved, and "udenfor": true puts it after the phone: once all apps
 // are done the phone is put away and those steps follow in the normal card.
 //
+// Solved: her phone comes back and Finn texts her the week's digit (after the
+// week's own texts, which are already in the thread). Revisiting a solved week
+// shows that thread, so the answer can always be shown again. Weeks that
+// aren't phone weeks (the car) get the same phone at the end.
+//
 // A step module exports default (cfg, { slug, done }) => { el, activate?, deactivate? }
 // and calls done() once its own success animation has finished.
 
@@ -151,12 +156,23 @@ export async function trinOpgave(opgave, ctx) {
 
   // ---- phone home screen: apps in any order
   const solvedApps = store(`advent:${ctx.slug}:apps`);
-  function renderPhone(card, solve) {
+  /** Solved: the phone with Finn's text and the digit (animate = it just happened). */
+  function renderSolved(card, animate) {
+    // Just solved on the phone she's holding: keep that phone (a new one would
+    // flash in) and let the text arrive on it.
+    if (animate && livePhone?.()) return;
+    renderPhone(card, () => {}, { animate });
+    // Otherwise (back from the gus, home from the car) the phone comes back up.
+    if (animate) card.querySelector(".iph")?.classList.add("iph-back");
+  }
+  let livePhone = null; // () => true if the phone on screen took the digit text
+  function renderPhone(card, solve, final = null) {
     card.classList.add("trin", "trin-phone");
     const mine = ++gen;
-    const done = new Set(solvedApps.get() ?? []);
+    const done = new Set(final ? steps.map((s, i) => i) : solvedApps.get() ?? []);
     let open = -1;
     let openMessages = null; // set below when Finn's texts live on this phone
+    let unread = false;      // Finn's digit text not opened yet: a badge on Beskeder
 
     const phone = h("div", "iph");
     const screen = h("div", "iph-screen");
@@ -177,7 +193,8 @@ export async function trinOpgave(opgave, ctx) {
     const dock = h("div", "iph-dock");
     const nope = () => say(opgave.nej ?? "Ikke nu 😉");
     // Every app on the phone; ones that aren't this week's steps are decoration.
-    const inPhone = steps.map((s, i) => i).filter((i) => !steps[i].udenfor);
+    // (The car week's steps aren't apps: at the end its phone is just her phone.)
+    const inPhone = steps.map((s, i) => i).filter((i) => !steps[i].udenfor && opgave.visning === "telefon");
     const outside = steps.map((s, i) => i).filter((i) => steps[i].udenfor);
     const types = (a) => [a.type ?? []].flat();
     const stepOf = (a) => inPhone.find((i) => types(a).includes(steps[i].type)) ?? -1;
@@ -195,7 +212,9 @@ export async function trinOpgave(opgave, ctx) {
         ...extra.map((i) => (appBtn[i] = icon({ navn: steps[i].navn, ikon: steps[i].ikon ?? "📱", farve: "#555" }, () => openApp(i), badgeFor(i)))),
       );
       // Beskeder opens Finn's thread again (when this week has one).
-      dock.replaceChildren(...PHONE_DOCK.map((a) => icon(a, a.navn === "Beskeder" ? () => (openMessages?.() || nope()) : nope)));
+      dock.replaceChildren(...PHONE_DOCK.map((a) => (a.navn === "Beskeder"
+        ? icon(a, () => (openMessages?.() || nope()), unread ? h("span", "iph-badge", "1") : null)
+        : icon(a, nope))));
     };
     const left = () => inPhone.filter((i) => !done.has(i)).length;
     const hint = h("p", "iph-hint");
@@ -280,8 +299,61 @@ export async function trinOpgave(opgave, ctx) {
     // Finn's texts arrive on this same phone first (opgave.sms, set by app.js);
     // "Gå hjem" then shows the apps. Only on a fresh start, not halfway through.
     phoneMessages = null;
-    if (opgave.sms) {
-      const app = smsApp(screen, { ...opgave.sms, tick, home: () => {} });
+    livePhone = null;
+    let mainSms = null;
+    /** Finn texts the digit. The week's own texts are already in the thread. */
+    function digitText(final) {
+      const extra = [
+        ...[opgave.løst ?? "Godt klaret! Husk tallet 🎉"].flat().map((text) => ({ text })),
+        { digit: opgave.tal ?? "?", label: `Ciffer ${ctx.week} af 4` },
+      ];
+      // Like a real phone in use: no lock screen, a banner drops down on the
+      // home screen and Beskeder gets a badge until she opens it.
+      const readKey = `advent:${ctx.slug}:ciffer-læst`;
+      // "løstFra": someone else sends it (week 2: Brian, after the gus), in a thread of their own.
+      const fra = opgave.løstFra;
+      const thread = fra ? { slug: ctx.slug, from: fra.navn, avatar: fra.avatar ?? "🙂" } : (opgave.sms ?? { slug: ctx.slug });
+      const app = smsApp(screen, { ...thread, seenKey: readKey, extra, tick, home: () => drawHome() });
+      app.close();
+      const openNew = () => {
+        if (mine !== gen || !phone.isConnected) return false;
+        if (open >= 0) goHome();
+        unread = false;
+        app.openLatest();
+        return true;
+      };
+      phoneMessages = () => {
+        if (unread) return openNew();
+        if (mine !== gen || !phone.isConnected) return false;
+        if (open >= 0) goHome();
+        app.showAll();
+        return true;
+      };
+      openMessages = () => phoneMessages();
+      if (final.animate || !smsRead(readKey)) {
+        unread = true;
+        drawHome();
+        // (After a step outside the phone, e.g. the gus, the page may be scrolled away from it.)
+        if (final.animate) requestAnimationFrame(() => {
+          const r = phone.getBoundingClientRect();
+          if (r.top < 0 || r.top > innerHeight * 0.4) phone.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        setTimeout(() => mine === gen && unread && app.notify(openNew), final.animate ? 900 : 600);
+      } else app.showAll();
+    }
+    if (final) digitText(final);
+    else {
+      // All apps done on this phone (and nothing outside it): the digit text comes here.
+      livePhone = () => {
+        if (mine !== gen || !phone.isConnected || phone.classList.contains("away")) return false;
+        livePhone = null;
+        mainSms?.destroy();
+        digitText({ animate: true });
+        return true;
+      };
+    }
+    if (!final && opgave.sms) {
+      const app = (mainSms = smsApp(screen, { ...opgave.sms, tick, home: () => {} }));
       phoneMessages = () => {
         if (mine !== gen || !phone.isConnected || phone.classList.contains("away")) return false;
         if (open >= 0) goHome();
@@ -293,12 +365,13 @@ export async function trinOpgave(opgave, ctx) {
       if (done.size === 0 && !smsRead(opgave.sms.seenKey)) requestAnimationFrame(() => app.start());
       else app.close();
     }
-    if (!left()) nextOutside();
+    if (!final && !left()) nextOutside();
   }
   let phoneMessages = null;
 
   const task = taskShell(opgave, ctx, {
     renderLocked,
+    renderSolved,
     activate: () => {
       active = true;
       current?.activate?.();
@@ -311,7 +384,7 @@ export async function trinOpgave(opgave, ctx) {
       progress.clear();
       solvedApps.clear();
       // Steps may save their own progress under advent:<slug>:…
-      for (const k of ["kryds", "ordjagt", "ansigter"]) store(`advent:${ctx.slug}:${k}`).clear();
+      for (const k of ["kryds", "ordjagt", "ansigter", "ciffer-læst"]) store(`advent:${ctx.slug}:${k}`).clear();
     },
   });
   /** Finn's texts again, on the same phone (false if that phone isn't on screen). */
