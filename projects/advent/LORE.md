@@ -57,11 +57,11 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 
 | Rum | Søndag | Tema | Ciffer |
 |---|---|---|---|
-| 1 | 29. nov | Ferien på Sicilien 🍋 | **?** (mangler i `opgave.json`) |
+| 1 | 29. nov | Ferien på Sicilien 🍋 | **4** |
 | 2 | 6. dec | Saunagus 🧖 | **9** |
-| 3 | 13. dec | Hyggeaften 🛋️ | **8** |
-| 4 | 20. dec | Køreturen hjem 🚗 | **?** (mangler i `opgave.json`) |
-| 🎁 | Efter rum 4 | Kisten åbnes | ? 9 8 ? |
+| 3 | 13. dec | Hyggeaften 🛋️ | **7** |
+| 4 | 20. dec | Køreturen hjem 🚗 | **6** |
+| 🎁 | Efter rum 4 | Kisten åbnes | **4 9 7 6** |
 
 ### Rum 1 · Ferien på Sicilien 🍋 (29. nov)
 
@@ -132,8 +132,8 @@ stilles til de fire tal i rækkefølge: rum 1, 2, 3, 4.**
 
 ## Tjekliste før start
 
-- [ ] Sæt `"tal"` for rum 2 og 4 i `opgave.json`
-- [ ] Stil hængelåsen til de fire tal (rum 1 → 4)
+- [x] Sæt `"tal"` i `opgave.json` (4 9 7 6)
+- [ ] Stil hængelåsen til 4976 (rum 1 → 4)
 - [ ] Print QR-koden (`qr/forside.png`). Den peger nu på introen `/0-nun8bGHjmO4x73BKgnNA` (Finns brev, så find Kusama-plakaten), som sender hende videre til forsiden. En gammel print til `/` virker ikke længere.
 - [ ] Kusama-plakaten skal hænge, hvor den hænger nu (genkendelsen er lavet ud fra et foto af den på væggen). og gus-billetten (`qr/uge-2-gus-billet.png`)
 - [ ] Find paraply, kuffert og vinglas frem til rum 2 (og Finn 🐶)
