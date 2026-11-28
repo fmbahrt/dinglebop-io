@@ -2317,6 +2317,12 @@ html.fs .trin-phone > .iph .iph-banner { top: max(.5rem, env(safe-area-inset-top
 .fj-judging { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; background: rgba(0, 0, 0, .55); color: #fff; font: 700 1.05rem/1.3 "Nunito", system-ui, sans-serif; text-shadow: 0 1px 4px #000; animation: fade-in .25s ease both; }
 .fj-judging-paw { font-size: 2.4rem; animation: fj-sniff 1s ease-in-out infinite; }
 @keyframes fj-sniff { 0%, 100% { transform: translateX(-.6rem) rotate(-12deg); } 50% { transform: translateX(.6rem) rotate(12deg); } }
+.fj-warming { z-index: 5; background: rgba(0, 0, 0, .7); transition: opacity .3s ease; }
+.fj-warming.gone { opacity: 0; pointer-events: none; }
+.fj-warming-sub { font-weight: 600; font-size: .85rem; opacity: .75; }
+/* Spins on the compositor (transform only), so it keeps turning while the page is busy. */
+.fj-spinner { width: 2.6rem; height: 2.6rem; border-radius: 50%; border: .3rem solid rgba(255, 255, 255, .25); border-top-color: #ffd54f; animation: fj-spin .8s linear infinite; will-change: transform; }
+@keyframes fj-spin { to { transform: rotate(360deg); } }
 .fj-chip.found { border-color: #6b6b6b; color: #ddd; }
 .fj-chip:not(.found) .fj-emoji { width: 1.1rem; color: #888; font: 700 .95rem/1 "Fraunces", Georgia, serif; text-align: center; }
 .fj-chip.on::after { content: "✓"; }
@@ -2325,7 +2331,7 @@ html.fs .trin-phone > .iph .iph-banner { top: max(.5rem, env(safe-area-inset-top
 .fj-score { font-weight: 800; }
 .fj-clues { display: grid; gap: .35rem; margin: .5rem auto 0; padding: 0; max-width: 19rem; list-style: none; color: #ffd9d2; font-weight: 500; font-size: .92rem; line-height: 1.35; }
 .fj-clues li { padding: .45rem .7rem; border-radius: 10px; background: rgba(255, 120, 100, .12); }
-@media (prefers-reduced-motion: reduce) { .fj-judging-paw { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .fj-judging-paw { animation: none; } .fj-spinner { animation-duration: 2.4s; } }
 .fj .btn { color: var(--ink); }
 .fj .cam-shutter[hidden] + * { margin-top: 0; }
 

@@ -114,8 +114,13 @@ export default function fotojagt(cfg, { done }) {
   const judging = h("div", "fj-judging");
   judging.append(h("span", "fj-judging-paw", "🐾"), h("span", null, cfg.bedømmer ?? "Finn bedømmer billedet…"));
   judging.hidden = true;
+  // While Finn's eyes warm up (the first run of the model can stall the page,
+  // and with it the live picture, for a few seconds on a phone): a spinner over
+  // the camera, so it doesn't look like the page broke.
+  const warming = h("div", "fj-judging fj-warming");
+  warming.append(h("span", "fj-spinner"), h("span", null, "Finn gør sig klar… 🐾"), h("span", "fj-warming-sub", "Det tager kun et øjeblik"));
   const flash = h("div", "cam-flash");
-  cam.view.append(shot, boxes, judging, flash);
+  cam.view.append(shot, boxes, judging, warming, flash);
 
   // Slots: unknown ("?") until the thing has been in a photo.
   const chips = h("ul", "fj-list");
@@ -153,16 +158,20 @@ export default function fotojagt(cfg, { done }) {
 
   // Load and warm up Finn's eyes as soon as the app opens (while the camera
   // starts); the shutter waits until he's ready, so no photo is slow.
+  // The overlay is painted before the warm-up starts, so it's up while the page stalls.
   let finnReady = false;
-  const finnLoading = warmModel().then(() => true, () => false).then((ok) => { finnReady = true; return ok; });
+  const painted = new Promise((r) => requestAnimationFrame(() => setTimeout(r, 60)));
+  const finnLoading = painted.then(warmModel).then(() => true, () => false).then((ok) => {
+    finnReady = true;
+    warming.classList.add("gone");
+    setTimeout(() => (warming.hidden = true), 300);
+    return ok;
+  });
 
   cam.onLive(async () => {
     if (!finnReady) {
       shutter.disabled = true;
-      msg.className = "cam-msg fj-verdict fj-wait";
-      msg.textContent = "Finn gør sig klar… 🐾";
       await finnLoading;
-      if (msg.classList.contains("fj-wait")) { msg.className = "cam-msg fj-verdict"; msg.textContent = ""; }
     }
     shutter.disabled = false;
     clearTimeout(wayTimer);
